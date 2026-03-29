@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+  
+  --color-accent: #dc382d;
+  --color-accent-light: #e85d54;
+  --color-accent-subtle: #fdf0ef;
+}
+
+@layer base {
+  :root {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1a1a1a;
+    background-color: #f8f8f8;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d4d4d4 transparent;
+  }
+}
