@@ -71,21 +71,21 @@
       tabindex="0"
     >
       <div class="flex items-center justify-between">
-        <span class="text-sm text-[#1a1a1a] font-mono truncate">{conn.name || conn.host}</span>
+        <span class="text-base text-[#1a1a1a] font-mono truncate">{conn.name || conn.host}</span>
         {#if connecting === conn.id}
-          <span class="text-xs text-[#dc382d] animate-pulse">connecting...</span>
+          <span class="text-base text-[#dc382d] animate-pulse">connecting...</span>
         {/if}
       </div>
-      <div class="text-xs text-[#9a9a9a] mt-0.5 font-mono">{conn.host}:{conn.port}</div>
+      <div class="text-base text-[#9a9a9a] mt-0.5 font-mono">{conn.host}:{conn.port}</div>
     </div>
   {:else}
     <div class="px-4 py-8 text-center">
-      <div class="text-xs text-[#9a9a9a]">no connections</div>
+      <div class="text-base text-[#9a9a9a]">no connections</div>
     </div>
   {/each}
 </div>
-<div class="h-8 px-4 border-t border-[#d4d4d4] flex items-center">
-  <span class="text-xs text-[#9a9a9a]">double-click to connect</span>
+<div class="h-9 px-4 border-t border-[#d4d4d4] flex items-center">
+  <span class="text-base text-[#9a9a9a]">double-click to connect</span>
 </div>
 
 {#if contextMenu}

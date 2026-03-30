@@ -76,6 +76,13 @@ async fn get_keys(id: String, pattern: Option<String>, cursor: Option<u64>, coun
 }
 
 #[tauri::command]
+async fn get_keys_with_types(id: String, pattern: Option<String>, cursor: Option<u64>, count: Option<u64>, redis: State<'_, RedisManager>) -> Result<(u64, Vec<(String, String)>), String> {
+    let config = connection::get_connection(&id)
+        .ok_or_else(|| "Connection not found".to_string())?;
+    redis.get_keys_with_types(&config, &pattern.unwrap_or_else(|| "*".to_string()), cursor.unwrap_or(0), count.unwrap_or(100)).await
+}
+
+#[tauri::command]
 async fn get_key_info(id: String, key: String, redis: State<'_, RedisManager>) -> Result<KeyInfo, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
@@ -141,6 +148,20 @@ async fn get_list_len(id: String, key: String, redis: State<'_, RedisManager>) -
     redis.get_list_len(&config, &key).await
 }
 
+#[tauri::command]
+async fn set_list_value(id: String, key: String, index: i64, value: String, redis: State<'_, RedisManager>) -> Result<bool, String> {
+    let config = connection::get_connection(&id)
+        .ok_or_else(|| "Connection not found".to_string())?;
+    redis.set_list_value(&config, &key, index, &value).await
+}
+
+#[tauri::command]
+async fn remove_list_value(id: String, key: String, count: i64, value: String, redis: State<'_, RedisManager>) -> Result<i64, String> {
+    let config = connection::get_connection(&id)
+        .ok_or_else(|| "Connection not found".to_string())?;
+    redis.remove_list_value(&config, &key, count, &value).await
+}
+
 // Set commands
 #[tauri::command]
 async fn get_set(id: String, key: String, redis: State<'_, RedisManager>) -> Result<Vec<String>, String> {
@@ -183,6 +204,13 @@ async fn get_zset_len(id: String, key: String, redis: State<'_, RedisManager>) -
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
     redis.get_zset_len(&config, &key).await
+}
+
+#[tauri::command]
+async fn delete_zset_member(id: String, key: String, member: String, redis: State<'_, RedisManager>) -> Result<bool, String> {
+    let config = connection::get_connection(&id)
+        .ok_or_else(|| "Connection not found".to_string())?;
+    redis.delete_zset_member(&config, &key, &member).await
 }
 
 // Key operations
@@ -231,6 +259,7 @@ pub fn run() {
             get_dbs,
             select_db,
             get_keys,
+            get_keys_with_types,
             get_key_info,
             get_string,
             set_string,
@@ -240,12 +269,15 @@ pub fn run() {
             get_list,
             push_list,
             get_list_len,
+            set_list_value,
+            remove_list_value,
             get_set,
             add_set,
             remove_set_member,
             get_zset,
             add_zset,
             get_zset_len,
+            delete_zset_member,
             delete_key,
             rename_key,
             set_ttl,

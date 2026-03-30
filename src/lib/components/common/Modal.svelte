@@ -30,7 +30,7 @@
     <div class="bg-[#f8f8f8] border border-[#d4d4d4] rounded-md w-full max-w-md mx-4 shadow-lg">
       {#if title}
         <div class="flex items-center justify-between px-4 py-3 border-b border-[#d4d4d4]">
-          <span class="font-mono text-sm text-[#1a1a1a]">{title}</span>
+          <span class="font-mono text-base text-[#1a1a1a]">{title}</span>
           <button 
             onclick={handleClose}
             class="text-[#9a9a9a] hover:text-[#1a1a1a] transition-colors"

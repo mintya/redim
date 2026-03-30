@@ -48,12 +48,12 @@
   }
 </script>
 
-<div class="h-screen flex flex-col bg-[#f8f8f8] font-mono text-sm">
+<div class="h-screen flex flex-col bg-[#f8f8f8] font-mono text-base">
   <!-- Title Bar -->
-  <div class="h-9 bg-[#f0f0f0] border-b border-[#d4d4d4] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
+  <div class="h-10 bg-[#f0f0f0] border-b border-[#d4d4d4] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
     <div class="flex items-center gap-2">
-      <Logo size={18} />
-      <span class="text-[#1a1a1a] font-medium">Redim</span>
+      <Logo size={22} />
+      <span class="text-xl text-[#1a1a1a] font-medium">Redim</span>
     </div>
     <ConnectionSwitcher />
   </div>
@@ -64,7 +64,7 @@
   </div>
 
   <!-- Status Bar -->
-  <div class="h-6 bg-[#f0f0f0] border-t border-[#d4d4d4] flex items-center px-3 text-xs text-[#6b6b6b]">
+  <div class="h-8 bg-[#f0f0f0] border-t border-[#d4d4d4] flex items-center px-3 text-base text-[#6b6b6b]">
     {#if $activeConnection}
       <span class="flex items-center gap-2">
         <span class="w-1.5 h-1.5 rounded-full bg-[#28c840]"></span>

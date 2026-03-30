@@ -63,20 +63,20 @@
 <Modal bind:open title="new key" onclose={handleClose}>
   <div class="space-y-4">
     <div>
-      <span class="block text-xs text-[#6b6b6b] mb-1.5">key name</span>
+      <span class="block text-base text-[#6b6b6b] mb-2">key name</span>
       <input 
         type="text" 
         bind:value={keyName}
         placeholder="user:1001"
-        class="w-full px-2.5 py-1.5 bg-[#fafafa] border border-[#d4d4d4] rounded text-sm font-mono focus:outline-none focus:border-[#dc382d]"
+        class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
       />
     </div>
 
     <div>
-      <span class="block text-xs text-[#6b6b6b] mb-1.5">type</span>
+      <span class="block text-base text-[#6b6b6b] mb-2">type</span>
       <select 
         bind:value={keyType}
-        class="w-full px-2.5 py-1.5 bg-[#fafafa] border border-[#d4d4d4] rounded text-sm font-mono focus:outline-none focus:border-[#dc382d]"
+        class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
       >
         {#each typeOptions as option}
           <option value={option.value}>{option.label}</option>
@@ -85,22 +85,22 @@
     </div>
 
     <div>
-      <span class="block text-xs text-[#6b6b6b] mb-1.5">value</span>
+      <span class="block text-base text-[#6b6b6b] mb-2">value</span>
       {#if keyType === 'string'}
         <textarea 
           bind:value={keyValue}
           placeholder={getTypePlaceholder()}
-          class="w-full h-24 px-2.5 py-1.5 bg-[#fafafa] border border-[#d4d4d4] rounded text-sm font-mono focus:outline-none focus:border-[#dc382d] resize-none"
+          class="w-full h-28 px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d] resize-none"
         ></textarea>
       {:else}
         <input 
           type="text" 
           bind:value={keyValue}
           placeholder={getTypePlaceholder()}
-          class="w-full px-2.5 py-1.5 bg-[#fafafa] border border-[#d4d4d4] rounded text-sm font-mono focus:outline-none focus:border-[#dc382d]"
+          class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
         />
       {/if}
-      <span class="block text-xs text-[#9a9a9a] mt-1">
+      <span class="block text-base text-[#9a9a9a] mt-1.5">
         {#if keyType === 'hash'}格式: field1=value1,field2=value2
         {:else if keyType === 'list'}格式: item1,item2,item3
         {:else if keyType === 'set'}格式: member1,member2,member3
@@ -110,17 +110,17 @@
     </div>
 
     <div>
-      <span class="block text-xs text-[#6b6b6b] mb-1.5">ttl (seconds, -1 for no expiry)</span>
+      <span class="block text-base text-[#6b6b6b] mb-2">ttl (seconds, -1 for no expiry)</span>
       <input 
         type="number" 
         bind:value={ttl}
         placeholder="-1"
-        class="w-full px-2.5 py-1.5 bg-[#fafafa] border border-[#d4d4d4] rounded text-sm font-mono focus:outline-none focus:border-[#dc382d]"
+        class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
       />
     </div>
 
     {#if error}
-      <div class="text-xs text-[#dc382d]">{error}</div>
+      <div class="text-base text-[#dc382d]">{error}</div>
     {/if}
 
     <div class="flex gap-2 pt-2">

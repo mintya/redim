@@ -16,10 +16,10 @@
   }
 </script>
 
-<div class="h-9 px-4 border-b border-[#d4d4d4] flex items-center justify-between">
-  <span class="text-xs text-[#6b6b6b] font-mono">databases</span>
+<div class="h-11 px-4 border-b border-[#d4d4d4] flex items-center justify-between">
+  <span class="text-base text-[#6b6b6b] font-mono">databases</span>
   <button 
-    class="text-xs text-[#6b6b6b] hover:text-[#dc382d] transition-colors"
+    class="text-base text-[#6b6b6b] hover:text-[#dc382d] transition-colors"
     onclick={handleRefresh}
     title="refresh"
   >
@@ -29,7 +29,7 @@
 <div class="border-b border-[#d4d4d4]">
   {#each $databases as db}
     <button 
-      class="w-full px-4 py-2 text-left text-xs font-mono transition-colors {$activeDb === db.index ? 'bg-[#fdf0ef] text-[#dc382d]' : 'text-[#1a1a1a] hover:bg-[#f0f0f0]'}"
+      class="w-full px-4 py-3 text-left text-base font-mono transition-colors {$activeDb === db.index ? 'bg-[#fdf0ef] text-[#dc382d]' : 'text-[#1a1a1a] hover:bg-[#f0f0f0]'}"
       onclick={() => handleSelectDb(db.index)}
     >
       db{db.index} <span class="text-[#9a9a9a]">({db.keys})</span>

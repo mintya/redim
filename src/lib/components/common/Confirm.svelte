@@ -56,24 +56,24 @@
     <div class="bg-[#f8f8f8] border border-[#d4d4d4] rounded w-full max-w-sm shadow-lg">
       <!-- Header -->
       <div class="px-4 py-3 border-b border-[#d4d4d4]">
-        <span class="text-xs text-[#1a1a1a] font-mono">{title}</span>
+        <span class="text-base text-[#1a1a1a] font-mono">{title}</span>
       </div>
       
       <!-- Content -->
       <div class="px-4 py-4">
-        <p class="text-sm text-[#1a1a1a] font-mono">{message}</p>
+        <p class="text-base text-[#1a1a1a] font-mono">{message}</p>
       </div>
       
       <!-- Actions -->
       <div class="px-4 py-3 border-t border-[#d4d4d4] flex justify-end gap-2">
         <button 
-          class="px-3 py-1.5 text-xs font-mono text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+          class="px-4 py-2 text-base font-mono text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
           onclick={handleCancel}
         >
           {cancelText}
         </button>
         <button 
-          class="px-3 py-1.5 text-xs font-mono rounded transition-colors {danger ? 'bg-[#dc382d] text-white hover:bg-[#e85d54]' : 'bg-[#1a1a1a] text-white hover:bg-[#333]'}"
+          class="px-4 py-2 text-base font-mono rounded transition-colors {danger ? 'bg-[#dc382d] text-white hover:bg-[#e85d54]' : 'bg-[#1a1a1a] text-white hover:bg-[#333]'}"
           onclick={handleConfirm}
         >
           {confirmText}

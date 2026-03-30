@@ -165,6 +165,32 @@ impl RedisManager {
         Ok((new_cursor, keys))
     }
 
+    pub async fn get_keys_with_types(&self, config: &ConnectionConfig, pattern: &str, cursor: u64, count: u64) -> Result<(u64, Vec<(String, String)>), String> {
+        let mut conn = self.get_connection(config).await?;
+        
+        let (new_cursor, keys): (u64, Vec<String>) = redis::cmd("SCAN")
+            .arg(cursor)
+            .arg("MATCH")
+            .arg(pattern)
+            .arg("COUNT")
+            .arg(count)
+            .query_async(&mut conn)
+            .await
+            .map_err(|e| format!("Failed to scan keys: {}", e))?;
+        
+        let mut keys_with_types = Vec::new();
+        for key in &keys {
+            let key_type: String = redis::cmd("TYPE")
+                .arg(key)
+                .query_async(&mut conn)
+                .await
+                .unwrap_or_else(|_| "unknown".to_string());
+            keys_with_types.push((key.clone(), key_type));
+        }
+        
+        Ok((new_cursor, keys_with_types))
+    }
+
     pub async fn get_key_type(&self, config: &ConnectionConfig, key: &str) -> Result<String, String> {
         let mut conn = self.get_connection(config).await?;
         let key_type: String = redis::cmd("TYPE")
@@ -290,6 +316,30 @@ impl RedisManager {
         Ok(len)
     }
 
+    pub async fn set_list_value(&self, config: &ConnectionConfig, key: &str, index: i64, value: &str) -> Result<bool, String> {
+        let mut conn = self.get_connection(config).await?;
+        let _: String = redis::cmd("LSET")
+            .arg(key)
+            .arg(index)
+            .arg(value)
+            .query_async(&mut conn)
+            .await
+            .map_err(|e| format!("Failed to set list value: {}", e))?;
+        Ok(true)
+    }
+
+    pub async fn remove_list_value(&self, config: &ConnectionConfig, key: &str, count: i64, value: &str) -> Result<i64, String> {
+        let mut conn = self.get_connection(config).await?;
+        let removed: i64 = redis::cmd("LREM")
+            .arg(key)
+            .arg(count)
+            .arg(value)
+            .query_async(&mut conn)
+            .await
+            .map_err(|e| format!("Failed to remove list value: {}", e))?;
+        Ok(removed)
+    }
+
     // Set operations
     pub async fn get_set(&self, config: &ConnectionConfig, key: &str) -> Result<Vec<String>, String> {
         let mut conn = self.get_connection(config).await?;
@@ -361,6 +411,17 @@ impl RedisManager {
             .await
             .map_err(|e| format!("Failed to get zset length: {}", e))?;
         Ok(len)
+    }
+
+    pub async fn delete_zset_member(&self, config: &ConnectionConfig, key: &str, member: &str) -> Result<bool, String> {
+        let mut conn = self.get_connection(config).await?;
+        let _: i32 = redis::cmd("ZREM")
+            .arg(key)
+            .arg(member)
+            .query_async(&mut conn)
+            .await
+            .map_err(|e| format!("Failed to delete zset member: {}", e))?;
+        Ok(true)
     }
 
     // Key operations

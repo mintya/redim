@@ -139,10 +139,10 @@
     <div class="bg-[#1a1a1a] border border-[#333] rounded-lg w-full max-w-3xl h-[60vh] flex flex-col shadow-2xl">
       <!-- Header -->
       <div class="h-10 px-4 border-b border-[#333] flex items-center justify-between">
-        <span class="text-xs text-[#9a9a9a] font-mono">redis cli</span>
+        <span class="text-base text-[#9a9a9a] font-mono">redis cli</span>
         <div class="flex items-center gap-2">
           <button 
-            class="text-xs text-[#6b6b6b] hover:text-[#dc382d] transition-colors"
+            class="text-base text-[#6b6b6b] hover:text-[#dc382d] transition-colors"
             onclick={clearHistory}
           >
             clear
@@ -157,18 +157,18 @@
       </div>
 
       <!-- Output -->
-      <div id="cli-output" class="flex-1 overflow-y-auto p-4 font-mono text-sm">
+      <div id="cli-output" class="flex-1 overflow-y-auto p-4 font-mono text-base">
         {#each history as item}
           <div class="mb-4">
             <div class="flex items-center gap-2 text-[#28c840]">
               <span>&gt;</span>
               <span>{item.command}</span>
             </div>
-            <pre class="{item.isError ? 'text-[#dc382d]' : 'text-[#e0e0e0]'} whitespace-pre-wrap mt-1 text-xs">{item.result}</pre>
+            <pre class="{item.isError ? 'text-[#dc382d]' : 'text-[#e0e0e0]'} whitespace-pre-wrap mt-1 text-base">{item.result}</pre>
           </div>
         {/each}
         {#if history.length === 0}
-          <div class="text-[#6b6b6b] text-xs">
+          <div class="text-[#6b6b6b] text-base">
             <p>Welcome to Redis CLI</p>
             <p class="mt-1">Type a command and press Enter to execute.</p>
             <p class="mt-1">Use ↑/↓ arrows for command history, Tab for autocomplete.</p>
@@ -182,7 +182,7 @@
           <div class="absolute bottom-full left-4 mb-1 bg-[#2a2a2a] border border-[#444] rounded overflow-hidden">
             {#each suggestions as cmd}
               <button 
-                class="block w-full px-3 py-1.5 text-left text-xs text-[#e0e0e0] hover:bg-[#3a3a3a] font-mono"
+                class="block w-full px-3 py-1.5 text-left text-base text-[#e0e0e0] hover:bg-[#3a3a3a] font-mono"
                 onclick={() => selectSuggestion(cmd)}
               >
                 {cmd}
@@ -198,7 +198,7 @@
             oninput={handleInput}
             onkeydown={handleKeydown}
             placeholder="Enter command..."
-            class="flex-1 bg-transparent text-[#e0e0e0] font-mono text-sm focus:outline-none placeholder:text-[#6b6b6b]"
+            class="flex-1 bg-transparent text-[#e0e0e0] font-mono text-base focus:outline-none placeholder:text-[#6b6b6b]"
             spellcheck="false"
             autocomplete="off"
           />

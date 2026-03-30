@@ -13,7 +13,7 @@
   let isConnected = $state(false);
   let currentConnectionId = $state<string | null>(null);
   let editingConnection = $state<ConnectionConfig | null>(null);
-  let leftPanelWidth = $state(288); // 默认宽度 w-72 = 18rem = 288px
+  let leftPanelWidth = $state(350); // 默认宽度
 
   const unsubscribe = activeConnectionId.subscribe(async (id) => {
     isConnected = !!id;
@@ -67,9 +67,9 @@
   <div class="flex-1 flex items-center justify-center p-6">
     <div class="flex border border-[#d4d4d4] rounded w-full max-w-4xl h-[calc(100vh-120px)]">
       <!-- Left: Connection List -->
-      <div class="w-64 border-r border-[#d4d4d4] flex flex-col bg-[#fafafa] rounded-l">
-        <div class="h-9 px-4 border-b border-[#d4d4d4] flex items-center">
-          <span class="text-xs text-[#6b6b6b] font-mono">connections</span>
+      <div class="w-80 border-r border-[#d4d4d4] flex flex-col bg-[#fafafa] rounded-l">
+        <div class="h-11 px-4 border-b border-[#d4d4d4] flex items-center">
+          <span class="text-base text-[#6b6b6b] font-mono">connections</span>
         </div>
         <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
       </div>

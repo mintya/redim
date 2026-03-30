@@ -11,6 +11,9 @@ export const databases = writable<DatabaseInfo[]>([]);
 // Key 列表
 export const keys = writable<string[]>([]);
 
+// Key 类型映射
+export const keyTypes = writable<Map<string, string>>(new Map());
+
 // 当前选中的 Key
 export const activeKey = writable<string | null>(null);
 
@@ -59,13 +62,34 @@ export async function selectDatabase(connectionId: string, db: number) {
 // 加载 Key 列表
 export async function loadKeys(connectionId: string, pattern?: string) {
   try {
-    const [, result] = await invoke<[number, string[]]>('get_keys', { 
+    const [cursor, result] = await invoke<[number, string[]]>('get_keys', { 
       id: connectionId, 
       pattern: pattern || '*',
       cursor: 0,
       count: 500
     });
     keys.set(result);
+    
+    // 批量获取 key 类型
+    const typesMap = new Map<string, string>();
+    const batchSize = 50;
+    for (let i = 0; i < result.length; i += batchSize) {
+      const batch = result.slice(i, i + batchSize);
+      const typePromises = batch.map(async (key) => {
+        try {
+          const info = await invoke<KeyInfo>('get_key_info', { id: connectionId, key });
+          return { key, type: info.key_type };
+        } catch {
+          return { key, type: 'unknown' };
+        }
+      });
+      const results = await Promise.all(typePromises);
+      for (const { key, type } of results) {
+        typesMap.set(key, type);
+      }
+    }
+    keyTypes.set(typesMap);
+    
     return result;
   } catch (e) {
     console.error('Failed to load keys:', e);
@@ -230,6 +254,30 @@ export async function pushListValue(connectionId: string, key: string, value: st
   }
 }
 
+// 设置 List 元素值
+export async function setListValue(connectionId: string, key: string, index: number, value: string) {
+  try {
+    await invoke('set_list_value', { id: connectionId, key, index, value });
+    await loadKeyValue(connectionId, key, 'list');
+    return true;
+  } catch (e) {
+    console.error('Failed to set list value:', e);
+    return false;
+  }
+}
+
+// 删除 List 元素
+export async function removeListValue(connectionId: string, key: string, value: string, count: number = 1) {
+  try {
+    await invoke('remove_list_value', { id: connectionId, key, count, value });
+    await loadKeyValue(connectionId, key, 'list');
+    return true;
+  } catch (e) {
+    console.error('Failed to remove list value:', e);
+    return false;
+  }
+}
+
 // 添加 Set 成员
 export async function addSetMember(connectionId: string, key: string, member: string) {
   try {
@@ -262,6 +310,18 @@ export async function addZSetMember(connectionId: string, key: string, member: s
     return true;
   } catch (e) {
     console.error('Failed to add zset member:', e);
+    return false;
+  }
+}
+
+// 删除 ZSet 成员
+export async function deleteZSetMember(connectionId: string, key: string, member: string) {
+  try {
+    await invoke('delete_zset_member', { id: connectionId, key, member });
+    await loadKeyValue(connectionId, key, 'zset');
+    return true;
+  } catch (e) {
+    console.error('Failed to delete zset member:', e);
     return false;
   }
 }

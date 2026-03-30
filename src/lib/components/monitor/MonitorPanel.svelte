@@ -173,16 +173,16 @@
     <div class="bg-[#f8f8f8] border border-[#d4d4d4] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col shadow-lg">
       <!-- Header -->
       <div class="h-10 px-4 border-b border-[#d4d4d4] flex items-center justify-between">
-        <span class="text-xs text-[#1a1a1a] font-mono">monitor</span>
+        <span class="text-base text-[#1a1a1a] font-mono">monitor</span>
         <div class="flex items-center gap-2">
           <button 
-            class="text-xs {showRawInfo ? 'text-[#dc382d]' : 'text-[#6b6b6b]'} hover:text-[#dc382d] transition-colors"
+            class="text-base {showRawInfo ? 'text-[#dc382d]' : 'text-[#6b6b6b]'} hover:text-[#dc382d] transition-colors"
             onclick={() => showRawInfo = !showRawInfo}
           >
             {showRawInfo ? 'hide raw' : 'show raw'}
           </button>
           <button 
-            class="text-xs text-[#6b6b6b] hover:text-[#dc382d] transition-colors"
+            class="text-base text-[#6b6b6b] hover:text-[#dc382d] transition-colors"
             onclick={loadInfo}
           >
             ↻ refresh
@@ -199,46 +199,46 @@
       <!-- Content -->
       <div class="flex-1 overflow-y-auto p-4">
         {#if error}
-          <div class="text-xs text-[#dc382d] mb-4">{error}</div>
+          <div class="text-base text-[#dc382d] mb-4">{error}</div>
         {/if}
 
         {#if showRawInfo && rawInfo}
           <div class="mb-4">
-            <h3 class="text-xs text-[#6b6b6b] mb-2">raw INFO output</h3>
-            <pre class="bg-[#1a1a1a] text-[#e0e0e0] p-3 rounded text-xs font-mono overflow-x-auto max-h-60 overflow-y-auto">{rawInfo}</pre>
+            <h3 class="text-base text-[#6b6b6b] mb-2">raw INFO output</h3>
+            <pre class="bg-[#1a1a1a] text-[#e0e0e0] p-3 rounded text-base font-mono overflow-x-auto max-h-60 overflow-y-auto">{rawInfo}</pre>
           </div>
         {/if}
 
         {#if serverInfo}
           <!-- Server Info -->
           <div class="mb-6">
-            <h3 class="text-xs text-[#6b6b6b] mb-3">server</h3>
+            <h3 class="text-base text-[#6b6b6b] mb-3">server</h3>
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">version</div>
-                <div class="text-sm text-[#1a1a1a] font-mono">{serverInfo.redis_version}</div>
+                <div class="text-base text-[#9a9a9a]">version</div>
+                <div class="text-base text-[#1a1a1a] font-mono">{serverInfo.redis_version}</div>
               </div>
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">uptime</div>
-                <div class="text-sm text-[#1a1a1a] font-mono">{serverInfo.uptime_in_days} days</div>
+                <div class="text-base text-[#9a9a9a]">uptime</div>
+                <div class="text-base text-[#1a1a1a] font-mono">{serverInfo.uptime_in_days} days</div>
               </div>
             </div>
           </div>
 
           <!-- Stats -->
           <div class="mb-6">
-            <h3 class="text-xs text-[#6b6b6b] mb-3">stats</h3>
+            <h3 class="text-base text-[#6b6b6b] mb-3">stats</h3>
             <div class="grid grid-cols-3 gap-4">
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">memory</div>
+                <div class="text-base text-[#9a9a9a]">memory</div>
                 <div class="text-lg text-[#1a1a1a] font-mono">{serverInfo.used_memory_human}</div>
               </div>
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">clients</div>
+                <div class="text-base text-[#9a9a9a]">clients</div>
                 <div class="text-lg text-[#1a1a1a] font-mono">{serverInfo.connected_clients}</div>
               </div>
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">ops/sec</div>
+                <div class="text-base text-[#9a9a9a]">ops/sec</div>
                 <div class="text-lg text-[#dc382d] font-mono">{serverInfo.instantaneous_ops_per_sec}</div>
               </div>
             </div>
@@ -246,28 +246,28 @@
 
           <!-- Performance -->
           <div class="mb-6">
-            <h3 class="text-xs text-[#6b6b6b] mb-3">performance</h3>
+            <h3 class="text-base text-[#6b6b6b] mb-3">performance</h3>
             <div class="grid grid-cols-3 gap-4">
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">total commands</div>
-                <div class="text-sm text-[#1a1a1a] font-mono">{formatNumber(serverInfo.total_commands_processed)}</div>
+                <div class="text-base text-[#9a9a9a]">total commands</div>
+                <div class="text-base text-[#1a1a1a] font-mono">{formatNumber(serverInfo.total_commands_processed)}</div>
               </div>
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">total connections</div>
-                <div class="text-sm text-[#1a1a1a] font-mono">{formatNumber(serverInfo.total_connections_received)}</div>
+                <div class="text-base text-[#9a9a9a]">total connections</div>
+                <div class="text-base text-[#1a1a1a] font-mono">{formatNumber(serverInfo.total_connections_received)}</div>
               </div>
               <div class="bg-[#fafafa] border border-[#d4d4d4] rounded p-3">
-                <div class="text-xs text-[#9a9a9a]">hit rate</div>
-                <div class="text-sm text-[#28c840] font-mono">{getHitRate()}%</div>
+                <div class="text-base text-[#9a9a9a]">hit rate</div>
+                <div class="text-base text-[#28c840] font-mono">{getHitRate()}%</div>
               </div>
             </div>
           </div>
 
           <!-- Keyspace -->
           <div>
-            <h3 class="text-xs text-[#6b6b6b] mb-3">keyspace</h3>
+            <h3 class="text-base text-[#6b6b6b] mb-3">keyspace</h3>
             <div class="bg-[#fafafa] border border-[#d4d4d4] rounded overflow-hidden">
-              <table class="w-full text-xs font-mono">
+              <table class="w-full text-base font-mono">
                 <thead>
                   <tr class="border-b border-[#d4d4d4] bg-[#f0f0f0]">
                     <th class="text-left px-3 py-2 text-[#6b6b6b]">database</th>
@@ -294,7 +294,7 @@
             </div>
           </div>
         {:else if !error}
-          <div class="text-center py-8 text-xs text-[#9a9a9a]">loading...</div>
+          <div class="text-center py-8 text-base text-[#9a9a9a]">loading...</div>
         {/if}
       </div>
     </div>

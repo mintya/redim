@@ -36,7 +36,7 @@
 >
   {#each items as item}
     <button
-      class="w-full px-3 py-1.5 text-left text-sm font-mono transition-colors {item.danger ? 'text-[#dc382d] hover:bg-[#fdf0ef]' : 'text-[#1a1a1a] hover:bg-[#f0f0f0]'}"
+      class="w-full px-3 py-2 text-left text-base font-mono transition-colors {item.danger ? 'text-[#dc382d] hover:bg-[#fdf0ef]' : 'text-[#1a1a1a] hover:bg-[#f0f0f0]'}"
       onclick={() => handleItemClick(item)}
     >
       {item.label}
