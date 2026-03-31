@@ -101,10 +101,10 @@
         />
       {/if}
       <span class="block text-base text-[#9a9a9a] mt-1.5">
-        {#if keyType === 'hash'}格式: field1=value1,field2=value2
-        {:else if keyType === 'list'}格式: item1,item2,item3
-        {:else if keyType === 'set'}格式: member1,member2,member3
-        {:else if keyType === 'zset'}格式: member1=1.0,member2=2.0
+        {#if keyType === 'hash'}Format: field1=value1,field2=value2
+        {:else if keyType === 'list'}Format: item1,item2,item3
+        {:else if keyType === 'set'}Format: member1,member2,member3
+        {:else if keyType === 'zset'}Format: member1=1.0,member2=2.0
         {/if}
       </span>
     </div>

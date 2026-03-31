@@ -466,9 +466,31 @@ impl RedisManager {
     }
 
     pub async fn execute_command(&self, config: &ConnectionConfig, args: Vec<String>) -> Result<String, String> {
+        if args.is_empty() {
+            return Err("No command provided".to_string());
+        }
+
+        // Handle UNBLOCK prefix for dangerous commands
+        let (actual_args, is_unblocked) = if args[0].to_uppercase() == "UNBLOCK" {
+            if args.len() < 2 {
+                return Err("UNBLOCK requires a command argument".to_string());
+            }
+            (args[1..].to_vec(), true)
+        } else {
+            (args, false)
+        };
+
+        let cmd_name = actual_args[0].to_uppercase();
+        if !is_unblocked && (cmd_name == "FLUSHDB" || cmd_name == "FLUSHALL") {
+            return Err(format!(
+                "Blocked: {} is a destructive operation. Use the GUI confirmation to proceed.",
+                cmd_name
+            ));
+        }
+
         let mut conn = self.get_connection(config).await?;
-        let mut cmd = redis::cmd(&args[0]);
-        for arg in &args[1..] {
+        let mut cmd = redis::cmd(&actual_args[0]);
+        for arg in &actual_args[1..] {
             cmd.arg(arg);
         }
         

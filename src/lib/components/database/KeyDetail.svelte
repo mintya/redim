@@ -126,7 +126,7 @@
   function handleDeleteKey() {
     clearError();
     if ($activeConnectionId && $activeKey) {
-      confirmMessage = `确定要删除 key: ${$activeKey} 吗？`;
+      confirmMessage = `Are you sure you want to delete key: ${$activeKey}?`;
       confirmAction = async () => {
         const success = await deleteKey($activeConnectionId!, $activeKey!);
         if (!success) {
@@ -151,7 +151,7 @@
   async function handleRename() {
     clearError();
     if ($activeConnectionId && $activeKey) {
-      const newKey = prompt('输入新的 key 名称:', $activeKey);
+      const newKey = prompt('Enter new key name:', $activeKey);
       if (newKey && newKey !== $activeKey) {
         const success = await renameKey($activeConnectionId, $activeKey, newKey);
         if (!success) {
@@ -164,7 +164,7 @@
   async function handleSetTtl() {
     clearError();
     if ($activeConnectionId && $activeKey) {
-      const ttl = prompt('输入 TTL (秒, -1 表示永不过期):', String($keyInfo?.ttl || -1));
+      const ttl = prompt('Enter TTL in seconds (-1 for no expiry):', String($keyInfo?.ttl || -1));
       if (ttl !== null) {
         const success = await setKeyTtl($activeConnectionId, $activeKey, parseInt(ttl));
         if (!success) {

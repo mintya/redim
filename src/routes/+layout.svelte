@@ -4,6 +4,7 @@
   import { connections, loadConnections, activeConnection, activeConnectionId } from '$lib/stores/connection';
   import { activeDb } from '$lib/stores/database';
   import Logo from '$lib/components/common/Logo.svelte';
+  import ToastContainer from '$lib/components/common/ToastContainer.svelte';
   import ConnectionSwitcher from '$lib/components/connection/ConnectionSwitcher.svelte';
   import CliTerminal from '$lib/components/cli/CliTerminal.svelte';
   import MonitorPanel from '$lib/components/monitor/MonitorPanel.svelte';
@@ -101,7 +102,7 @@
           ⌘ cli
         </button>
       {/if}
-      <span>v0.1.0</span>
+      <span>v{__APP_VERSION__}</span>
     </span>
   </div>
 </div>
@@ -109,3 +110,4 @@
 <CliTerminal bind:open={showCli} onclose={() => showCli = false} />
 <MonitorPanel bind:open={showMonitor} onclose={() => showMonitor = false} />
 <ImportExport bind:open={showImportExport} onclose={() => showImportExport = false} />
+<ToastContainer />

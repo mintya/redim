@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api/core';
 import type { DatabaseInfo, KeyInfo, HashField, ZSetMember } from '$lib/types';
 
@@ -59,38 +59,51 @@ export async function selectDatabase(connectionId: string, db: number) {
   }
 }
 
-// 加载 Key 列表
+// 加载 Key 列表（循环 SCAN 直到游标回到 0）
 export async function loadKeys(connectionId: string, pattern?: string) {
   try {
-    const [cursor, result] = await invoke<[number, string[]]>('get_keys', { 
-      id: connectionId, 
-      pattern: pattern || '*',
-      cursor: 0,
-      count: 500
-    });
-    keys.set(result);
-    
-    // 批量获取 key 类型
-    const typesMap = new Map<string, string>();
-    const batchSize = 50;
-    for (let i = 0; i < result.length; i += batchSize) {
-      const batch = result.slice(i, i + batchSize);
-      const typePromises = batch.map(async (key) => {
-        try {
-          const info = await invoke<KeyInfo>('get_key_info', { id: connectionId, key });
-          return { key, type: info.key_type };
-        } catch {
-          return { key, type: 'unknown' };
-        }
+    const pat = pattern || '*';
+    const allKeys: string[] = [];
+    let cursor: number = 0;
+    const maxIterations = 100; // 安全上限，防止无限循环
+    let iterations = 0;
+
+    do {
+      const [nextCursor, batch] = await invoke<[number, string[]]>('get_keys', {
+        id: connectionId,
+        pattern: pat,
+        cursor,
+        count: 500,
       });
-      const results = await Promise.all(typePromises);
-      for (const { key, type } of results) {
+      allKeys.push(...batch);
+      cursor = nextCursor;
+      iterations++;
+    } while (cursor !== 0 && iterations < maxIterations);
+
+    keys.set(allKeys);
+
+    // 使用后端 get_keys_with_types 批量获取类型（避免 N+1）
+    // 先用已有 SCAN 结果；分批调用 get_keys_with_types 获取类型
+    const typesMap = new Map<string, string>();
+    let typeCursor: number = 0;
+    let typeIterations = 0;
+    do {
+      const [nextTypeCursor, keyTypesBatch] = await invoke<[number, [string, string][]]>('get_keys_with_types', {
+        id: connectionId,
+        pattern: pat,
+        cursor: typeCursor,
+        count: 500,
+      });
+      for (const [key, type] of keyTypesBatch) {
         typesMap.set(key, type);
       }
-    }
+      typeCursor = nextTypeCursor;
+      typeIterations++;
+    } while (typeCursor !== 0 && typeIterations < maxIterations);
+
     keyTypes.set(typesMap);
-    
-    return result;
+
+    return allKeys;
   } catch (e) {
     console.error('Failed to load keys:', e);
     return [];
@@ -99,8 +112,8 @@ export async function loadKeys(connectionId: string, pattern?: string) {
 
 // 刷新 Key 列表
 export async function refreshKeys(connectionId: string) {
-  const pattern = '$searchPattern' as any;
-  return loadKeys(connectionId, '*');
+  const currentPattern = get(searchPattern);
+  return loadKeys(connectionId, currentPattern);
 }
 
 // 加载 Key 详情
@@ -157,10 +170,10 @@ export async function selectKey(connectionId: string, key: string) {
 
 // 刷新当前 Key
 export async function refreshCurrentKey(connectionId: string) {
-  const key = '$activeKey' as any;
-  const info = '$keyInfo' as any;
-  if (key && info) {
-    await loadKeyValue(connectionId, key, info.key_type);
+  const currentKey = get(activeKey);
+  const currentInfo = get(keyInfo);
+  if (currentKey && currentInfo) {
+    await loadKeyValue(connectionId, currentKey, currentInfo.key_type);
   }
 }
 

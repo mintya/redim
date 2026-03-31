@@ -4,6 +4,7 @@ export interface ConnectionConfig {
   host: string;
   port: number;
   password?: string;
+  password_stored?: boolean;
   username?: string;
   db: number;
   ssl: boolean;

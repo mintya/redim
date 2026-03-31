@@ -36,16 +36,26 @@ pub fn save_connections(connections: &[ConnectionConfig]) -> Result<(), String> 
     Ok(())
 }
 
-pub fn add_connection(config: ConnectionConfig) -> Result<Vec<ConnectionConfig>, String> {
+pub fn add_connection(mut config: ConnectionConfig) -> Result<Vec<ConnectionConfig>, String> {
+    // Store password in keyring before saving
+    config.store_password()?;
+
     let mut connections = load_connections();
     connections.push(config);
     save_connections(&connections)?;
     Ok(connections)
 }
 
-pub fn update_connection(config: ConnectionConfig) -> Result<Vec<ConnectionConfig>, String> {
+pub fn update_connection(mut config: ConnectionConfig) -> Result<Vec<ConnectionConfig>, String> {
+    // Store password in keyring before saving
+    config.store_password()?;
+
     let mut connections = load_connections();
     if let Some(conn) = connections.iter_mut().find(|c| c.id == config.id) {
+        // Delete old keyring entry if id changed (shouldn't happen, but be safe)
+        if conn.password_stored && !config.password_stored {
+            conn.delete_password();
+        }
         *conn = config;
     }
     save_connections(&connections)?;
@@ -54,6 +64,14 @@ pub fn update_connection(config: ConnectionConfig) -> Result<Vec<ConnectionConfi
 
 pub fn delete_connection(id: &str) -> Result<Vec<ConnectionConfig>, String> {
     let mut connections = load_connections();
+
+    // Clean up keyring for deleted connection
+    if let Some(conn) = connections.iter().find(|c| c.id == id) {
+        if conn.password_stored {
+            conn.delete_password();
+        }
+    }
+
     connections.retain(|c| c.id != id);
     save_connections(&connections)?;
     Ok(connections)

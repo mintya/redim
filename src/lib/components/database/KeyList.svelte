@@ -159,7 +159,7 @@
   }
 
   function handleDeleteKey(key: string) {
-    confirmMessage = `确定要删除 key: ${key} 吗？`;
+    confirmMessage = `Are you sure you want to delete key: ${key}?`;
     confirmAction = async () => {
       if ($activeConnectionId) {
         await deleteKey($activeConnectionId, key);
@@ -171,7 +171,7 @@
 
   function handleBatchDelete() {
     if ($activeConnectionId && selectedKeys.size > 0) {
-      confirmMessage = `确定要删除 ${selectedKeys.size} 个 key 吗？`;
+      confirmMessage = `Are you sure you want to delete ${selectedKeys.size} key(s)?`;
       confirmAction = async () => {
         for (const key of selectedKeys) {
           await invoke('delete_key', { id: $activeConnectionId, key });

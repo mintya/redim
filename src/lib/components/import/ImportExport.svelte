@@ -2,6 +2,8 @@
   import { activeConnectionId } from '$lib/stores/connection';
   import { keys, loadKeys, loadKeyValue, loadKeyInfo } from '$lib/stores/database';
   import { invoke } from '@tauri-apps/api/core';
+  import { save, open as openDialog } from '@tauri-apps/plugin-dialog';
+  import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
   import Button from '$lib/components/common/Button.svelte';
 
   interface Props {
@@ -26,13 +28,19 @@
     error = '';
 
     try {
-      // 获取匹配的 keys
-      const [, keyList] = await invoke<[number, string[]]>('get_keys', {
-        id: $activeConnectionId,
-        pattern: exportPattern,
-        cursor: 0,
-        count: 10000
-      });
+      // 获取匹配的 keys（循环 SCAN）
+      const keyList: string[] = [];
+      let cursor: number = 0;
+      do {
+        const [nextCursor, batch] = await invoke<[number, string[]]>('get_keys', {
+          id: $activeConnectionId,
+          pattern: exportPattern,
+          cursor,
+          count: 5000
+        });
+        keyList.push(...batch);
+        cursor = nextCursor;
+      } while (cursor !== 0);
 
       const data: Record<string, any> = {};
 
@@ -68,16 +76,18 @@
         mimeType = 'text/csv';
       }
 
-      // 下载文件
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Use Tauri save dialog
+      const filePath = await save({
+        defaultPath: filename,
+        filters: [{ name: exportFormat.toUpperCase(), extensions: [exportFormat] }]
+      });
 
-      status = `Exported ${keyList.length} keys`;
+      if (filePath) {
+        await writeTextFile(filePath, content);
+        status = `Exported ${keyList.length} keys to ${filePath}`;
+      } else {
+        status = 'Export cancelled';
+      }
     } catch (e) {
       error = String(e);
       status = 'Export failed';
@@ -89,69 +99,67 @@
   async function handleImport() {
     if (!$activeConnectionId) return;
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+    // Use Tauri open dialog
+    const filePath = await openDialog({
+      multiple: false,
+      filters: [{ name: 'JSON', extensions: ['json'] }]
+    });
 
-      importing = true;
-      status = 'Importing...';
-      error = '';
+    if (!filePath) return;
 
-      try {
-        const text = await file.text();
-        const data = JSON.parse(text);
+    importing = true;
+    status = 'Importing...';
+    error = '';
 
-        let count = 0;
-        for (const [key, val] of Object.entries(data)) {
-          const { type, value, ttl } = val as any;
+    try {
+      const text = await readTextFile(filePath as string);
+      const data = JSON.parse(text);
 
-          switch (type) {
-            case 'string':
-              await invoke('set_string', { id: $activeConnectionId, key, value });
-              break;
-            case 'hash':
-              for (const item of value as any[]) {
-                await invoke('set_hash_field', { id: $activeConnectionId, key, field: item.field, value: item.value });
-              }
-              break;
-            case 'list':
-              for (const item of value as string[]) {
-                await invoke('push_list', { id: $activeConnectionId, key, value: item, atHead: false });
-              }
-              break;
-            case 'set':
-              for (const item of value as string[]) {
-                await invoke('add_set', { id: $activeConnectionId, key, member: item });
-              }
-              break;
-            case 'zset':
-              for (const item of value as any[]) {
-                await invoke('add_zset', { id: $activeConnectionId, key, member: item.member, score: item.score });
-              }
-              break;
-          }
+      let count = 0;
+      for (const [key, val] of Object.entries(data)) {
+        const { type, value, ttl } = val as any;
 
-          if (ttl > 0) {
-            await invoke('set_ttl', { id: $activeConnectionId, key, ttl });
-          }
-
-          count++;
+        switch (type) {
+          case 'string':
+            await invoke('set_string', { id: $activeConnectionId, key, value });
+            break;
+          case 'hash':
+            for (const item of value as any[]) {
+              await invoke('set_hash_field', { id: $activeConnectionId, key, field: item.field, value: item.value });
+            }
+            break;
+          case 'list':
+            for (const item of value as string[]) {
+              await invoke('push_list', { id: $activeConnectionId, key, value: item, atHead: false });
+            }
+            break;
+          case 'set':
+            for (const item of value as string[]) {
+              await invoke('add_set', { id: $activeConnectionId, key, member: item });
+            }
+            break;
+          case 'zset':
+            for (const item of value as any[]) {
+              await invoke('add_zset', { id: $activeConnectionId, key, member: item.member, score: item.score });
+            }
+            break;
         }
 
-        await loadKeys($activeConnectionId);
-        status = `Imported ${count} keys`;
-      } catch (e) {
-        error = String(e);
-        status = 'Import failed';
+        if (ttl > 0) {
+          await invoke('set_ttl', { id: $activeConnectionId, key, ttl });
+        }
+
+        count++;
       }
 
-      importing = false;
-    };
+      await loadKeys($activeConnectionId);
+      status = `Imported ${count} keys`;
+    } catch (e) {
+      error = String(e);
+      status = 'Import failed';
+    }
 
-    input.click();
+    importing = false;
   }
 
   function handleClose() {

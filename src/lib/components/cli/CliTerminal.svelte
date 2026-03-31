@@ -2,6 +2,7 @@
   import { activeConnectionId } from '$lib/stores/connection';
   import { invoke } from '@tauri-apps/api/core';
   import Button from '$lib/components/common/Button.svelte';
+  import Confirm from '$lib/components/common/Confirm.svelte';
 
   interface Props {
     open: boolean;
@@ -21,6 +22,15 @@
   let commandHistory = $state<string[]>([]);
   let historyIndex = $state(-1);
   let inputEl = $state<HTMLInputElement | null>(null);
+  let showDangerConfirm = $state(false);
+  let pendingDangerousCmd = $state('');
+
+  const dangerousCommands = ['FLUSHDB', 'FLUSHALL', 'SHUTDOWN', 'DEBUG', 'CONFIG SET'];
+
+  function isDangerousCommand(cmd: string): boolean {
+    const upper = cmd.trim().toUpperCase();
+    return dangerousCommands.some(d => upper.startsWith(d));
+  }
 
   const commonCommands = [
     'GET', 'SET', 'DEL', 'EXISTS', 'EXPIRE', 'TTL', 'TYPE', 'KEYS', 'SCAN',
@@ -49,6 +59,18 @@
     const cmd = input.trim();
     if (!cmd || !$activeConnectionId) return;
 
+    if (isDangerousCommand(cmd)) {
+      pendingDangerousCmd = cmd;
+      showDangerConfirm = true;
+      return;
+    }
+
+    await executeCommand(cmd);
+  }
+
+  async function executeCommand(cmd: string) {
+    if (!$activeConnectionId) return;
+
     const args = cmd.split(/\s+/);
     commandHistory.unshift(cmd);
     historyIndex = -1;
@@ -72,6 +94,20 @@
         container.scrollTop = container.scrollHeight;
       }
     }, 0);
+  }
+
+  function handleDangerConfirm() {
+    if (pendingDangerousCmd) {
+      // Add UNBLOCK prefix for dangerous commands
+      executeCommand(`UNBLOCK ${pendingDangerousCmd}`);
+      pendingDangerousCmd = '';
+    }
+    showDangerConfirm = false;
+  }
+
+  function handleDangerCancel() {
+    pendingDangerousCmd = '';
+    showDangerConfirm = false;
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -206,4 +242,14 @@
       </div>
     </div>
   </div>
+
+  <Confirm
+    bind:open={showDangerConfirm}
+    title="Dangerous Command"
+    message={`Are you sure you want to execute "${pendingDangerousCmd}"? This operation may permanently delete data.`}
+    confirmText="Execute"
+    danger={true}
+    onconfirm={handleDangerConfirm}
+    oncancel={handleDangerCancel}
+  />
 {/if}
