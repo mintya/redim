@@ -50,4 +50,33 @@ magick "$SOURCE_ICON" -alpha on -depth 8 -define png:color-type=6 \
     -delete 0 "$ICON_DIR/icon.ico"
 echo "Generated $ICON_DIR/icon.ico (multi-size ICO)"
 
+# ICNS 文件 (macOS)
+echo "Generating icon.icns for macOS..."
+
+# 创建临时iconset目录
+ICONSET_DIR="$ICON_DIR/icon.iconset"
+mkdir -p "$ICONSET_DIR"
+
+# 生成iconset需要的所有尺寸
+magick "$SOURCE_ICON" -resize 16x16 "$ICONSET_DIR/icon_16x16.png"
+magick "$SOURCE_ICON" -resize 32x32 "$ICONSET_DIR/icon_16x16@2x.png"
+magick "$SOURCE_ICON" -resize 32x32 "$ICONSET_DIR/icon_32x32.png"
+magick "$SOURCE_ICON" -resize 64x64 "$ICONSET_DIR/icon_32x32@2x.png"
+magick "$SOURCE_ICON" -resize 128x128 "$ICONSET_DIR/icon_128x128.png"
+magick "$SOURCE_ICON" -resize 256x256 "$ICONSET_DIR/icon_128x128@2x.png"
+magick "$SOURCE_ICON" -resize 256x256 "$ICONSET_DIR/icon_256x256.png"
+magick "$SOURCE_ICON" -resize 512x512 "$ICONSET_DIR/icon_256x256@2x.png"
+magick "$SOURCE_ICON" -resize 512x512 "$ICONSET_DIR/icon_512x512.png"
+magick "$SOURCE_ICON" -resize 1024x1024 "$ICONSET_DIR/icon_512x512@2x.png"
+
+# 使用iconutil生成icns（macOS专用）
+if command -v iconutil &> /dev/null; then
+    iconutil -c icns "$ICONSET_DIR" -o "$ICON_DIR/icon.icns"
+    echo "Generated $ICON_DIR/icon.icns"
+    rm -rf "$ICONSET_DIR"
+else
+    echo "Warning: iconutil not found. icon.icns not generated."
+    echo "On macOS, run: iconutil -c icns $ICONSET_DIR -o $ICON_DIR/icon.icns"
+fi
+
 echo "Done!"
