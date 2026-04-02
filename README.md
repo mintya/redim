@@ -4,7 +4,11 @@
 
 A modern, cross-platform Redis desktop client built with Tauri.
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mintya/redim/Release)
+![GitHub release](https://img.shields.io/github/release/mintya/redim)
+![GitHub stars](https://img.shields.io/github/stars/mintya/redim)
+![GitHub forks](https://img.shields.io/github/forks/mintya/redim) 
+
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -89,3 +93,6 @@ src-tauri/
 ## License
 
 MIT License
+
+## Stargazers over time
+[![Stargazers over time](https://starchart.cc/mintya/redim.svg?variant=adaptive)](https://starchart.cc/mintya/redim)
