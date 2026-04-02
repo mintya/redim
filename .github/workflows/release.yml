@@ -49,22 +49,31 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Sync node version and update package.json
+      - name: Sync versions
+        shell: node
         run: |
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-            pkg.version = '${{ env.VERSION }}';
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-          "
+          const fs = require('fs');
+          const version = process.env.VERSION;
 
-      - name: Update Cargo.toml version
-        run: |
-          sed -i "s/^version = \".*\"/version = \"${{ env.VERSION }}\"/" src-tauri/Cargo.toml
+          // 1. Update package.json
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+          pkg.version = version;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
 
-      - name: Update tauri.conf.json version
-        run: |
-          sed -i "s/\"version\": \".*\"/\"version\": \"${{ env.VERSION }}\"/" src-tauri/tauri.conf.json
+          // 2. Update src-tauri/Cargo.toml
+          let cargo = fs.readFileSync('src-tauri/Cargo.toml', 'utf-8');
+          cargo = cargo.replace(/^version = ".*"/m, `version = "${version}"`);
+          fs.writeFileSync('src-tauri/Cargo.toml', cargo);
+
+          // 3. Update src-tauri/tauri.conf.json
+          const tauri = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf-8'));
+          if (tauri.package) {
+            tauri.package.version = version;
+          } else {
+            tauri.version = version;
+          }
+          fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(tauri, null, 2));
+
 
       - name: Install frontend dependencies
         run: yarn install --frozen-lockfile
