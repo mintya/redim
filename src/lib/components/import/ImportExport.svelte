@@ -2,11 +2,12 @@
   import { activeConnectionId } from '$lib/stores/connection';
   import { toast } from '$lib/stores/toast';
   import { scanAllKeys } from '$lib/utils/redis';
-  import { keys, loadKeys, loadKeyValue, loadKeyInfo } from '$lib/stores/database';
+  import { keys, loadKeys } from '$lib/stores/database';
   import { invoke } from '@tauri-apps/api/core';
   import { save, open as openDialog } from '@tauri-apps/plugin-dialog';
   import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
   import Button from '$lib/components/common/Button.svelte';
+  import type { KeyInfo, HashField, ZSetMember } from '$lib/types';
 
   interface Props {
     open: boolean;
@@ -19,6 +20,38 @@
   let exportPattern = $state('*');
   let exporting = $state(false);
   let importing = $state(false);
+  let exportProgress = $state({ current: 0, total: 0 });
+
+  // 直接从Redis获取key信息，不更新全局store
+  async function fetchKeyInfo(connectionId: string, key: string): Promise<KeyInfo | null> {
+    try {
+      return await invoke<KeyInfo>('get_key_info', { id: connectionId, key });
+    } catch {
+      return null;
+    }
+  }
+
+  // 直接从Redis获取key值，不更新全局store
+  async function fetchKeyValue(connectionId: string, key: string, keyType: string): Promise<any> {
+    try {
+      switch (keyType) {
+        case 'string':
+          return await invoke<string>('get_string', { id: connectionId, key });
+        case 'hash':
+          return await invoke<HashField[]>('get_hash', { id: connectionId, key });
+        case 'list':
+          return await invoke<string[]>('get_list', { id: connectionId, key });
+        case 'set':
+          return await invoke<string[]>('get_set', { id: connectionId, key });
+        case 'zset':
+          return await invoke<ZSetMember[]>('get_zset', { id: connectionId, key });
+        default:
+          return null;
+      }
+    } catch {
+      return null;
+    }
+  }
 
   async function handleExport() {
     if (!$activeConnectionId) return;
@@ -28,17 +61,19 @@
     try {
       const keyList = await scanAllKeys($activeConnectionId, exportPattern, 5000);
       const data: Record<string, any> = {};
+      exportProgress = { current: 0, total: keyList.length };
 
       for (const key of keyList) {
-        const info = await loadKeyInfo($activeConnectionId, key);
+        const info = await fetchKeyInfo($activeConnectionId, key);
         if (info) {
-          const value = await loadKeyValue($activeConnectionId, key, info.key_type);
+          const value = await fetchKeyValue($activeConnectionId, key, info.key_type);
           data[key] = {
             type: info.key_type,
             value: value,
             ttl: info.ttl
           };
         }
+        exportProgress.current++;
       }
 
       let content: string;
@@ -74,6 +109,7 @@
     }
 
     exporting = false;
+    exportProgress = { current: 0, total: 0 };
   }
 
   async function handleImport() {
@@ -198,7 +234,7 @@
               </div>
             </div>
             <Button variant="secondary" onclick={handleExport} disabled={exporting}>
-              {exporting ? 'exporting...' : 'export'}
+              {exporting ? `exporting... (${exportProgress.current}/${exportProgress.total})` : 'export'}
             </Button>
           </div>
         </div>
