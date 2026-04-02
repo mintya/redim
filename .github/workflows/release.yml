@@ -49,30 +49,41 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Sync versions
-        shell: node
+      - name: Update project versions
+        shell: node {0}
         run: |
           const fs = require('fs');
           const version = process.env.VERSION;
-
-          // 1. Update package.json
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-          pkg.version = version;
-          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-
-          // 2. Update src-tauri/Cargo.toml
-          let cargo = fs.readFileSync('src-tauri/Cargo.toml', 'utf-8');
-          cargo = cargo.replace(/^version = ".*"/m, `version = "${version}"`);
-          fs.writeFileSync('src-tauri/Cargo.toml', cargo);
-
-          // 3. Update src-tauri/tauri.conf.json
-          const tauri = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf-8'));
-          if (tauri.package) {
-            tauri.package.version = version;
-          } else {
-            tauri.version = version;
+          
+          if (!version) {
+            console.error("VERSION environment variable is not set");
+            process.exit(1);
           }
-          fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(tauri, null, 2));
+
+          // 1. 更新 package.json
+          try {
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = version;
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+            console.log('Updated package.json');
+          } catch (e) { console.log('package.json not found or invalid'); }
+          
+          // 2. 更新 Cargo.toml (使用正则匹配 version = "x.x.x")
+          try {
+            let cargo = fs.readFileSync('src-tauri/Cargo.toml', 'utf8');
+            cargo = cargo.replace(/^version\s*=\s*".*"/m, `version = "${version}"`);
+            fs.writeFileSync('src-tauri/Cargo.toml', cargo);
+            console.log('Updated Cargo.toml');
+          } catch (e) { console.log('src-tauri/Cargo.toml not found'); }
+          
+          // 3. 更新 tauri.conf.json
+          try {
+            let tauri = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+            if (tauri.version) tauri.version = version; // Tauri v2 格式
+            if (tauri.package) tauri.package.version = version; // Tauri v1 格式
+            fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(tauri, null, 2));
+            console.log('Updated tauri.conf.json');
+          } catch (e) { console.log('src-tauri/tauri.conf.json not found'); }
 
 
       - name: Install frontend dependencies
