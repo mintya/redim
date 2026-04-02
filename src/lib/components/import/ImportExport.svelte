@@ -1,5 +1,7 @@
 <script lang="ts">
   import { activeConnectionId } from '$lib/stores/connection';
+  import { toast } from '$lib/stores/toast';
+  import { scanAllKeys } from '$lib/utils/redis';
   import { keys, loadKeys, loadKeyValue, loadKeyInfo } from '$lib/stores/database';
   import { invoke } from '@tauri-apps/api/core';
   import { save, open as openDialog } from '@tauri-apps/plugin-dialog';
@@ -17,31 +19,14 @@
   let exportPattern = $state('*');
   let exporting = $state(false);
   let importing = $state(false);
-  let status = $state('');
-  let error = $state('');
 
   async function handleExport() {
     if (!$activeConnectionId) return;
-    
+
     exporting = true;
-    status = 'Exporting...';
-    error = '';
 
     try {
-      // 获取匹配的 keys（循环 SCAN）
-      const keyList: string[] = [];
-      let cursor: number = 0;
-      do {
-        const [nextCursor, batch] = await invoke<[number, string[]]>('get_keys', {
-          id: $activeConnectionId,
-          pattern: exportPattern,
-          cursor,
-          count: 5000
-        });
-        keyList.push(...batch);
-        cursor = nextCursor;
-      } while (cursor !== 0);
-
+      const keyList = await scanAllKeys($activeConnectionId, exportPattern, 5000);
       const data: Record<string, any> = {};
 
       for (const key of keyList) {
@@ -58,12 +43,10 @@
 
       let content: string;
       let filename: string;
-      let mimeType: string;
 
       if (exportFormat === 'json') {
         content = JSON.stringify(data, null, 2);
         filename = `redis-export-${Date.now()}.json`;
-        mimeType = 'application/json';
       } else {
         // CSV format
         const rows = ['key,type,ttl,value'];
@@ -73,7 +56,6 @@
         }
         content = rows.join('\n');
         filename = `redis-export-${Date.now()}.csv`;
-        mimeType = 'text/csv';
       }
 
       // Use Tauri save dialog
@@ -84,13 +66,11 @@
 
       if (filePath) {
         await writeTextFile(filePath, content);
-        status = `Exported ${keyList.length} keys to ${filePath}`;
-      } else {
-        status = 'Export cancelled';
+        toast.success(`Exported ${keyList.length} keys to ${filePath}`);
+        handleClose();
       }
     } catch (e) {
-      error = String(e);
-      status = 'Export failed';
+      toast.error(`Export failed: ${String(e)}`);
     }
 
     exporting = false;
@@ -108,8 +88,6 @@
     if (!filePath) return;
 
     importing = true;
-    status = 'Importing...';
-    error = '';
 
     try {
       const text = await readTextFile(filePath as string);
@@ -153,10 +131,10 @@
       }
 
       await loadKeys($activeConnectionId);
-      status = `Imported ${count} keys`;
+      toast.success(`Imported ${count} keys`);
+      handleClose();
     } catch (e) {
-      error = String(e);
-      status = 'Import failed';
+      toast.error(`Import failed: ${String(e)}`);
     }
 
     importing = false;
@@ -164,15 +142,13 @@
 
   function handleClose() {
     open = false;
-    status = '';
-    error = '';
     onclose();
   }
 </script>
 
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div 
+  <div
     class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
     onclick={(e) => e.target === e.currentTarget && handleClose()}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
@@ -181,7 +157,7 @@
       <!-- Header -->
       <div class="h-10 px-4 border-b border-[#d4d4d4] flex items-center justify-between">
         <span class="text-base text-[#1a1a1a] font-mono">import / export</span>
-        <button 
+        <button
           class="text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
           onclick={handleClose}
         >
@@ -197,8 +173,8 @@
           <div class="space-y-2">
             <div>
               <span class="block text-base text-[#9a9a9a] mb-1">pattern</span>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 bind:value={exportPattern}
                 placeholder="*"
                 class="w-full px-2.5 py-1.5 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
@@ -207,13 +183,13 @@
             <div>
               <span class="block text-base text-[#9a9a9a] mb-1">format</span>
               <div class="flex gap-2">
-                <button 
+                <button
                   class="px-3 py-1.5 text-base font-mono rounded border transition-colors {exportFormat === 'json' ? 'bg-[#dc382d] text-white border-[#dc382d]' : 'bg-[#fafafa] text-[#6b6b6b] border-[#d4d4d4] hover:border-[#dc382d]'}"
                   onclick={() => exportFormat = 'json'}
                 >
                   JSON
                 </button>
-                <button 
+                <button
                   class="px-3 py-1.5 text-base font-mono rounded border transition-colors {exportFormat === 'csv' ? 'bg-[#dc382d] text-white border-[#dc382d]' : 'bg-[#fafafa] text-[#6b6b6b] border-[#d4d4d4] hover:border-[#dc382d]'}"
                   onclick={() => exportFormat = 'csv'}
                 >
@@ -235,16 +211,6 @@
             {importing ? 'importing...' : 'select file'}
           </Button>
         </div>
-
-        <!-- Status -->
-        {#if status}
-          <div class="pt-4 border-t border-[#d4d4d4]">
-            <p class="text-base {error ? 'text-[#dc382d]' : 'text-[#28c840]'}">{status}</p>
-            {#if error}
-              <p class="text-base text-[#dc382d] mt-1">{error}</p>
-            {/if}
-          </div>
-        {/if}
       </div>
     </div>
   </div>

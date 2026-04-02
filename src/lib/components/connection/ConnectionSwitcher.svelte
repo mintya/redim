@@ -51,41 +51,41 @@
 {#if isConnected}
   <div class="ml-auto flex items-center gap-2" style="-webkit-app-region: no-drag;">
     <button 
-      class="px-3 py-1.5 text-base text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#e8e8e8] rounded transition-colors flex items-center gap-1"
+      class="px-3 py-1.5 text-base text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[#f5f5f7] rounded-lg transition-colors flex items-center gap-1"
       onclick={toggleMenu}
     >
       <span>{$activeConnection?.name || $activeConnection?.host}:{$activeConnection?.port}</span>
-      <span class="text-[#9a9a9a]">▾</span>
+      <span class="text-[var(--color-macos-text-tertiary)]">▾</span>
     </button>
     
     {#if showMenu}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div 
-        class="absolute right-4 top-9 w-56 bg-[#f8f8f8] border border-[#d4d4d4] rounded shadow-lg z-50"
+        class="absolute right-4 top-9 w-56 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl shadow-lg z-50"
         onclick={(e) => e.stopPropagation()}
       >
         <div class="py-1">
           {#each $connections as conn}
             <button 
-              class="w-full px-3 py-2 text-left hover:bg-[#f0f0f0] transition-colors flex items-center justify-between"
+              class="w-full px-3 py-2 text-left hover:bg-[#f5f5f7] transition-colors flex items-center justify-between"
               onclick={() => handleSwitch(conn.id)}
             >
               <div>
-                <div class="text-base text-[#1a1a1a]">{conn.name || conn.host}</div>
-                <div class="text-base text-[#9a9a9a]">{conn.host}:{conn.port}</div>
+                <div class="text-base text-[var(--color-macos-text)]">{conn.name || conn.host}</div>
+                <div class="text-base text-[var(--color-macos-text-tertiary)]">{conn.host}:{conn.port}</div>
               </div>
               {#if conn.id === currentConnectionId}
-                <span class="w-1.5 h-1.5 rounded-full bg-[#28c840]"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[#34c759]"></span>
               {:else}
-                <span class="w-1.5 h-1.5 rounded-full bg-[#9a9a9a]"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-macos-text-tertiary)]"></span>
               {/if}
             </button>
           {/each}
         </div>
-        <div class="border-t border-[#d4d4d4] py-1">
+        <div class="border-t border-[var(--color-macos-border)] py-1">
           <button 
-            class="w-full px-3 py-2 text-left text-base text-[#dc382d] hover:bg-[#fdf0ef] transition-colors"
+            class="w-full px-3 py-2 text-left text-base text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors"
             onclick={handleDisconnect}
           >
             disconnect

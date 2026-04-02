@@ -1,7 +1,7 @@
 <script lang="ts">
   interface Props {
     type?: 'text' | 'password' | 'number';
-    value: string | number;
+    value: string | number | undefined;
     placeholder?: string;
     disabled?: boolean;
     oninput?: (value: string) => void;
@@ -28,5 +28,5 @@
   {placeholder}
   {disabled}
   oninput={handleInput}
-  class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-[#1a1a1a] font-mono text-base placeholder:text-[#9a9a9a] focus:outline-none focus:border-[#dc382d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+  class="w-full px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-[var(--color-macos-text)] font-mono text-base placeholder:text-[var(--color-macos-text-tertiary)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
 />

@@ -31,12 +31,12 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div 
-  class="context-menu fixed bg-[#f8f8f8] border border-[#d4d4d4] rounded shadow-lg py-1 z-50 min-w-[120px]"
+  class="context-menu fixed bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl shadow-lg py-1 z-50 min-w-[120px]"
   style="left: {x}px; top: {y}px;"
 >
   {#each items as item}
     <button
-      class="w-full px-3 py-2 text-left text-base font-mono transition-colors {item.danger ? 'text-[#dc382d] hover:bg-[#fdf0ef]' : 'text-[#1a1a1a] hover:bg-[#f0f0f0]'}"
+      class="w-full px-3 py-2 text-left text-base font-mono transition-colors {item.danger ? 'text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]' : 'text-[var(--color-macos-text)] hover:bg-[#f5f5f7]'}"
       onclick={() => handleItemClick(item)}
     >
       {item.label}

@@ -82,12 +82,16 @@ impl ConnectionConfig {
         }
     }
 
-    /// Save password to keyring and mark as stored
+    /// Save password to keyring and mark as stored, or clean up if password was cleared
     pub fn store_password(&mut self) -> Result<(), String> {
         if let Some(ref pwd) = self.password {
             save_password_to_keyring(&self.id, pwd)?;
             self.password_stored = true;
             self.password = None; // Clear from memory after storing
+        } else if self.password_stored {
+            // Password was cleared — remove old keyring entry
+            delete_password_from_keyring(&self.id);
+            self.password_stored = false;
         }
         Ok(())
     }

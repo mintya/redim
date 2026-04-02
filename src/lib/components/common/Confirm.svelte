@@ -49,31 +49,31 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div 
-    class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
   >
-    <div class="bg-[#f8f8f8] border border-[#d4d4d4] rounded w-full max-w-sm shadow-lg">
+    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-2xl w-full max-w-sm shadow-lg">
       <!-- Header -->
-      <div class="px-4 py-3 border-b border-[#d4d4d4]">
-        <span class="text-base text-[#1a1a1a] font-mono">{title}</span>
+      <div class="px-4 py-3 border-b border-[var(--color-macos-border)]">
+        <span class="text-base text-[var(--color-macos-text)] font-semibold">{title}</span>
       </div>
       
       <!-- Content -->
       <div class="px-4 py-4">
-        <p class="text-base text-[#1a1a1a] font-mono">{message}</p>
+        <p class="text-base text-[var(--color-macos-text)]">{message}</p>
       </div>
       
       <!-- Actions -->
-      <div class="px-4 py-3 border-t border-[#d4d4d4] flex justify-end gap-2">
+      <div class="px-4 py-3 border-t border-[var(--color-macos-border)] flex justify-end gap-2">
         <button 
-          class="px-4 py-2 text-base font-mono text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+          class="px-4 py-2 text-base font-medium text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors rounded-lg hover:bg-[#f5f5f7]"
           onclick={handleCancel}
         >
           {cancelText}
         </button>
         <button 
-          class="px-4 py-2 text-base font-mono rounded transition-colors {danger ? 'bg-[#dc382d] text-white hover:bg-[#e85d54]' : 'bg-[#1a1a1a] text-white hover:bg-[#333]'}"
+          class="px-4 py-2 text-base font-medium rounded-lg transition-colors {danger ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)]' : 'bg-[var(--color-macos-text)] text-white hover:bg-[#333]'}"
           onclick={handleConfirm}
         >
           {confirmText}

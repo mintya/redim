@@ -16,21 +16,21 @@
   }: Props = $props();
 
   const variants = {
-    primary: 'bg-[#dc382d] text-white hover:bg-[#e85d54] border-[#dc382d]',
-    secondary: 'bg-white text-[#1a1a1a] hover:bg-[#f0f0f0] border-[#d4d4d4]',
-    ghost: 'bg-transparent text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#f0f0f0] border-transparent',
+    primary: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)] border-[var(--color-accent)] shadow-sm',
+    secondary: 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] hover:bg-[#f5f5f7] border-[var(--color-macos-border)] shadow-sm',
+    ghost: 'bg-transparent text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[#f5f5f7] border-transparent',
   };
 
   const sizes = {
     sm: 'px-3 py-1.5 text-base',
-    md: 'px-4 py-2 text-lg',
+    md: 'px-4 py-2 text-base',
   };
 </script>
 
 <button
   {disabled}
   {onclick}
-  class="font-mono rounded transition-colors border {variants[variant]} {sizes[size]} disabled:opacity-50 disabled:cursor-not-allowed"
+  class="font-mono rounded-lg transition-all duration-200 border {variants[variant]} {sizes[size]} disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
 >
   {@render children()}
 </button>

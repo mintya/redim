@@ -5,6 +5,7 @@
   import { activeDb } from '$lib/stores/database';
   import Logo from '$lib/components/common/Logo.svelte';
   import ToastContainer from '$lib/components/common/ToastContainer.svelte';
+  import LoadingIndicator from '$lib/components/common/LoadingIndicator.svelte';
   import ConnectionSwitcher from '$lib/components/connection/ConnectionSwitcher.svelte';
   import CliTerminal from '$lib/components/cli/CliTerminal.svelte';
   import MonitorPanel from '$lib/components/monitor/MonitorPanel.svelte';
@@ -49,12 +50,12 @@
   }
 </script>
 
-<div class="h-screen flex flex-col bg-[#f8f8f8] font-mono text-base">
+<div class="h-screen flex flex-col bg-[var(--color-macos-bg)] font-mono text-base">
   <!-- Title Bar -->
-  <div class="h-10 bg-[#f0f0f0] border-b border-[#d4d4d4] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
+  <div class="h-12 bg-[var(--color-macos-surface)] border-b border-[var(--color-macos-border)] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
     <div class="flex items-center gap-2">
-      <Logo size={22} />
-      <span class="text-xl text-[#1a1a1a] font-medium">Redim</span>
+      <Logo size={24} />
+      <span class="text-lg text-[var(--color-macos-text)] font-semibold">Redim</span>
     </div>
     <ConnectionSwitcher />
   </div>
@@ -65,37 +66,37 @@
   </div>
 
   <!-- Status Bar -->
-  <div class="h-8 bg-[#f0f0f0] border-t border-[#d4d4d4] flex items-center px-3 text-base text-[#6b6b6b]">
+  <div class="h-7 bg-[var(--color-macos-surface)] border-t border-[var(--color-macos-border)] flex items-center px-3 text-base text-[var(--color-macos-text-secondary)]">
     {#if $activeConnection}
       <span class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#28c840]"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[#34c759]"></span>
         <span>{$activeConnection.name || $activeConnection.host}:{$activeConnection.port}</span>
-        <span class="text-[#9a9a9a]">db{$activeDb}</span>
+        <span class="text-[var(--color-macos-text-tertiary)]">db{$activeDb}</span>
       </span>
     {:else}
       <span class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#9a9a9a]"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-macos-text-tertiary)]"></span>
         disconnected
       </span>
     {/if}
-    <span class="ml-auto flex items-center gap-3">
+    <span class="ml-auto flex items-center gap-4">
       {#if isConnected}
         <button 
-          class="text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+          class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"
           onclick={() => showImportExport = true}
           title="Import/Export"
         >
           ↕ data
         </button>
         <button 
-          class="text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+          class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"
           onclick={() => showMonitor = true}
           title="Monitor (⌘M)"
         >
           ◎ monitor
         </button>
         <button 
-          class="text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+          class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"
           onclick={() => showCli = true}
           title="CLI (⌘K)"
         >
@@ -111,3 +112,4 @@
 <MonitorPanel bind:open={showMonitor} onclose={() => showMonitor = false} />
 <ImportExport bind:open={showImportExport} onclose={() => showImportExport = false} />
 <ToastContainer />
+<LoadingIndicator />

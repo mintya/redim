@@ -8,6 +8,7 @@
   import Confirm from '$lib/components/common/Confirm.svelte';
   import CreateKeyModal from './CreateKeyModal.svelte';
   import TreeNodeComponent from './TreeNode.svelte';
+  import VirtualList from '$lib/components/common/VirtualList.svelte';
 
   let pattern = $state('*');
   let contextMenu = $state<{ x: number; y: number; key: string } | null>(null);
@@ -30,17 +31,20 @@
   // 将数组转换为 Set 用于查找
   let expandedSet = $derived(new Set(expandedNodes));
 
+  // 虚拟滚动引用
+  let virtualListRef = $state<VirtualList | null>(null);
+
   // 类型颜色映射
   function getTypeColor(type: string) {
     const colors: Record<string, string> = {
-      string: 'bg-[#28c840]',
-      hash: 'bg-[#ff9f43]',
-      list: 'bg-[#5f9eff]',
-      set: 'bg-[#a55eea]',
-      zset: 'bg-[#eb3b5a]',
-      stream: 'bg-[#778ca3]',
+      string: 'bg-[#34c759]',
+      hash: 'bg-[#ff9500]',
+      list: 'bg-[#007aff]',
+      set: 'bg-[#af52de]',
+      zset: 'bg-[#ff3b30]',
+      stream: 'bg-[#8e8e93]',
     };
-    return colors[type] || 'bg-[#9a9a9a]';
+    return colors[type] || 'bg-[var(--color-macos-text-tertiary)]';
   }
 
   function getTypeLabel(type: string) {
@@ -206,13 +210,13 @@
 </script>
 
 <!-- Search -->
-<div class="p-2 border-b border-[#d4d4d4]">
+<div class="p-2 border-b border-[var(--color-macos-border)]">
   <div class="flex gap-2">
     <input 
       type="text" 
       bind:value={pattern}
       placeholder="fuzzy search..."
-      class="flex-1 px-2 py-1 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
+      class="flex-1 px-2 py-1 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
       onkeydown={(e) => e.key === 'Enter' && handleSearch()}
     />
     <Button variant="secondary" size="sm" onclick={handleSearch}>search</Button>
@@ -220,62 +224,62 @@
 </div>
 
 <!-- Type Filter -->
-<div class="px-2 py-1.5 border-b border-[#d4d4d4] flex items-center gap-1">
+<div class="px-2 py-1.5 border-b border-[var(--color-macos-border)] flex items-center gap-1">
   <button 
-    class="px-1.5 py-0.5 rounded text-base transition-colors {typeFilter === 'all' ? 'bg-[#dc382d] text-white' : 'text-[#6b6b6b] hover:bg-[#f0f0f0]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors {typeFilter === 'all' ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[#f5f5f7]'}"
     onclick={() => typeFilter = 'all'}
   >all</button>
   <button 
-    class="px-1.5 py-0.5 rounded text-base transition-colors flex items-center gap-0.5 {typeFilter === 'string' ? 'bg-[#28c840] text-white' : 'text-[#6b6b6b] hover:bg-[#f0f0f0]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'string' ? 'bg-[#34c759] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[#f5f5f7]'}"
     onclick={() => typeFilter = typeFilter === 'string' ? 'all' : 'string'}
   >
-    <span class="w-1.5 h-1.5 rounded-full bg-[#28c840] {typeFilter === 'string' ? 'bg-white' : ''}"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#34c759] {typeFilter === 'string' ? 'bg-white' : ''}"></span>
     str
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded text-base transition-colors flex items-center gap-0.5 {typeFilter === 'hash' ? 'bg-[#ff9f43] text-white' : 'text-[#6b6b6b] hover:bg-[#f0f0f0]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'hash' ? 'bg-[#ff9500] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[#f5f5f7]'}"
     onclick={() => typeFilter = typeFilter === 'hash' ? 'all' : 'hash'}
   >
-    <span class="w-1.5 h-1.5 rounded-full bg-[#ff9f43] {typeFilter === 'hash' ? 'bg-white' : ''}"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#ff9500] {typeFilter === 'hash' ? 'bg-white' : ''}"></span>
     hash
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded text-base transition-colors flex items-center gap-0.5 {typeFilter === 'list' ? 'bg-[#5f9eff] text-white' : 'text-[#6b6b6b] hover:bg-[#f0f0f0]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'list' ? 'bg-[#007aff] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[#f5f5f7]'}"
     onclick={() => typeFilter = typeFilter === 'list' ? 'all' : 'list'}
   >
-    <span class="w-1.5 h-1.5 rounded-full bg-[#5f9eff] {typeFilter === 'list' ? 'bg-white' : ''}"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#007aff] {typeFilter === 'list' ? 'bg-white' : ''}"></span>
     list
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded text-base transition-colors flex items-center gap-0.5 {typeFilter === 'set' ? 'bg-[#a55eea] text-white' : 'text-[#6b6b6b] hover:bg-[#f0f0f0]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'set' ? 'bg-[#af52de] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[#f5f5f7]'}"
     onclick={() => typeFilter = typeFilter === 'set' ? 'all' : 'set'}
   >
-    <span class="w-1.5 h-1.5 rounded-full bg-[#a55eea] {typeFilter === 'set' ? 'bg-white' : ''}"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#af52de] {typeFilter === 'set' ? 'bg-white' : ''}"></span>
     set
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded text-base transition-colors flex items-center gap-0.5 {typeFilter === 'zset' ? 'bg-[#eb3b5a] text-white' : 'text-[#6b6b6b] hover:bg-[#f0f0f0]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'zset' ? 'bg-[#ff3b30] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[#f5f5f7]'}"
     onclick={() => typeFilter = typeFilter === 'zset' ? 'all' : 'zset'}
   >
-    <span class="w-1.5 h-1.5 rounded-full bg-[#eb3b5a] {typeFilter === 'zset' ? 'bg-white' : ''}"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[#ff3b30] {typeFilter === 'zset' ? 'bg-white' : ''}"></span>
     zset
   </button>
 </div>
 
 <!-- Toolbar -->
-<div class="px-2 py-1 border-b border-[#d4d4d4] flex items-center justify-between bg-[#f5f5f5]">
+<div class="px-2 py-1 border-b border-[var(--color-macos-border)] flex items-center justify-between bg-[#f5f5f7]">
   <!-- View & Sort Icons -->
   <div class="flex items-center gap-1">
     <!-- List/Tree Toggle -->
     <button 
-      class="w-6 h-6 flex items-center justify-center rounded text-base transition-colors {viewMode === 'list' ? 'text-[#dc382d]' : 'text-[#9a9a9a] hover:text-[#6b6b6b]'}"
+      class="w-6 h-6 flex items-center justify-center rounded-md text-base transition-colors {viewMode === 'list' ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
       onclick={() => viewMode = 'list'}
       title="List view"
     >
       ☰
     </button>
     <button 
-      class="w-6 h-6 flex items-center justify-center rounded text-base transition-colors {viewMode === 'tree' ? 'text-[#dc382d]' : 'text-[#9a9a9a] hover:text-[#6b6b6b]'}"
+      class="w-6 h-6 flex items-center justify-center rounded-md text-base transition-colors {viewMode === 'tree' ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
       onclick={() => viewMode = 'tree'}
       title="Tree view"
     >
@@ -283,16 +287,16 @@
     </button>
 
     {#if viewMode === 'tree'}
-      <span class="text-[#d4d4d4] mx-1">|</span>
+      <span class="text-[var(--color-macos-border)] mx-1">|</span>
       <button 
-        class="w-7 h-7 flex items-center justify-center rounded text-base text-[#9a9a9a] hover:text-[#6b6b6b] transition-colors"
+        class="w-7 h-7 flex items-center justify-center rounded-md text-base text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)] transition-colors"
         onclick={expandAll}
         title="Expand all"
       >
         ▾
       </button>
       <button 
-        class="w-7 h-7 flex items-center justify-center rounded text-base text-[#9a9a9a] hover:text-[#6b6b6b] transition-colors"
+        class="w-7 h-7 flex items-center justify-center rounded-md text-base text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)] transition-colors"
         onclick={collapseAll}
         title="Collapse all"
       >
@@ -300,30 +304,30 @@
       </button>
     {/if}
 
-    <span class="text-[#d4d4d4] mx-1">|</span>
+    <span class="text-[var(--color-macos-border)] mx-1">|</span>
     <button 
-      class="w-7 h-7 flex items-center justify-center rounded text-base text-[#9a9a9a] hover:text-[#6b6b6b] transition-colors"
+      class="w-7 h-7 flex items-center justify-center rounded-md text-base text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)] transition-colors"
       onclick={cycleSortOrder}
       title={sortOrder === 'asc' ? 'A→Z' : 'Z→A'}
     >
       {sortOrder === 'asc' ? '↑' : '↓'}
     </button>
     
-    <span class="text-[#d4d4d4] mx-1">|</span>
-    <span class="text-base text-[#6b6b6b]">{filteredKeys().length} keys</span>
+    <span class="text-[var(--color-macos-border)] mx-1">|</span>
+    <span class="text-base text-[var(--color-macos-text-secondary)]">{filteredKeys().length} keys</span>
   </div>
 
   <!-- Actions -->
   <div class="flex items-center gap-1">
     <button 
-      class="w-7 h-7 flex items-center justify-center rounded text-lg text-[#dc382d] hover:text-[#e85d54] transition-colors"
+      class="w-7 h-7 flex items-center justify-center rounded-md text-lg text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
       onclick={() => showCreateModal = true}
       title="New key"
     >
       +
     </button>
     <button 
-      class="w-7 h-7 flex items-center justify-center rounded text-base transition-colors {isSelectionMode ? 'text-[#dc382d]' : 'text-[#9a9a9a] hover:text-[#6b6b6b]'}"
+      class="w-7 h-7 flex items-center justify-center rounded-md text-base transition-colors {isSelectionMode ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
       onclick={toggleSelectionMode}
       title={isSelectionMode ? 'Cancel' : 'Multi select'}
     >
@@ -334,13 +338,13 @@
 
 <!-- Selection Bar -->
 {#if isSelectionMode}
-  <div class="px-3 py-1.5 border-b border-[#d4d4d4] bg-[#fdf0ef] flex items-center gap-2 text-base">
-    <span class="text-[#1a1a1a]">{selectedKeys.size} selected</span>
-    <span class="text-[#d4d4d4]">|</span>
-    <button class="text-[#dc382d] hover:underline" onclick={selectAll}>all</button>
-    <button class="text-[#6b6b6b] hover:underline" onclick={deselectAll}>none</button>
+  <div class="px-3 py-1.5 border-b border-[var(--color-macos-border)] bg-[var(--color-accent-subtle)] flex items-center gap-2 text-base">
+    <span class="text-[var(--color-macos-text)]">{selectedKeys.size} selected</span>
+    <span class="text-[var(--color-macos-border)]">|</span>
+    <button class="text-[var(--color-accent)] hover:underline" onclick={selectAll}>all</button>
+    <button class="text-[var(--color-macos-text-secondary)] hover:underline" onclick={deselectAll}>none</button>
     {#if selectedKeys.size > 0}
-      <button class="text-[#dc382d] hover:underline ml-auto" onclick={handleBatchDelete}>
+      <button class="text-[var(--color-accent)] hover:underline ml-auto" onclick={handleBatchDelete}>
         delete ({selectedKeys.size})
       </button>
     {/if}
@@ -348,54 +352,58 @@
 {/if}
 
 <!-- Keys List/Tree -->
-<div class="flex-1 overflow-y-auto">
+<div class="flex-1 min-h-0">
   {#if $keys.length === 0}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[#9a9a9a]">no keys</div>
+      <div class="text-base text-[var(--color-macos-text-tertiary)]">no keys</div>
     </div>
   {:else if filteredKeys().length === 0}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[#9a9a9a]">no keys match filter</div>
+      <div class="text-base text-[var(--color-macos-text-tertiary)]">no keys match filter</div>
     </div>
   {:else if viewMode === 'list'}
-    <!-- List View -->
-    {#each filteredKeys() as key}
-      {@const keyType = $keyTypes.get(key) || 'unknown'}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div 
-        class="px-4 py-2 cursor-pointer transition-colors border-b border-[#e5e5e5] flex items-center gap-2 {$activeKey === key ? 'bg-[#fdf0ef]' : 'hover:bg-[#f0f0f0]'}"
-        onclick={() => handleSelectKey(key)}
-        onkeydown={(e) => e.key === 'Enter' && handleSelectKey(key)}
-        oncontextmenu={(e) => handleContextMenu(e, key)}
-        role="button"
-        tabindex="0"
-      >
-        {#if isSelectionMode}
-          <input 
-            type="checkbox" 
-            checked={selectedKeys.has(key)}
-            class="accent-[#dc382d] cursor-pointer"
-            onclick={(e) => { e.stopPropagation(); toggleSelection(key); }}
-          />
-        {/if}
-        <span class="w-5 h-5 flex items-center justify-center rounded text-[10px] text-white font-medium {getTypeColor(keyType)}">{getTypeLabel(keyType)}</span>
-        <span class="text-base text-[#1a1a1a] font-mono truncate">{key}</span>
-      </div>
-    {/each}
+    <!-- List View with Virtual Scrolling -->
+    <VirtualList
+      bind:this={virtualListRef}
+      items={filteredKeys()}
+      itemHeight={36}
+      selectedKey={$activeKey}
+      getKey={(key) => key}
+      onItemClick={(key) => handleSelectKey(key)}
+      onItemContextMenu={(key, _, e) => handleContextMenu(e, key)}
+    >
+      {#snippet item(key: string, index: number)}
+        {@const keyType = $keyTypes.get(key) || 'unknown'}
+        <div class="px-4 py-2 flex items-center gap-2 h-full">
+          {#if isSelectionMode}
+            <input 
+              type="checkbox" 
+              checked={selectedKeys.has(key)}
+              class="accent-[var(--color-accent)] cursor-pointer"
+              onclick={(e) => { e.stopPropagation(); toggleSelection(key); }}
+            />
+          {/if}
+          <span class="w-5 h-5 flex items-center justify-center rounded-md text-[10px] text-white font-medium {getTypeColor(keyType)}">{getTypeLabel(keyType)}</span>
+          <span class="text-base text-[var(--color-macos-text)] font-mono truncate">{key}</span>
+        </div>
+      {/snippet}
+    </VirtualList>
   {:else}
     <!-- Tree View -->
-    {#each flatTreeNodes() as { node, level }}
-      <TreeNodeComponent
-        {node}
-        {level}
-        isExpanded={expandedSet.has(node.fullPath)}
-        isSelected={node.isLeaf && $activeKey === node.fullPath}
-        keyType={node.isLeaf ? ($keyTypes.get(node.fullPath) || 'unknown') : undefined}
-        ontoggle={toggleExpand}
-        onselect={handleSelectKey}
-        oncontextmenu={handleContextMenu}
-      />
-    {/each}
+    <div class="overflow-y-auto h-full">
+      {#each flatTreeNodes() as { node, level }}
+        <TreeNodeComponent
+          {node}
+          {level}
+          isExpanded={expandedSet.has(node.fullPath)}
+          isSelected={node.isLeaf && $activeKey === node.fullPath}
+          keyType={node.isLeaf ? ($keyTypes.get(node.fullPath) || 'unknown') : undefined}
+          ontoggle={toggleExpand}
+          onselect={handleSelectKey}
+          oncontextmenu={handleContextMenu}
+        />
+      {/each}
+    </div>
   {/if}
 </div>
 

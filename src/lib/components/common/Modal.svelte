@@ -2,11 +2,18 @@
   interface Props {
     open: boolean;
     title?: string;
+    size?: 'sm' | 'md' | 'lg';
     onclose?: () => void;
     children: any;
   }
 
-  let { open = $bindable(), title = '', onclose, children }: Props = $props();
+  let { open = $bindable(), title = '', size = 'md', onclose, children }: Props = $props();
+
+  const sizeClasses = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-xl',
+  };
 
   function handleClose() {
     open = false;
@@ -23,17 +30,17 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div 
-    class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={handleBackdropClick}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="bg-[#f8f8f8] border border-[#d4d4d4] rounded-md w-full max-w-md mx-4 shadow-lg">
+    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-2xl w-full {sizeClasses[size]} mx-4 shadow-lg">
       {#if title}
-        <div class="flex items-center justify-between px-4 py-3 border-b border-[#d4d4d4]">
-          <span class="font-mono text-base text-[#1a1a1a]">{title}</span>
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-macos-border)]">
+          <span class="font-mono text-base text-[var(--color-macos-text)] font-semibold">{title}</span>
           <button 
             onclick={handleClose}
-            class="text-[#9a9a9a] hover:text-[#1a1a1a] transition-colors"
+            class="text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text)] transition-colors p-1 rounded-full hover:bg-[#f5f5f7]"
           >
             ✕
           </button>

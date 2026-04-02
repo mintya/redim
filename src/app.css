@@ -7,6 +7,13 @@
   --color-accent: #dc382d;
   --color-accent-light: #e85d54;
   --color-accent-subtle: #fdf0ef;
+  
+  --color-macos-bg: #f5f5f7;
+  --color-macos-surface: #ffffff;
+  --color-macos-border: #d2d2d7;
+  --color-macos-text: #1d1d1f;
+  --color-macos-text-secondary: #86868b;
+  --color-macos-text-tertiary: #aeaeb2;
 }
 
 @layer base {
@@ -14,8 +21,8 @@
     font-family: var(--font-mono);
     font-size: 13px;
     line-height: 1.5;
-    color: #1a1a1a;
-    background-color: #f8f8f8;
+    color: var(--color-macos-text);
+    background-color: var(--color-macos-bg);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -24,6 +31,6 @@
   
   * {
     scrollbar-width: thin;
-    scrollbar-color: #d4d4d4 transparent;
+    scrollbar-color: var(--color-macos-border) transparent;
   }
 }

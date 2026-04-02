@@ -49,7 +49,7 @@
   <!-- Connected View: Database Browser -->
   <div class="flex-1 flex overflow-hidden">
     <!-- Left: DB List + Keys -->
-    <div class="flex flex-col bg-[#fafafa] overflow-hidden" style="width: {leftPanelWidth}px">
+    <div class="flex flex-col bg-[var(--color-macos-surface)] overflow-hidden" style="width: {leftPanelWidth}px">
       <DbList />
       <KeyList />
     </div>
@@ -58,24 +58,24 @@
     <Resizer onresize={handleResize} />
 
     <!-- Right: Key Details -->
-    <div class="flex-1 flex flex-col bg-[#fafafa] overflow-hidden">
+    <div class="flex-1 flex flex-col bg-[var(--color-macos-surface)] overflow-hidden">
       <KeyDetail />
     </div>
   </div>
 {:else}
   <!-- Disconnected View: Connection Manager -->
   <div class="flex-1 flex items-center justify-center p-6">
-    <div class="flex border border-[#d4d4d4] rounded w-full max-w-4xl h-[calc(100vh-120px)]">
+    <div class="flex border border-[var(--color-macos-border)] rounded-xl w-full max-w-4xl h-[calc(100vh-120px)] bg-[var(--color-macos-surface)] shadow-sm">
       <!-- Left: Connection List -->
-      <div class="w-80 border-r border-[#d4d4d4] flex flex-col bg-[#fafafa] rounded-l">
-        <div class="h-11 px-4 border-b border-[#d4d4d4] flex items-center">
-          <span class="text-base text-[#6b6b6b] font-mono">connections</span>
+      <div class="w-80 border-r border-[var(--color-macos-border)] flex flex-col bg-[var(--color-macos-surface)] rounded-l-xl">
+        <div class="h-10 px-4 border-b border-[var(--color-macos-border)] flex items-center">
+          <span class="text-base text-[var(--color-macos-text-secondary)] font-medium">connections</span>
         </div>
         <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
       </div>
 
       <!-- Right: New Connection Form -->
-      <div class="flex-1 flex flex-col bg-[#fafafa] rounded-r">
+      <div class="flex-1 flex flex-col bg-[var(--color-macos-surface)] rounded-r-xl">
         <ConnectionForm bind:editing={editingConnection} onsaved={handleSaved} />
       </div>
     </div>

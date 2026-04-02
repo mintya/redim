@@ -14,20 +14,83 @@
 
   let keyName = $state('');
   let keyType = $state<RedisType>('string');
-  let keyValue = $state('');
+  let stringValue = $state('');
   let ttl = $state(-1);
   let error = $state('');
 
-  const typeOptions: { value: RedisType; label: string; placeholder: string }[] = [
-    { value: 'string', label: 'String', placeholder: 'value' },
-    { value: 'hash', label: 'Hash', placeholder: 'field1=value1,field2=value2' },
-    { value: 'list', label: 'List', placeholder: 'item1,item2,item3' },
-    { value: 'set', label: 'Set', placeholder: 'member1,member2,member3' },
-    { value: 'zset', label: 'ZSet', placeholder: 'member1=1.0,member2=2.0' },
+  // Hash fields
+  let hashFields = $state<{ field: string; value: string }[]>([{ field: '', value: '' }]);
+
+  // List items
+  let listItems = $state<string[]>(['']);
+
+  // Set members
+  let setMembers = $state<string[]>(['']);
+
+  // ZSet members
+  let zsetMembers = $state<{ member: string; score: number }[]>([{ member: '', score: 0 }]);
+
+  const typeOptions: { value: RedisType; label: string; description: string }[] = [
+    { value: 'string', label: 'String', description: 'Simple key-value pair' },
+    { value: 'hash', label: 'Hash', description: 'Map of field-value pairs' },
+    { value: 'list', label: 'List', description: 'Ordered collection of strings' },
+    { value: 'set', label: 'Set', description: 'Unordered collection of unique strings' },
+    { value: 'zset', label: 'Sorted Set', description: 'Set with scores for ordering' },
   ];
 
-  function getTypePlaceholder() {
-    return typeOptions.find(t => t.value === keyType)?.placeholder || '';
+  function addHashField() {
+    hashFields = [...hashFields, { field: '', value: '' }];
+  }
+
+  function removeHashField(index: number) {
+    hashFields = hashFields.filter((_, i) => i !== index);
+  }
+
+  function addListItem() {
+    listItems = [...listItems, ''];
+  }
+
+  function removeListItem(index: number) {
+    listItems = listItems.filter((_, i) => i !== index);
+  }
+
+  function addSetMember() {
+    setMembers = [...setMembers, ''];
+  }
+
+  function removeSetMember(index: number) {
+    setMembers = setMembers.filter((_, i) => i !== index);
+  }
+
+  function addZSetMember() {
+    zsetMembers = [...zsetMembers, { member: '', score: 0 }];
+  }
+
+  function removeZSetMember(index: number) {
+    zsetMembers = zsetMembers.filter((_, i) => i !== index);
+  }
+
+  function buildValue(): string {
+    switch (keyType) {
+      case 'string':
+        return stringValue;
+      case 'hash':
+        return hashFields
+          .filter(f => f.field && f.value)
+          .map(f => `${f.field}=${f.value}`)
+          .join(',');
+      case 'list':
+        return listItems.filter(i => i).join(',');
+      case 'set':
+        return setMembers.filter(m => m).join(',');
+      case 'zset':
+        return zsetMembers
+          .filter(m => m.member)
+          .map(m => `${m.member}=${m.score}`)
+          .join(',');
+      default:
+        return '';
+    }
   }
 
   async function handleCreate() {
@@ -36,12 +99,15 @@
       error = 'key name is required';
       return;
     }
-    if (!keyValue) {
+    
+    const value = buildValue();
+    if (!value) {
       error = 'value is required';
       return;
     }
+    
     if ($activeConnectionId) {
-      const success = await createKey($activeConnectionId, keyName, keyType, keyValue, ttl);
+      const success = await createKey($activeConnectionId, keyName, keyType, value, ttl);
       if (success) {
         handleClose();
       } else {
@@ -53,80 +119,240 @@
   function handleClose() {
     keyName = '';
     keyType = 'string';
-    keyValue = '';
+    stringValue = '';
     ttl = -1;
+    error = '';
+    hashFields = [{ field: '', value: '' }];
+    listItems = [''];
+    setMembers = [''];
+    zsetMembers = [{ member: '', score: 0 }];
     open = false;
     onclose();
   }
+
+  function resetTypeData() {
+    stringValue = '';
+    hashFields = [{ field: '', value: '' }];
+    listItems = [''];
+    setMembers = [''];
+    zsetMembers = [{ member: '', score: 0 }];
+  }
 </script>
 
-<Modal bind:open title="new key" onclose={handleClose}>
+<Modal bind:open title="Create New Key" size="lg" onclose={handleClose}>
   <div class="space-y-4">
+    <!-- Key Name -->
     <div>
-      <span class="block text-base text-[#6b6b6b] mb-2">key name</span>
+      <label for="key-name" class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">Key Name</label>
       <input 
+        id="key-name"
         type="text" 
         bind:value={keyName}
         placeholder="user:1001"
-        class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
+        class="w-full px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
       />
     </div>
 
+    <!-- Type Selection -->
     <div>
-      <span class="block text-base text-[#6b6b6b] mb-2">type</span>
-      <select 
-        bind:value={keyType}
-        class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
-      >
+      <span class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">Type</span>
+      <div class="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Key type">
         {#each typeOptions as option}
-          <option value={option.value}>{option.label}</option>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={keyType === option.value}
+            class="px-2 py-2 text-base font-medium rounded-lg border transition-all duration-200
+              {keyType === option.value 
+                ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' 
+                : 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] border-[var(--color-macos-border)] hover:bg-[#f5f5f7]'}"
+            onclick={() => { keyType = option.value; resetTypeData(); }}
+          >
+            {option.label}
+          </button>
         {/each}
-      </select>
+      </div>
+      <p class="mt-1.5 text-base text-[var(--color-macos-text-tertiary)]">
+        {typeOptions.find(t => t.value === keyType)?.description}
+      </p>
     </div>
 
+    <!-- Value Input -->
     <div>
-      <span class="block text-base text-[#6b6b6b] mb-2">value</span>
+      <label for="key-value" class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">Value</label>
+      
       {#if keyType === 'string'}
         <textarea 
-          bind:value={keyValue}
-          placeholder={getTypePlaceholder()}
-          class="w-full h-28 px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d] resize-none"
+          id="key-value"
+          bind:value={stringValue}
+          placeholder="Enter string value..."
+          class="w-full h-24 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 resize-none transition-all duration-200"
         ></textarea>
-      {:else}
-        <input 
-          type="text" 
-          bind:value={keyValue}
-          placeholder={getTypePlaceholder()}
-          class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
-        />
+      
+      {:else if keyType === 'hash'}
+        <div class="space-y-2">
+          {#each hashFields as field, index}
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                bind:value={field.field}
+                placeholder="field"
+                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+              />
+              <input 
+                type="text" 
+                bind:value={field.value}
+                placeholder="value"
+                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+              />
+              {#if hashFields.length > 1}
+                <button
+                  type="button"
+                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  onclick={() => removeHashField(index)}
+                >
+                  ✕
+                </button>
+              {/if}
+            </div>
+          {/each}
+          <button
+            type="button"
+            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            onclick={addHashField}
+          >
+            + Add field
+          </button>
+        </div>
+      
+      {:else if keyType === 'list'}
+        <div class="space-y-2">
+          {#each listItems as item, index}
+            <div class="flex gap-2">
+              <span class="flex items-center justify-center w-6 h-10 text-base text-[var(--color-macos-text-tertiary)]">
+                {index}
+              </span>
+              <input 
+                type="text" 
+                bind:value={listItems[index]}
+                placeholder="item value"
+                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+              />
+              {#if listItems.length > 1}
+                <button
+                  type="button"
+                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  onclick={() => removeListItem(index)}
+                >
+                  ✕
+                </button>
+              {/if}
+            </div>
+          {/each}
+          <button
+            type="button"
+            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            onclick={addListItem}
+          >
+            + Add item
+          </button>
+        </div>
+      
+      {:else if keyType === 'set'}
+        <div class="space-y-2">
+          {#each setMembers as member, index}
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                bind:value={setMembers[index]}
+                placeholder="member"
+                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+              />
+              {#if setMembers.length > 1}
+                <button
+                  type="button"
+                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  onclick={() => removeSetMember(index)}
+                >
+                  ✕
+                </button>
+              {/if}
+            </div>
+          {/each}
+          <button
+            type="button"
+            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            onclick={addSetMember}
+          >
+            + Add member
+          </button>
+        </div>
+      
+      {:else if keyType === 'zset'}
+        <div class="space-y-2">
+          {#each zsetMembers as item, index}
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                bind:value={item.member}
+                placeholder="member"
+                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+              />
+              <input 
+                type="number" 
+                bind:value={item.score}
+                placeholder="score"
+                class="w-24 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+              />
+              {#if zsetMembers.length > 1}
+                <button
+                  type="button"
+                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  onclick={() => removeZSetMember(index)}
+                >
+                  ✕
+                </button>
+              {/if}
+            </div>
+          {/each}
+          <button
+            type="button"
+            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            onclick={addZSetMember}
+          >
+            + Add member
+          </button>
+        </div>
       {/if}
-      <span class="block text-base text-[#9a9a9a] mt-1.5">
-        {#if keyType === 'hash'}Format: field1=value1,field2=value2
-        {:else if keyType === 'list'}Format: item1,item2,item3
-        {:else if keyType === 'set'}Format: member1,member2,member3
-        {:else if keyType === 'zset'}Format: member1=1.0,member2=2.0
-        {/if}
-      </span>
     </div>
 
+    <!-- TTL -->
     <div>
-      <span class="block text-base text-[#6b6b6b] mb-2">ttl (seconds, -1 for no expiry)</span>
+      <label for="key-ttl" class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">
+        TTL (seconds)
+        <span class="text-[var(--color-macos-text-tertiary)] font-normal">-1 for no expiry</span>
+      </label>
       <input 
+        id="key-ttl"
         type="number" 
         bind:value={ttl}
         placeholder="-1"
-        class="w-full px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
+        class="w-full px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
       />
     </div>
 
+    <!-- Error -->
     {#if error}
-      <div class="text-base text-[#dc382d]">{error}</div>
+      <div class="px-3 py-2 bg-[var(--color-accent-subtle)] border border-[var(--color-accent)]/20 rounded-lg text-base text-[var(--color-accent)]">
+        {error}
+      </div>
     {/if}
 
+    <!-- Actions -->
     <div class="flex gap-2 pt-2">
-      <Button variant="ghost" onclick={handleClose}>cancel</Button>
+      <Button variant="ghost" onclick={handleClose}>Cancel</Button>
       <div class="flex-1"></div>
-      <Button variant="primary" onclick={handleCreate}>create</Button>
+      <Button variant="primary" onclick={handleCreate}>Create</Button>
     </div>
   </div>
 </Modal>
