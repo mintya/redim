@@ -36,6 +36,47 @@
   let alertMessage = $state('');
   let alertType = $state<'info' | 'success' | 'error'>('info');
 
+  let portError = $state('');
+  let sshPortError = $state('');
+  let dbError = $state('');
+
+  function validateNumber(
+    value: number | null | undefined,
+    options: { min?: number; max?: number; integerOnly?: boolean; enabled?: boolean },
+    errorMessage: string,
+    setter: (error: string) => void
+  ) {
+    if (!options.enabled) {
+      setter('');
+      return;
+    }
+    if (value === null || value === undefined) {
+      setter('');
+    } else if (
+      (options.min !== undefined && value < options.min) ||
+      (options.max !== undefined && value > options.max) ||
+      (options.integerOnly && !Number.isInteger(value))
+    ) {
+      setter(errorMessage);
+    } else {
+      setter('');
+    }
+  }
+
+  function validatePort() {
+    validateNumber(formData.port, { min: 1, max: 65535, integerOnly: true, enabled: true }, 'Port must be between 1 and 65535', (err) => portError = err);
+  }
+
+  function validateSshPort() {
+    validateNumber(formData.ssh_port, { min: 1, max: 65535, integerOnly: true, enabled: !!formData.ssh_tunnel }, 'SSH Port must be between 1 and 65535', (err) => sshPortError = err);
+  }
+
+  function validateDb() {
+    validateNumber(formData.db, { min: 0, integerOnly: true, enabled: true }, 'Database must be >= 0', (err) => dbError = err);
+  }
+
+  const hasValidationErrors = $derived(!!portError || !!sshPortError || !!dbError);
+
   $effect(() => {
     if (editing) {
       formData = { ...editing };
@@ -112,7 +153,10 @@
       </div>
       <div>
         <span class="block text-xs text-[var(--color-macos-text-secondary)] mb-1">port</span>
-        <Input type="number" bind:value={formData.port} />
+        <Input type="number" bind:value={formData.port} onblur={validatePort} />
+        {#if portError}
+          <span class="block text-xs text-red-500 mt-1">{portError}</span>
+        {/if}
       </div>
     </div>
 
@@ -128,7 +172,10 @@
 
     <div>
       <span class="block text-xs text-[var(--color-macos-text-secondary)] mb-1">database</span>
-      <Input type="number" bind:value={formData.db} />
+      <Input type="number" bind:value={formData.db} onblur={validateDb} />
+      {#if dbError}
+        <span class="block text-xs text-red-500 mt-1">{dbError}</span>
+      {/if}
     </div>
 
     <!-- SSL -->
@@ -154,7 +201,10 @@
             </div>
             <div>
               <span class="block text-xs text-[var(--color-macos-text-secondary)] mb-1">SSH Port</span>
-              <Input type="number" bind:value={formData.ssh_port} placeholder="22" />
+              <Input type="number" bind:value={formData.ssh_port} placeholder="22" onblur={validateSshPort} />
+              {#if sshPortError}
+                <span class="block text-xs text-red-500 mt-1">{sshPortError}</span>
+              {/if}
             </div>
           </div>
           <div>
@@ -196,7 +246,7 @@
         {#if editing}
           <Button variant="ghost" size="sm" onclick={resetForm}>cancel</Button>
         {/if}
-        <Button variant="primary" size="sm" onclick={handleSave}>save</Button>
+        <Button variant="primary" size="sm" onclick={handleSave} disabled={hasValidationErrors}>save</Button>
       </div>
     </div>
   </div>

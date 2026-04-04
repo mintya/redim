@@ -2,6 +2,8 @@
   import { keyInfo, keyValue, activeKey, setStringValue, setHashField, deleteHashField, pushListValue, setListValue, removeListValue, addSetMember, removeSetMember, addZSetMember, deleteZSetMember, deleteKey, renameKey, setKeyTtl } from '$lib/stores/database';
   import { activeConnectionId } from '$lib/stores/connection';
   import type { HashField, ZSetMember } from '$lib/types';
+  import { getTypeColorText } from '$lib/utils/redisType';
+  import { isJsonString, decodeUnicode, formatJson, isJson } from '$lib/utils/json';
   import Button from '$lib/components/common/Button.svelte';
   import Confirm from '$lib/components/common/Confirm.svelte';
 
@@ -19,6 +21,9 @@
   let confirmAction = $state<(() => void) | null>(null);
   let jsonViewMode = $state<'raw' | 'format'>('format');
   let expandedJsonItems = $state<Set<string>>(new Set());
+  let showInlineInput = $state(false);
+  let inlineInputType = $state<'rename' | 'ttl'>('rename');
+  let inlineInputValue = $state('');
 
   function toggleItemJson(id: string) {
     if (expandedJsonItems.has(id)) {
@@ -35,30 +40,7 @@
 
   function showError(msg: string) {
     error = msg;
-    setTimeout(() => error = '', 3000);
-  }
-
-  function isJsonString(str: string): boolean {
-    try {
-      const parsed = JSON.parse(str);
-      return typeof parsed === 'object' && parsed !== null;
-    } catch {
-      return false;
-    }
-  }
-
-  function decodeUnicode(str: string): string {
-    return str.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
-  }
-
-  function formatJson(str: string): string {
-    try {
-      const parsed = JSON.parse(str);
-      const formatted = JSON.stringify(parsed, null, 2);
-      return decodeUnicode(formatted);
-    } catch {
-      return str;
-    }
+    setTimeout(() => error = '', 5000);
   }
 
   function getDisplayValue(value: string): string {
@@ -69,10 +51,6 @@
       return decodeUnicode(value);
     }
     return decodeUnicode(value);
-  }
-
-  function isJson(value: string): boolean {
-    return isJsonString(value);
   }
 
   function toggleJsonView() {
@@ -90,16 +68,6 @@
     return decodeUnicode(value);
   }
 
-  function getTypeColor(type: string) {
-    const colors: Record<string, string> = {
-      string: 'text-[#28c840]',
-      hash: 'text-[#ff9f43]',
-      list: 'text-[#5f9eff]',
-      set: 'text-[#a55eea]',
-      zset: 'text-[#eb3b5a]',
-    };
-    return colors[type] || 'text-[#6b6b6b]';
-  }
 
   function startEdit(value: string) {
     editingValue = value;
@@ -346,23 +314,86 @@
     editingField = '';
     editingValue = '';
   }
+
+  function openInlineRename() {
+    if ($activeConnectionId && $activeKey) {
+      inlineInputType = 'rename';
+      inlineInputValue = $activeKey;
+      showInlineInput = true;
+    }
+  }
+
+  function openInlineTtl() {
+    if ($activeConnectionId && $activeKey) {
+      inlineInputType = 'ttl';
+      inlineInputValue = String($keyInfo?.ttl ?? -1);
+      showInlineInput = true;
+    }
+  }
+
+  function closeInlineInput() {
+    showInlineInput = false;
+    inlineInputValue = '';
+  }
+
+  async function handleInlineConfirm() {
+    clearError();
+    if (!$activeConnectionId || !$activeKey) return;
+    if (inlineInputType === 'rename') {
+      if (inlineInputValue && inlineInputValue !== $activeKey) {
+        const success = await renameKey($activeConnectionId, $activeKey, inlineInputValue);
+        if (!success) showError('Failed to rename key');
+      }
+    } else if (inlineInputType === 'ttl') {
+      const ttl = parseInt(inlineInputValue);
+      if (!isNaN(ttl)) {
+        const success = await setKeyTtl($activeConnectionId, $activeKey, ttl);
+        if (!success) showError('Failed to set TTL');
+      }
+    }
+    closeInlineInput();
+  }
+
+  function handleInlineKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleInlineConfirm();
+    } else if (e.key === 'Escape') {
+      closeInlineInput();
+    }
+  }
 </script>
 
 {#if $keyInfo && $activeKey}
-  <div class="h-11 px-6 border-b border-[#d4d4d4] flex items-center justify-between">
+  <div class="h-11 px-6 border-b border-[var(--color-border-divider)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-macos-surface)] shadow-sm">
     <div class="flex items-center gap-3">
-      <span class="text-base text-[#1a1a1a] font-mono">{$activeKey}</span>
-      <span class="text-base font-mono {getTypeColor($keyInfo.key_type)}">{$keyInfo.key_type}</span>
+      <span class="text-base text-[var(--color-info-text)] font-mono">{$activeKey}</span>
+      <span class="text-base font-mono {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
     </div>
     <div class="flex items-center gap-3 text-base">
-      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={handleSetTtl}>
+      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={openInlineTtl}>
         ttl: {$keyInfo.ttl === -1 ? '∞' : $keyInfo.ttl + 's'}
       </button>
-      <span class="text-[#d4d4d4]">|</span>
-      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={handleRename}>rename</button>
-      <span class="text-[#d4d4d4]">|</span>
-      <button class="text-[#dc382d] hover:text-[#e85d54]" onclick={handleDeleteKey}>delete</button>
+      <span class="text-[var(--color-border-divider)]">|</span>
+      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={openInlineRename}>rename</button>
+      <span class="text-[var(--color-border-divider)]">|</span>
+      <button class="text-[var(--color-accent)] hover:text-[var(--color-accent-light)]" onclick={handleDeleteKey}>delete</button>
     </div>
+
+    {#if showInlineInput}
+      <div class="absolute inset-0 bg-[var(--color-macos-surface)]/95 backdrop-blur-sm flex items-center justify-center z-10">
+        <div class="flex items-center gap-2">
+          <span class="text-base text-[var(--color-text-muted)] font-mono">{inlineInputType === 'rename' ? 'name:' : 'ttl:'}</span>
+          <input 
+            bind:value={inlineInputValue}
+            onkeydown={handleInlineKeydown}
+            class="w-48 px-3 py-1.5 bg-[var(--color-macos-surface)] border border-[var(--color-accent)] rounded-lg text-base font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20"
+          />
+          <button class="px-3 py-1.5 text-base font-mono bg-[var(--color-accent)] text-white rounded-lg hover:bg-[var(--color-accent-light)]" onclick={handleInlineConfirm}>ok</button>
+          <button class="px-3 py-1.5 text-base font-mono text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={closeInlineInput}>cancel</button>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <div class="flex-1 p-6 overflow-y-auto">
@@ -373,35 +404,35 @@
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               {#if isJson($keyValue)}
-                <div class="flex items-center gap-1 bg-[#f0f0f0] rounded px-1">
+                <div class="flex items-center gap-1 bg-[var(--color-surface-code)] rounded px-1">
                   <button 
-                    class="text-base px-2 py-0.5 rounded {jsonViewMode === 'raw' ? 'bg-[#dc382d] text-white' : 'text-[#6b6b6b] hover:text-[#1a1a1a]'}"
+                    class="text-base px-2 py-0.5 rounded {jsonViewMode === 'raw' ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]'}"
                     onclick={() => jsonViewMode = 'raw'}
                   >raw</button>
                   <button 
-                    class="text-base px-2 py-0.5 rounded {jsonViewMode === 'format' ? 'bg-[#dc382d] text-white' : 'text-[#6b6b6b] hover:text-[#1a1a1a]'}"
+                    class="text-base px-2 py-0.5 rounded {jsonViewMode === 'format' ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]'}"
                     onclick={() => jsonViewMode = 'format'}
                   >format</button>
                 </div>
               {:else}
-                <span class="text-base text-[#6b6b6b]">value</span>
+                <span class="text-base text-[var(--color-text-muted)]">value</span>
               {/if}
             </div>
             {#if !isEditing}
-              <button class="text-base text-[#6b6b6b] hover:text-[#dc382d]" onclick={() => startEdit($keyValue as string)}>edit</button>
+              <button class="text-base text-[var(--color-text-muted)] hover:text-[var(--color-accent)]" onclick={() => startEdit($keyValue as string)}>edit</button>
             {/if}
           </div>
           {#if isEditing}
             <textarea 
               bind:value={editingValue}
-              class="w-full h-40 px-3 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded text-base font-mono focus:outline-none focus:border-[#dc382d]"
+              class="w-full h-40 px-3 py-2 bg-[var(--color-surface-input)] border border-[var(--color-border-divider)] rounded text-base font-mono focus:outline-none focus:border-[var(--color-accent)]"
             ></textarea>
             <div class="flex gap-2 mt-2">
               <Button variant="primary" size="sm" onclick={saveEdit}>save</Button>
               <Button variant="ghost" size="sm" onclick={cancelEdit}>cancel</Button>
             </div>
           {:else}
-            <pre class="bg-[#f0f0f0] border border-[#d4d4d4] rounded p-4 font-mono text-base text-[#1a1a1a] whitespace-pre-wrap break-all w-full">{getDisplayValue($keyValue)}</pre>
+            <pre class="bg-[var(--color-surface-code)] border border-[var(--color-border-divider)] rounded p-4 font-mono text-base text-[var(--color-info-text)] whitespace-pre-wrap break-all w-full">{getDisplayValue($keyValue)}</pre>
           {/if}
         </div>
       </div>
@@ -410,53 +441,53 @@
     {:else if $keyInfo.key_type === 'hash' && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[#6b6b6b]">{$keyValue.length} fields</span>
+          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} fields</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ field'}
           </Button>
         </div>
         {#if showAddForm}
-          <div class="flex gap-2 px-3 py-2 bg-[#f0f0f0] rounded">
-            <input bind:value={newField} placeholder="field" class="flex-1 px-2 py-1.5 border border-[#d4d4d4] rounded text-base font-mono" />
-            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[#d4d4d4] rounded text-base font-mono" />
+          <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-code)] rounded">
+            <input bind:value={newField} placeholder="field" class="flex-1 px-2 py-1.5 border border-[var(--color-border-divider)] rounded text-base font-mono" />
+            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border-divider)] rounded text-base font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddHashField}>add</Button>
           </div>
         {/if}
         <table class="w-full text-base font-mono table-fixed">
           <thead>
-            <tr class="border-b border-[#d4d4d4]">
-              <th class="text-left py-2 px-3 text-[#6b6b6b] w-16">act</th>
-              <th class="text-left py-2 px-3 text-[#6b6b6b] w-1/4">field</th>
-              <th class="text-left py-2 px-3 text-[#6b6b6b]">value</th>
+            <tr class="border-b border-[var(--color-border-divider)]">
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-1/4">field</th>
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">value</th>
             </tr>
           </thead>
           <tbody>
             {#each ($keyValue as HashField[]) as item}
-              <tr class="border-b border-[#e5e5e5]">
+              <tr class="border-b border-[var(--color-border-subtle)]">
                 <td class="py-2.5 px-3">
                   <div class="flex gap-2">
                     {#if editingField !== item.field}
-                      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={() => startEditHashField(item.field, item.value)}>✎</button>
+                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={() => startEditHashField(item.field, item.value)}>✎</button>
                     {/if}
-                    <button class="text-[#dc382d] hover:text-[#e85d54]" onclick={() => handleDeleteHashField(item.field)}>×</button>
+                    <button class="text-[var(--color-accent)] hover:text-[var(--color-accent-light)]" onclick={() => handleDeleteHashField(item.field)}>×</button>
                   </div>
                 </td>
-                <td class="py-2.5 px-3 text-[#1a1a1a] truncate">{item.field}</td>
-                <td class="py-2.5 px-3 text-[#1a1a1a]">
+                <td class="py-2.5 px-3 text-[var(--color-info-text)] truncate">{item.field}</td>
+                <td class="py-2.5 px-3 text-[var(--color-info-text)]">
                   {#if editingField === item.field}
                     <div class="flex gap-1">
-                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[#d4d4d4] rounded text-base font-mono" />
-                      <button class="text-[#28c840] hover:text-[#3dd856]" onclick={saveHashFieldEdit}>✓</button>
-                      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={cancelHashFieldEdit}>×</button>
+                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border-divider)] rounded text-base font-mono" />
+                      <button class="text-[var(--color-type-string)] hover:text-[var(--color-accent-light)]" onclick={saveHashFieldEdit}>✓</button>
+                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={cancelHashFieldEdit}>×</button>
                     </div>
                   {:else if isJson(item.value)}
                     <div class="flex items-start gap-1.5">
                       <button 
-                        class="text-[#5f9eff] hover:text-[#3d8cff] flex-shrink-0 mt-0.5"
+                        class="text-[var(--color-type-list)] hover:text-[var(--color-accent-light)] flex-shrink-0 mt-0.5"
                         onclick={() => toggleItemJson(`hash-${item.field}`)}
                       >{expandedJsonItems.has(`hash-${item.field}`) ? '▼' : '▶'}</button>
                       {#if expandedJsonItems.has(`hash-${item.field}`)}
-                        <pre class="p-2 bg-[#f0f0f0] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.value)}</pre>
+                        <pre class="p-2 bg-[var(--color-surface-code)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.value)}</pre>
                       {:else}
                         <span class="break-all">{getItemDisplayValue(item.value)}</span>
                       {/if}
@@ -475,52 +506,52 @@
     {:else if ($keyInfo.key_type === 'list') && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[#6b6b6b]">{$keyValue.length} items</span>
+          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} items</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ item'}
           </Button>
         </div>
         {#if showAddForm}
-          <div class="flex gap-2 px-3 py-2 bg-[#f0f0f0] rounded">
-            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[#d4d4d4] rounded text-base font-mono" />
+          <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-code)] rounded">
+            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border-divider)] rounded text-base font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddListItem}>add</Button>
           </div>
         {/if}
         <table class="w-full text-base font-mono table-fixed">
           <thead>
-            <tr class="border-b border-[#d4d4d4]">
-              <th class="text-left py-2 px-3 text-[#6b6b6b] w-16">act</th>
-              <th class="text-left py-2 px-3 text-[#6b6b6b] w-14">#</th>
-              <th class="text-left py-2 px-3 text-[#6b6b6b]">value</th>
+            <tr class="border-b border-[var(--color-border-divider)]">
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-14">#</th>
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">value</th>
             </tr>
           </thead>
           <tbody>
             {#each ($keyValue as string[]) as item, i}
-              <tr class="border-b border-[#e5e5e5]">
+              <tr class="border-b border-[var(--color-border-subtle)]">
                 <td class="py-2.5 px-3">
                   <div class="flex gap-2">
                     {#if editingIndex !== i}
-                      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={() => startEditListItem(i, item)}>✎</button>
+                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={() => startEditListItem(i, item)}>✎</button>
                     {/if}
-                    <button class="text-[#dc382d] hover:text-[#e85d54]" onclick={() => handleRemoveListItem(item)}>×</button>
+                    <button class="text-[var(--color-accent)] hover:text-[var(--color-accent-light)]" onclick={() => handleRemoveListItem(item)}>×</button>
                   </div>
                 </td>
-                <td class="py-2.5 px-3 text-[#9a9a9a]">{i}</td>
-                <td class="py-2.5 px-3 text-[#1a1a1a]">
+                <td class="py-2.5 px-3 text-[var(--color-text-faint)]">{i}</td>
+                <td class="py-2.5 px-3 text-[var(--color-info-text)]">
                   {#if editingIndex === i}
                     <div class="flex gap-1">
-                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[#d4d4d4] rounded text-base font-mono" />
-                      <button class="text-[#28c840] hover:text-[#3dd856]" onclick={saveListItemEdit}>✓</button>
-                      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={cancelListItemEdit}>×</button>
+                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border-divider)] rounded text-base font-mono" />
+                      <button class="text-[var(--color-type-string)] hover:text-[var(--color-accent-light)]" onclick={saveListItemEdit}>✓</button>
+                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={cancelListItemEdit}>×</button>
                     </div>
                   {:else if isJson(item)}
                     <div class="flex items-start gap-1.5">
                       <button 
-                        class="text-[#5f9eff] hover:text-[#3d8cff] flex-shrink-0 mt-0.5"
+                        class="text-[var(--color-type-list)] hover:text-[var(--color-accent-light)] flex-shrink-0 mt-0.5"
                         onclick={() => toggleItemJson(`list-${i}`)}
                       >{expandedJsonItems.has(`list-${i}`) ? '▼' : '▶'}</button>
                       {#if expandedJsonItems.has(`list-${i}`)}
-                        <pre class="p-2 bg-[#f0f0f0] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
+                        <pre class="p-2 bg-[var(--color-surface-code)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
                       {:else}
                         <span class="break-all">{getItemDisplayValue(item)}</span>
                       {/if}
@@ -539,39 +570,39 @@
     {:else if ($keyInfo.key_type === 'set') && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[#6b6b6b]">{$keyValue.length} members</span>
+          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} members</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ member'}
           </Button>
         </div>
         {#if showAddForm}
-          <div class="flex gap-2 px-3 py-2 bg-[#f0f0f0] rounded">
-            <input bind:value={newValue} placeholder="member" class="flex-1 px-2 py-1.5 border border-[#d4d4d4] rounded text-base font-mono" />
+          <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-code)] rounded">
+            <input bind:value={newValue} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border-divider)] rounded text-base font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddSetMember}>add</Button>
           </div>
         {/if}
         <table class="w-full text-base font-mono table-fixed">
           <thead>
-            <tr class="border-b border-[#d4d4d4]">
-              <th class="text-left py-2 px-3 text-[#6b6b6b] w-16">act</th>
-              <th class="text-left py-2 px-3 text-[#6b6b6b]">member</th>
+            <tr class="border-b border-[var(--color-border-divider)]">
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">member</th>
             </tr>
           </thead>
           <tbody>
             {#each ($keyValue as string[]) as item, i}
-              <tr class="border-b border-[#e5e5e5]">
+              <tr class="border-b border-[var(--color-border-subtle)]">
                 <td class="py-2.5 px-3">
-                  <button class="text-[#dc382d] hover:text-[#e85d54]" onclick={() => handleRemoveSetMember(item)}>×</button>
+                  <button class="text-[var(--color-accent)] hover:text-[var(--color-accent-light)]" onclick={() => handleRemoveSetMember(item)}>×</button>
                 </td>
-                <td class="py-2.5 px-3 text-[#1a1a1a]">
+                <td class="py-2.5 px-3 text-[var(--color-info-text)]">
                   {#if isJson(item)}
                     <div class="flex items-start gap-1.5">
                       <button 
-                        class="text-[#5f9eff] hover:text-[#3d8cff] flex-shrink-0 mt-0.5"
+                        class="text-[var(--color-type-list)] hover:text-[var(--color-accent-light)] flex-shrink-0 mt-0.5"
                         onclick={() => toggleItemJson(`set-${i}`)}
                       >{expandedJsonItems.has(`set-${i}`) ? '▼' : '▶'}</button>
                       {#if expandedJsonItems.has(`set-${i}`)}
-                        <pre class="p-2 bg-[#f0f0f0] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
+                        <pre class="p-2 bg-[var(--color-surface-code)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
                       {:else}
                         <span class="break-all">{getItemDisplayValue(item)}</span>
                       {/if}
@@ -590,46 +621,46 @@
     {:else if $keyInfo.key_type === 'zset' && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[#6b6b6b]">{$keyValue.length} members</span>
+          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} members</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ member'}
           </Button>
         </div>
         {#if showAddForm}
-          <div class="flex gap-2 px-3 py-2 bg-[#f0f0f0] rounded">
-            <input bind:value={newField} placeholder="member" class="flex-1 px-2 py-1.5 border border-[#d4d4d4] rounded text-base font-mono" />
-            <input bind:value={newScore} placeholder="score" type="number" step="0.1" class="w-20 px-2 py-1.5 border border-[#d4d4d4] rounded text-base font-mono" />
+          <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-code)] rounded">
+            <input bind:value={newField} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border-divider)] rounded text-base font-mono" />
+            <input bind:value={newScore} placeholder="score" type="number" step="0.1" class="w-20 px-2 py-1.5 border border-[var(--color-border-divider)] rounded text-base font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddZSetMember}>add</Button>
           </div>
         {/if}
         <table class="w-full text-base font-mono table-fixed">
           <thead>
-            <tr class="border-b border-[#d4d4d4]">
-              <th class="text-left py-2 px-3 text-[#6b6b6b] w-16">act</th>
-              <th class="text-left py-2 px-3 text-[#6b6b6b]">member</th>
-              <th class="text-right py-2 px-3 text-[#6b6b6b] w-24">score</th>
+            <tr class="border-b border-[var(--color-border-divider)]">
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
+              <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">member</th>
+              <th class="text-right py-2 px-3 text-[var(--color-text-muted)] w-24">score</th>
             </tr>
           </thead>
           <tbody>
             {#each ($keyValue as ZSetMember[]) as item, i}
-              <tr class="border-b border-[#e5e5e5]">
+              <tr class="border-b border-[var(--color-border-subtle)]">
                 <td class="py-2.5 px-3">
                   <div class="flex gap-2">
                     {#if editingField !== item.member}
-                      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={() => startEditZSetMember(item.member, item.score)}>✎</button>
+                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={() => startEditZSetMember(item.member, item.score)}>✎</button>
                     {/if}
-                    <button class="text-[#dc382d] hover:text-[#e85d54]" onclick={() => handleDeleteZSetMember(item.member)}>×</button>
+                    <button class="text-[var(--color-accent)] hover:text-[var(--color-accent-light)]" onclick={() => handleDeleteZSetMember(item.member)}>×</button>
                   </div>
                 </td>
-                <td class="py-2.5 px-3 text-[#1a1a1a]">
+                <td class="py-2.5 px-3 text-[var(--color-info-text)]">
                   {#if isJson(item.member)}
                     <div class="flex items-start gap-1.5">
                       <button 
-                        class="text-[#5f9eff] hover:text-[#3d8cff] flex-shrink-0 mt-0.5"
+                        class="text-[var(--color-type-list)] hover:text-[var(--color-accent-light)] flex-shrink-0 mt-0.5"
                         onclick={() => toggleItemJson(`zset-${i}`)}
                       >{expandedJsonItems.has(`zset-${i}`) ? '▼' : '▶'}</button>
                       {#if expandedJsonItems.has(`zset-${i}`)}
-                        <pre class="p-2 bg-[#f0f0f0] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.member)}</pre>
+                        <pre class="p-2 bg-[var(--color-surface-code)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.member)}</pre>
                       {:else}
                         <span class="break-all">{getItemDisplayValue(item.member)}</span>
                       {/if}
@@ -638,12 +669,12 @@
                     <span class="break-all">{getItemDisplayValue(item.member)}</span>
                   {/if}
                 </td>
-                <td class="py-2.5 px-3 text-right text-[#6b6b6b]">
+                <td class="py-2.5 px-3 text-right text-[var(--color-text-muted)]">
                   {#if editingField === item.member}
                     <div class="flex gap-1 justify-end">
-                      <input bind:value={editingValue} type="number" step="0.1" class="w-16 px-1.5 py-0.5 border border-[#d4d4d4] rounded text-base font-mono text-right" />
-                      <button class="text-[#28c840] hover:text-[#3dd856]" onclick={saveZSetMemberEdit}>✓</button>
-                      <button class="text-[#6b6b6b] hover:text-[#1a1a1a]" onclick={cancelZSetMemberEdit}>×</button>
+                      <input bind:value={editingValue} type="number" step="0.1" class="w-16 px-1.5 py-0.5 border border-[var(--color-border-divider)] rounded text-base font-mono text-right" />
+                      <button class="text-[var(--color-type-string)] hover:text-[var(--color-accent-light)]" onclick={saveZSetMemberEdit}>✓</button>
+                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)]" onclick={cancelZSetMemberEdit}>×</button>
                     </div>
                   {:else}
                     {item.score}
@@ -657,7 +688,7 @@
     {/if}
 
     {#if error}
-      <div class="fixed bottom-4 right-4 bg-[#dc382d] text-white px-4 py-2 rounded text-base font-mono shadow-lg">
+      <div class="fixed bottom-4 right-4 bg-[var(--color-accent)] text-white px-4 py-2 rounded text-base font-mono shadow-lg">
         {error}
       </div>
     {/if}
@@ -665,7 +696,7 @@
 {:else}
   <div class="flex-1 flex items-center justify-center">
     <div class="text-center">
-      <div class="text-base text-[#9a9a9a]">select a key to view details</div>
+      <div class="text-base text-[var(--color-text-faint)]">select a key to view details</div>
     </div>
   </div>
 {/if}

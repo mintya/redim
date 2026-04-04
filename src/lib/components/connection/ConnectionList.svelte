@@ -75,7 +75,7 @@
     {@const isConnected = $activeConnectionId === conn.id}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
-      class="group px-4 py-3 cursor-pointer transition-all duration-200 border-b border-[var(--color-macos-border)] {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[#f5f5f7]'}"
+      class="group px-4 py-3 cursor-pointer transition-all duration-200 border-b border-[var(--color-macos-border)] {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
       ondblclick={() => !isConnected && handleConnect(conn.id, conn.name || conn.host)}
       oncontextmenu={(e) => handleContextMenu(e, conn)}
       role="button"
@@ -84,7 +84,7 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 min-w-0">
           {#if isConnected}
-            <span class="w-1.5 h-1.5 rounded-full bg-[#34c759] flex-shrink-0"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)] flex-shrink-0"></span>
           {/if}
           <span class="text-base text-[var(--color-macos-text)] font-medium truncate">{conn.name || conn.host}</span>
         </div>
@@ -113,6 +113,7 @@
   {:else}
     <div class="px-4 py-8 text-center">
       <div class="text-base text-[var(--color-macos-text-tertiary)]">no connections</div>
+      <div class="text-sm text-[var(--color-macos-text-secondary)] mt-2">No connections yet. Add your first connection on the right panel.</div>
     </div>
   {/each}
 </div>

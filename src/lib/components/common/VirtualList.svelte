@@ -89,7 +89,7 @@
         <div 
           style="height: {itemHeight}px;"
           class="cursor-pointer transition-all duration-200 border-b border-[var(--color-macos-border)] 
-            {selectedKey !== null && selectedKey === item ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[#f5f5f7]'}"
+            {selectedKey !== null && selectedKey === item ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
           onclick={() => onItemClick?.(item, index)}
           oncontextmenu={(e) => onItemContextMenu?.(item, index, e)}
         >

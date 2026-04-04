@@ -53,7 +53,7 @@
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
   >
-    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-2xl w-full max-w-sm shadow-lg">
+    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl w-full max-w-sm shadow-lg">
       <!-- Header -->
       <div class="px-4 py-3 border-b border-[var(--color-macos-border)]">
         <span class="text-base text-[var(--color-macos-text)] font-semibold">{title}</span>
@@ -67,13 +67,13 @@
       <!-- Actions -->
       <div class="px-4 py-3 border-t border-[var(--color-macos-border)] flex justify-end gap-2">
         <button 
-          class="px-4 py-2 text-base font-medium text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors rounded-lg hover:bg-[#f5f5f7]"
+          class="px-4 py-2 text-base font-medium text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors rounded-lg hover:bg-[var(--color-surface-hover)]"
           onclick={handleCancel}
         >
           {cancelText}
         </button>
         <button 
-          class="px-4 py-2 text-base font-medium rounded-lg transition-colors {danger ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)]' : 'bg-[var(--color-macos-text)] text-white hover:bg-[#333]'}"
+          class="px-4 py-2 text-base font-medium rounded-lg transition-colors {danger ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)]' : 'bg-[var(--color-macos-text)] text-white hover:bg-[var(--color-dark-border)]'}"
           onclick={handleConfirm}
         >
           {confirmText}

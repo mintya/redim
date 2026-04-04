@@ -8,19 +8,20 @@
     {#each $toasts as toast (toast.id)}
       <div
         class="px-4 py-3 rounded shadow-lg border flex items-start gap-2 font-mono text-base"
-        class:bg-[#fdf0ef]={toast.type === 'error'}
-        class:border-[#dc382d]={toast.type === 'error'}
-        class:text-[#dc382d]={toast.type === 'error'}
-        class:bg-[#eef9ee]={toast.type === 'success'}
-        class:border-[#28c840]={toast.type === 'success'}
-        class:text-[#1a8c2e]={toast.type === 'success'}
-        class:bg-[#fff8e6]={toast.type === 'warning'}
-        class:border-[#ff9f43]={toast.type === 'warning'}
-        class:text-[#b36b00]={toast.type === 'warning'}
-        class:bg-[#f0f0f0]={toast.type === 'info'}
-        class:border-[#d4d4d4]={toast.type === 'info'}
-        class:text-[#1a1a1a]={toast.type === 'info'}
-        transition:fly={{ x: 200, duration: 200 }}
+        class:bg-[var(--color-accent-subtle)]={toast.type === 'error'}
+        class:border-[var(--color-accent)]={toast.type === 'error'}
+        class:text-[var(--color-accent)]={toast.type === 'error'}
+        class:bg-[var(--color-success-bg)]={toast.type === 'success'}
+        class:border-[var(--color-success)]={toast.type === 'success'}
+        class:text-[var(--color-success-text)]={toast.type === 'success'}
+        class:bg-[var(--color-warning-bg)]={toast.type === 'warning'}
+        class:border-[var(--color-warning-border)]={toast.type === 'warning'}
+        class:text-[var(--color-warning-text)]={toast.type === 'warning'}
+        class:bg-[var(--color-surface-code)]={toast.type === 'info'}
+        class:border-[var(--color-border-divider)]={toast.type === 'info'}
+        class:text-[var(--color-info-text)]={toast.type === 'info'}
+        in:fly={{ x: 200, duration: 200 }}
+        out:fly={{ x: 200, duration: 150 }}
       >
         <span class="flex-1">{toast.message}</span>
         <button

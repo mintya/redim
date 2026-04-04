@@ -51,7 +51,7 @@
 {#if isConnected}
   <div class="ml-auto flex items-center gap-2" style="-webkit-app-region: no-drag;">
     <button 
-      class="px-3 py-1.5 text-base text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[#f5f5f7] rounded-lg transition-colors flex items-center gap-1"
+      class="px-3 py-1.5 text-base text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors flex items-center gap-1"
       onclick={toggleMenu}
     >
       <span>{$activeConnection?.name || $activeConnection?.host}:{$activeConnection?.port}</span>
@@ -68,7 +68,7 @@
         <div class="py-1">
           {#each $connections as conn}
             <button 
-              class="w-full px-3 py-2 text-left hover:bg-[#f5f5f7] transition-colors flex items-center justify-between"
+              class="w-full px-3 py-2 text-left hover:bg-[var(--color-surface-hover)] transition-colors flex items-center justify-between"
               onclick={() => handleSwitch(conn.id)}
             >
               <div>
@@ -76,7 +76,7 @@
                 <div class="text-base text-[var(--color-macos-text-tertiary)]">{conn.host}:{conn.port}</div>
               </div>
               {#if conn.id === currentConnectionId}
-                <span class="w-1.5 h-1.5 rounded-full bg-[#34c759]"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)]"></span>
               {:else}
                 <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-macos-text-tertiary)]"></span>
               {/if}

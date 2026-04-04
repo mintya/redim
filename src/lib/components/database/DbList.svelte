@@ -3,6 +3,8 @@
   import { activeConnectionId } from '$lib/stores/connection';
 
   let showDropdown = $state(false);
+  let focusedIndex = $state(0);
+  let dropdownEl: HTMLDivElement | null = $state(null);
 
   async function handleSelectDb(db: number) {
     if ($activeConnectionId) {
@@ -20,10 +22,30 @@
 
   function toggleDropdown() {
     showDropdown = !showDropdown;
+    if (showDropdown) {
+      focusedIndex = $databases.findIndex(db => db.index === $activeDb);
+      setTimeout(() => dropdownEl?.querySelector('button')?.focus(), 0);
+    }
   }
 
   function closeDropdown() {
     showDropdown = false;
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (!showDropdown) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusedIndex = Math.min(focusedIndex + 1, $databases.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusedIndex = Math.max(focusedIndex - 1, 0);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSelectDb($databases[focusedIndex]?.index);
+    } else if (e.key === 'Escape') {
+      closeDropdown();
+    }
   }
 
   // 获取当前活跃数据库信息
@@ -37,7 +59,7 @@
     <!-- Database Dropdown -->
     <div class="relative">
       <button
-        class="flex items-center gap-1 px-2 py-1 text-base bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-md hover:bg-[#f5f5f7] transition-colors"
+        class="flex items-center gap-1 px-2 py-1 text-base bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={toggleDropdown}
       >
         <span class="text-[var(--color-macos-text)]">db{$activeDb}</span>
@@ -50,13 +72,17 @@
       {#if showDropdown}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div 
+          bind:this={dropdownEl}
           class="absolute top-full left-0 mt-1 w-48 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl shadow-lg z-50 py-1 max-h-64 overflow-y-auto"
           role="listbox"
+          tabindex="-1"
+          onkeydown={handleKeydown}
         >
-          {#each $databases as db}
+          {#each $databases as db, i}
             <button
-              class="w-full px-3 py-2 text-left text-base flex items-center justify-between hover:bg-[#f5f5f7] transition-colors {$activeDb === db.index ? 'bg-[var(--color-accent-subtle)]' : ''}"
+              class="w-full px-3 py-2 text-left text-base flex items-center justify-between hover:bg-[var(--color-surface-hover)] transition-colors {$activeDb === db.index ? 'bg-[var(--color-accent-subtle)]' : ''}"
               onclick={() => handleSelectDb(db.index)}
+              tabindex="-1"
             >
               <span class="font-mono {$activeDb === db.index ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text)]'}">
                 db{db.index}

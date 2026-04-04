@@ -9,42 +9,56 @@ export interface TreeNode {
 export type SortOrder = 'asc' | 'desc' | 'none';
 
 export function buildTree(keys: string[], separator: string = ':'): TreeNode {
-  const root: TreeNode = {
+  // Build raw data structure first (plain objects, no Map mutation during iteration)
+  const rawTree: Record<string, any> = {
     name: '',
     fullPath: '',
-    children: new Map(),
+    children: {},
     isLeaf: false,
     isExpanded: true
   };
 
   for (const key of keys) {
     const parts = key.split(separator);
-    let current = root;
+    let current = rawTree;
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       const fullPath = parts.slice(0, i + 1).join(separator);
       const isLast = i === parts.length - 1;
 
-      if (!current.children.has(part)) {
-        current.children.set(part, {
+      if (!current.children[part]) {
+        current.children[part] = {
           name: part,
           fullPath,
-          children: new Map(),
+          children: {},
           isLeaf: isLast,
           isExpanded: false
-        });
+        };
       } else if (isLast) {
-        // 如果这个路径已经作为中间节点存在，标记为叶子
-        const existing = current.children.get(part)!;
-        existing.isLeaf = true;
+        current.children[part].isLeaf = true;
       }
 
-      current = current.children.get(part)!;
+      current = current.children[part];
     }
   }
 
-  return root;
+  // Convert plain objects to TreeNode with Map children
+  function toTreeNode(raw: Record<string, any>): TreeNode {
+    const children = new Map<string, TreeNode>();
+    for (const [name, child] of Object.entries(raw.children)) {
+      children.set(name, toTreeNode(child as Record<string, any>));
+    }
+    return {
+      name: raw.name,
+      fullPath: raw.fullPath,
+      children,
+      isLeaf: raw.isLeaf,
+      isExpanded: raw.isExpanded
+    };
+  }
+
+  return toTreeNode(rawTree);
 }
 
 export function sortChildren(node: TreeNode, order: SortOrder): void {
@@ -57,7 +71,6 @@ export function sortChildren(node: TreeNode, order: SortOrder): void {
 
   node.children = new Map(sortedEntries);
 
-  // 递归排序子节点
   for (const child of node.children.values()) {
     sortChildren(child, order);
   }
@@ -73,7 +86,6 @@ export function flattenTree(
   for (const child of node.children.values()) {
     result.push({ node: child, level });
     
-    // 如果有子节点且已展开，递归展开
     if (child.children.size > 0 && expandedNodes.has(child.fullPath)) {
       result.push(...flattenTree(child, level + 1, expandedNodes));
     }

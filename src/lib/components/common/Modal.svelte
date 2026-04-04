@@ -34,13 +34,13 @@
     onclick={handleBackdropClick}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-2xl w-full {sizeClasses[size]} mx-4 shadow-lg">
+    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl w-full {sizeClasses[size]} mx-4 shadow-lg">
       {#if title}
         <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-macos-border)]">
           <span class="font-mono text-base text-[var(--color-macos-text)] font-semibold">{title}</span>
           <button 
             onclick={handleClose}
-            class="text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text)] transition-colors p-1 rounded-full hover:bg-[#f5f5f7]"
+            class="text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text)] transition-colors p-1 rounded-full hover:bg-[var(--color-surface-hover)]"
           >
             ✕
           </button>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TreeNode } from '$lib/utils/tree';
+  import { getTypeColorBg, getTypeLabel } from '$lib/utils/redisType';
 
   interface Props {
     node: TreeNode;
@@ -17,30 +18,6 @@
   let hasChildren = $derived(node.children.size > 0);
   // 节点既是父节点又是叶子节点（如 aa:bb 同时也是 aa:bb:cc 的父节点）
   let isBothParentAndLeaf = $derived(hasChildren && node.isLeaf);
-
-  function getTypeColor(type: string | undefined) {
-    const colors: Record<string, string> = {
-      string: 'bg-[#28c840]',
-      hash: 'bg-[#ff9f43]',
-      list: 'bg-[#5f9eff]',
-      set: 'bg-[#a55eea]',
-      zset: 'bg-[#eb3b5a]',
-      stream: 'bg-[#778ca3]',
-    };
-    return colors[type || ''] || 'bg-[#9a9a9a]';
-  }
-
-  function getTypeLabel(type: string | undefined) {
-    const labels: Record<string, string> = {
-      string: 'S',
-      hash: 'H',
-      list: 'L',
-      set: 'St',
-      zset: 'Z',
-      stream: 'Sr',
-    };
-    return labels[type || ''] || '?';
-  }
 
   function handleToggle(e: MouseEvent) {
     e.stopPropagation();
@@ -68,8 +45,8 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div 
-  class="flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors border-b border-[#e5e5e5] {isSelected ? 'bg-[#fdf0ef]' : 'hover:bg-[#f0f0f0]'}"
+<div
+  class="flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-code)]'}"
   style="padding-left: {level * 16 + 12}px"
   onclick={handleClick}
   onkeydown={(e) => e.key === 'Enter' && handleClick()}
@@ -80,7 +57,7 @@
   {#if hasChildren}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <span 
-      class="text-[#9a9a9a] text-base w-4 flex-shrink-0 hover:text-[#dc382d] cursor-pointer"
+      class="text-[var(--color-text-faint)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer"
       onclick={handleToggle}
       role="button"
       tabindex="-1"
@@ -92,20 +69,20 @@
   {/if}
   
   {#if node.isLeaf && keyType}
-    <span class="w-4 h-4 flex items-center justify-center rounded text-[9px] text-white font-medium flex-shrink-0 {getTypeColor(keyType)}">{getTypeLabel(keyType)}</span>
+    <span class="w-4 h-4 flex items-center justify-center rounded text-[9px] text-white font-medium flex-shrink-0 {getTypeColorBg(keyType)}">{getTypeLabel(keyType)}</span>
   {:else if hasChildren}
     <span class="w-4 flex-shrink-0"></span>
   {/if}
   
-  <span class="text-base font-mono truncate {hasChildren && !isBothParentAndLeaf ? 'text-[#6b6b6b]' : 'text-[#1a1a1a]'}">
+  <span class="text-base font-mono truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-info-text)]'}">
     {node.name}
   </span>
   
   {#if hasChildren}
-    <span class="text-[#9a9a9a] text-base ml-1">({node.children.size})</span>
+    <span class="text-[var(--color-text-faint)] text-base ml-1">({node.children.size})</span>
   {/if}
   
   {#if isBothParentAndLeaf}
-    <span class="text-[#9a9a9a] text-base ml-1" title="Also a key">⬤</span>
+    <span class="text-[var(--color-text-faint)] text-base ml-1" title="Also a key">⬤</span>
   {/if}
 </div>

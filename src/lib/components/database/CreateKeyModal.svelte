@@ -165,7 +165,7 @@
             class="px-2 py-2 text-base font-medium rounded-lg border transition-all duration-200
               {keyType === option.value 
                 ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' 
-                : 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] border-[var(--color-macos-border)] hover:bg-[#f5f5f7]'}"
+                : 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] border-[var(--color-macos-border)] hover:bg-[var(--color-surface-hover)]'}"
             onclick={() => { keyType = option.value; resetTypeData(); }}
           >
             {option.label}

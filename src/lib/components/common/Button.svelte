@@ -17,8 +17,8 @@
 
   const variants = {
     primary: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)] border-[var(--color-accent)] shadow-sm',
-    secondary: 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] hover:bg-[#f5f5f7] border-[var(--color-macos-border)] shadow-sm',
-    ghost: 'bg-transparent text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[#f5f5f7] border-transparent',
+    secondary: 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] hover:bg-[var(--color-surface-hover)] border-[var(--color-macos-border)] shadow-sm',
+    ghost: 'bg-transparent text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[var(--color-surface-hover)] border-transparent',
   };
 
   const sizes = {

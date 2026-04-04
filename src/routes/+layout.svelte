@@ -69,7 +69,7 @@
   <div class="h-7 bg-[var(--color-macos-surface)] border-t border-[var(--color-macos-border)] flex items-center px-3 text-base text-[var(--color-macos-text-secondary)]">
     {#if $activeConnection}
       <span class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#34c759]"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)]"></span>
         <span>{$activeConnection.name || $activeConnection.host}:{$activeConnection.port}</span>
         <span class="text-[var(--color-macos-text-tertiary)]">db{$activeDb}</span>
       </span>
@@ -93,7 +93,7 @@
           onclick={() => showMonitor = true}
           title="Monitor (⌘M)"
         >
-          ◎ monitor
+          ◎ info
         </button>
         <button 
           class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"

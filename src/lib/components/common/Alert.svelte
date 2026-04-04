@@ -34,9 +34,9 @@
 
   function getTypeColor() {
     switch (type) {
-      case 'success': return 'text-[#28c840]';
-      case 'error': return 'text-[#dc382d]';
-      default: return 'text-[#1a1a1a]';
+      case 'success': return 'text-[var(--color-success)]';
+      case 'error': return 'text-[var(--color-accent)]';
+      default: return 'text-[var(--color-info-text)]';
     }
   }
 
@@ -56,22 +56,22 @@
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
   >
-    <div class="bg-[#f8f8f8] border border-[#d4d4d4] rounded w-full max-w-sm shadow-lg">
+    <div class="bg-[var(--color-surface-input)] border border-[var(--color-border-divider)] rounded-xl w-full max-w-sm shadow-lg">
       <!-- Header -->
-      <div class="px-4 py-3 border-b border-[#d4d4d4] flex items-center gap-2">
+      <div class="px-4 py-3 border-b border-[var(--color-border-divider)] flex items-center gap-2">
         <span class="text-base {getTypeColor()}">{getIcon()}</span>
-        <span class="text-base text-[#1a1a1a] font-mono">{title}</span>
+        <span class="text-base text-[var(--color-info-text)] font-mono">{title}</span>
       </div>
       
       <!-- Content -->
       <div class="px-4 py-4">
-        <p class="text-base text-[#1a1a1a] font-mono">{message}</p>
+        <p class="text-base text-[var(--color-info-text)] font-mono">{message}</p>
       </div>
       
       <!-- Actions -->
-      <div class="px-4 py-3 border-t border-[#d4d4d4] flex justify-end">
+      <div class="px-4 py-3 border-t border-[var(--color-border-divider)] flex justify-end">
         <button 
-          class="px-4 py-2 text-base font-mono bg-[#1a1a1a] text-white rounded hover:bg-[#333] transition-colors"
+          class="px-4 py-2 text-base font-mono bg-[var(--color-dark-bg)] text-white rounded hover:bg-[var(--color-dark-border)] transition-colors"
           onclick={handleClose}
         >
           ok
