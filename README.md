@@ -4,7 +4,7 @@
 
 A modern, cross-platform Redis desktop client built with Tauri.
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mintya/redim/Release)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mintya/redim/release.yml)
 ![GitHub release](https://img.shields.io/github/release/mintya/redim)
 ![GitHub stars](https://img.shields.io/github/stars/mintya/redim)
 ![GitHub forks](https://img.shields.io/github/forks/mintya/redim) 
