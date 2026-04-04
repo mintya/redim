@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { keys, keyTypes, activeKey, searchPattern, selectKey, loadKeys, deleteKey } from '$lib/stores/database';
+  import { keys, keyTypes, searchPattern, activeDb, openOrFocusTab, keyListHighlightKey, loadKeys, deleteKey } from '$lib/stores/database';
   import { activeConnectionId } from '$lib/stores/connection';
   import { invoke } from '@tauri-apps/api/core';
   import { buildTree, flattenTree, type TreeNode, type SortOrder } from '$lib/utils/tree';
@@ -114,7 +114,7 @@
     if (isSelectionMode) {
       toggleSelection(key);
     } else if ($activeConnectionId) {
-      await selectKey($activeConnectionId, key);
+      await openOrFocusTab($activeConnectionId, $activeDb, key);
     }
   }
 
@@ -366,7 +366,7 @@
       bind:this={virtualListRef}
       items={filteredKeys}
       itemHeight={36}
-      selectedKey={$activeKey}
+      selectedKey={$keyListHighlightKey}
       getKey={(key) => key}
       onItemClick={(key) => handleSelectKey(key)}
       onItemContextMenu={(key, _, e) => handleContextMenu(e, key)}
@@ -393,7 +393,7 @@
       bind:this={virtualListRef}
       items={flatTreeNodes}
       itemHeight={36}
-      selectedKey={$activeKey}
+      selectedKey={$keyListHighlightKey}
       getKey={({ node }) => node.fullPath}
       onItemClick={({ node }) => {
         if (node.isLeaf || (node.children.size > 0 && node.isLeaf)) {
@@ -410,7 +410,7 @@
         {@const hasChildren = node.children.size > 0}
         {@const isBothParentAndLeaf = hasChildren && node.isLeaf}
         {@const isExpanded = expandedSet.has(node.fullPath)}
-        {@const isSelected = node.isLeaf && $activeKey === node.fullPath}
+        {@const isSelected = node.isLeaf && $keyListHighlightKey === node.fullPath}
         {@const keyType = node.isLeaf ? ($keyTypes.get(node.fullPath) || 'unknown') : undefined}
         <div
           class="flex items-center gap-1.5 px-2 py-2 h-full cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-accent-subtle)]' : (hasChildren && !node.isLeaf ? 'hover:bg-[var(--color-surface-hover)]' : 'hover:bg-[var(--color-surface-hover)]')}"

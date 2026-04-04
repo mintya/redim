@@ -7,7 +7,7 @@
   import ConnectionForm from '$lib/components/connection/ConnectionForm.svelte';
   import DbList from '$lib/components/database/DbList.svelte';
   import KeyList from '$lib/components/database/KeyList.svelte';
-  import KeyDetail from '$lib/components/database/KeyDetail.svelte';
+  import KeyDetailWorkspace from '$lib/components/database/KeyDetailWorkspace.svelte';
   import Resizer from '$lib/components/common/Resizer.svelte';
 
   let isConnected = $state(false);
@@ -75,10 +75,8 @@
     <!-- Resizer -->
     <Resizer onresize={handlePanelResize} />
 
-    <!-- Right: Key Details -->
-    <div class="flex-1 flex flex-col bg-[var(--color-macos-surface)] overflow-hidden min-w-0">
-      <KeyDetail />
-    </div>
+    <!-- Right: Key details + tabs -->
+    <KeyDetailWorkspace />
   </div>
 {:else}
   <!-- Disconnected View: Connection Manager -->

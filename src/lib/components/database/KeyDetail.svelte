@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { keyInfo, keyValue, activeKey, setStringValue, setHashField, deleteHashField, pushListValue, setListValue, removeListValue, addSetMember, removeSetMember, addZSetMember, deleteZSetMember, deleteKey, renameKey, setKeyTtl } from '$lib/stores/database';
-  import { activeConnectionId } from '$lib/stores/connection';
+  import { keyInfo, keyValue, activeKey, activeKeyTab, detailConnectionId, setStringValue, setHashField, deleteHashField, pushListValue, setListValue, removeListValue, addSetMember, removeSetMember, addZSetMember, deleteZSetMember, deleteKey, renameKey, setKeyTtl } from '$lib/stores/database';
   import type { HashField, ZSetMember } from '$lib/types';
   import { getTypeColorText } from '$lib/utils/redisType';
   import { isJsonString, decodeUnicode, formatJson, isJson } from '$lib/utils/json';
@@ -76,8 +75,8 @@
 
   async function saveEdit() {
     clearError();
-    if ($activeConnectionId && $activeKey && $keyInfo?.key_type === 'string') {
-      const success = await setStringValue($activeConnectionId, $activeKey, editingValue);
+    if ($detailConnectionId && $activeKey && $keyInfo?.key_type === 'string') {
+      const success = await setStringValue($detailConnectionId, $activeKey, editingValue);
       if (success) {
         isEditing = false;
       } else {
@@ -93,10 +92,10 @@
 
   function handleDeleteKey() {
     clearError();
-    if ($activeConnectionId && $activeKey) {
+    if ($detailConnectionId && $activeKey) {
       confirmMessage = `Are you sure you want to delete key: ${$activeKey}?`;
       confirmAction = async () => {
-        const success = await deleteKey($activeConnectionId!, $activeKey!);
+        const success = await deleteKey($detailConnectionId!, $activeKey!);
         if (!success) {
           showError('Failed to delete key');
         }
@@ -118,10 +117,10 @@
 
   async function handleRename() {
     clearError();
-    if ($activeConnectionId && $activeKey) {
+    if ($detailConnectionId && $activeKey) {
       const newKey = prompt('Enter new key name:', $activeKey);
       if (newKey && newKey !== $activeKey) {
-        const success = await renameKey($activeConnectionId, $activeKey, newKey);
+        const success = await renameKey($detailConnectionId, $activeKey, newKey);
         if (!success) {
           showError('Failed to rename key');
         }
@@ -131,10 +130,10 @@
 
   async function handleSetTtl() {
     clearError();
-    if ($activeConnectionId && $activeKey) {
+    if ($detailConnectionId && $activeKey) {
       const ttl = prompt('Enter TTL in seconds (-1 for no expiry):', String($keyInfo?.ttl || -1));
       if (ttl !== null) {
-        const success = await setKeyTtl($activeConnectionId, $activeKey, parseInt(ttl));
+        const success = await setKeyTtl($detailConnectionId, $activeKey, parseInt(ttl));
         if (!success) {
           showError('Failed to set TTL');
         }
@@ -144,8 +143,8 @@
 
   async function handleAddHashField() {
     clearError();
-    if ($activeConnectionId && $activeKey && newField && newValue) {
-      const success = await setHashField($activeConnectionId, $activeKey, newField, newValue);
+    if ($detailConnectionId && $activeKey && newField && newValue) {
+      const success = await setHashField($detailConnectionId, $activeKey, newField, newValue);
       if (success) {
         newField = '';
         newValue = '';
@@ -158,8 +157,8 @@
 
   async function handleDeleteHashField(field: string) {
     clearError();
-    if ($activeConnectionId && $activeKey) {
-      const success = await deleteHashField($activeConnectionId, $activeKey, field);
+    if ($detailConnectionId && $activeKey) {
+      const success = await deleteHashField($detailConnectionId, $activeKey, field);
       if (!success) {
         showError('Failed to delete hash field');
       }
@@ -168,8 +167,8 @@
 
   async function handleAddListItem() {
     clearError();
-    if ($activeConnectionId && $activeKey && newValue) {
-      const success = await pushListValue($activeConnectionId, $activeKey, newValue, true);
+    if ($detailConnectionId && $activeKey && newValue) {
+      const success = await pushListValue($detailConnectionId, $activeKey, newValue, true);
       if (success) {
         newValue = '';
         showAddForm = false;
@@ -181,8 +180,8 @@
 
   async function handleAddSetMember() {
     clearError();
-    if ($activeConnectionId && $activeKey && newValue) {
-      const success = await addSetMember($activeConnectionId, $activeKey, newValue);
+    if ($detailConnectionId && $activeKey && newValue) {
+      const success = await addSetMember($detailConnectionId, $activeKey, newValue);
       if (success) {
         newValue = '';
         showAddForm = false;
@@ -194,8 +193,8 @@
 
   async function handleRemoveSetMember(member: string) {
     clearError();
-    if ($activeConnectionId && $activeKey) {
-      const success = await removeSetMember($activeConnectionId, $activeKey, member);
+    if ($detailConnectionId && $activeKey) {
+      const success = await removeSetMember($detailConnectionId, $activeKey, member);
       if (!success) {
         showError('Failed to remove set member');
       }
@@ -204,13 +203,13 @@
 
   async function handleAddZSetMember() {
     clearError();
-    if ($activeConnectionId && $activeKey && newField) {
+    if ($detailConnectionId && $activeKey && newField) {
       const score = parseFloat(newScore);
       if (isNaN(score)) {
         showError('Invalid score value');
         return;
       }
-      const success = await addZSetMember($activeConnectionId, $activeKey, newField, score);
+      const success = await addZSetMember($detailConnectionId, $activeKey, newField, score);
       if (success) {
         newField = '';
         newScore = '0';
@@ -223,8 +222,8 @@
 
   async function handleDeleteZSetMember(member: string) {
     clearError();
-    if ($activeConnectionId && $activeKey) {
-      const success = await deleteZSetMember($activeConnectionId, $activeKey, member);
+    if ($detailConnectionId && $activeKey) {
+      const success = await deleteZSetMember($detailConnectionId, $activeKey, member);
       if (!success) {
         showError('Failed to delete zset member');
       }
@@ -238,8 +237,8 @@
 
   async function saveListItemEdit() {
     clearError();
-    if ($activeConnectionId && $activeKey && editingIndex >= 0) {
-      const success = await setListValue($activeConnectionId, $activeKey, editingIndex, editingValue);
+    if ($detailConnectionId && $activeKey && editingIndex >= 0) {
+      const success = await setListValue($detailConnectionId, $activeKey, editingIndex, editingValue);
       if (success) {
         editingIndex = -1;
         editingValue = '';
@@ -256,8 +255,8 @@
 
   async function handleRemoveListItem(value: string) {
     clearError();
-    if ($activeConnectionId && $activeKey) {
-      const success = await removeListValue($activeConnectionId, $activeKey, value, 1);
+    if ($detailConnectionId && $activeKey) {
+      const success = await removeListValue($detailConnectionId, $activeKey, value, 1);
       if (!success) {
         showError('Failed to remove list item');
       }
@@ -271,8 +270,8 @@
 
   async function saveHashFieldEdit() {
     clearError();
-    if ($activeConnectionId && $activeKey && editingField) {
-      const success = await setHashField($activeConnectionId, $activeKey, editingField, editingValue);
+    if ($detailConnectionId && $activeKey && editingField) {
+      const success = await setHashField($detailConnectionId, $activeKey, editingField, editingValue);
       if (success) {
         editingField = '';
         editingValue = '';
@@ -294,13 +293,13 @@
 
   async function saveZSetMemberEdit() {
     clearError();
-    if ($activeConnectionId && $activeKey && editingField) {
+    if ($detailConnectionId && $activeKey && editingField) {
       const score = parseFloat(editingValue);
       if (isNaN(score)) {
         showError('Invalid score value');
         return;
       }
-      const success = await addZSetMember($activeConnectionId, $activeKey, editingField, score);
+      const success = await addZSetMember($detailConnectionId, $activeKey, editingField, score);
       if (success) {
         editingField = '';
         editingValue = '';
@@ -316,7 +315,7 @@
   }
 
   function openInlineRename() {
-    if ($activeConnectionId && $activeKey) {
+    if ($detailConnectionId && $activeKey) {
       inlineInputType = 'rename';
       inlineInputValue = $activeKey;
       showInlineInput = true;
@@ -324,7 +323,7 @@
   }
 
   function openInlineTtl() {
-    if ($activeConnectionId && $activeKey) {
+    if ($detailConnectionId && $activeKey) {
       inlineInputType = 'ttl';
       inlineInputValue = String($keyInfo?.ttl ?? -1);
       showInlineInput = true;
@@ -338,16 +337,16 @@
 
   async function handleInlineConfirm() {
     clearError();
-    if (!$activeConnectionId || !$activeKey) return;
+    if (!$detailConnectionId || !$activeKey) return;
     if (inlineInputType === 'rename') {
       if (inlineInputValue && inlineInputValue !== $activeKey) {
-        const success = await renameKey($activeConnectionId, $activeKey, inlineInputValue);
+        const success = await renameKey($detailConnectionId, $activeKey, inlineInputValue);
         if (!success) showError('Failed to rename key');
       }
     } else if (inlineInputType === 'ttl') {
       const ttl = parseInt(inlineInputValue);
       if (!isNaN(ttl)) {
-        const success = await setKeyTtl($activeConnectionId, $activeKey, ttl);
+        const success = await setKeyTtl($detailConnectionId, $activeKey, ttl);
         if (!success) showError('Failed to set TTL');
       }
     }
@@ -364,10 +363,20 @@
   }
 </script>
 
-{#if $keyInfo && $activeKey}
+{#if $keyInfo && $activeKey && $detailConnectionId}
   <div class="h-11 px-6 border-b border-[var(--color-border-divider)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-macos-surface)] shadow-sm">
-    <div class="flex items-center gap-3">
-      <span class="text-base text-[var(--color-info-text)] font-mono">{$activeKey}</span>
+    <div class="flex items-center gap-3 min-w-0 flex-wrap">
+      {#if $activeKeyTab}
+        <span
+          class="text-xs text-[var(--color-text-muted)] font-mono truncate max-w-[140px]"
+          title={$activeKeyTab.connectionLabel}
+        >
+          {$activeKeyTab.connectionLabel}
+        </span>
+        <span class="text-xs text-[var(--color-text-faint)] font-mono">db{$activeKeyTab.db}</span>
+        <span class="text-[var(--color-border-divider)]">|</span>
+      {/if}
+      <span class="text-base text-[var(--color-info-text)] font-mono truncate">{$activeKey}</span>
       <span class="text-base font-mono {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
     </div>
     <div class="flex items-center gap-3 text-base">

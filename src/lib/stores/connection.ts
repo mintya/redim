@@ -67,6 +67,8 @@ export async function updateConnection(config: ConnectionConfig) {
 export async function deleteConnection(id: string) {
   const result = await withErrorHandling(
     async () => {
+      const { removeKeyTabsForConnection } = await import('$lib/stores/database');
+      removeKeyTabsForConnection(id);
       const result = await invoke<ConnectionConfig[]>('delete_connection', { id });
       connections.set(result);
       connectionStates.update(states => {
@@ -172,6 +174,8 @@ export async function disconnect(id: string) {
   const result = await withErrorHandling(
     async () => {
       await invoke('disconnect', { id });
+      const { removeKeyTabsForConnection } = await import('$lib/stores/database');
+      removeKeyTabsForConnection(id);
       connectionStates.update(states => {
         states.delete(id);
         return states;
