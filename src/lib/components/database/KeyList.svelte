@@ -257,46 +257,62 @@
   <!-- View & Sort Icons -->
   <div class="flex items-center gap-1">
     <!-- List/Tree Toggle -->
-    <button 
-      class="w-6 h-6 flex items-center justify-center rounded-md text-base transition-colors {viewMode === 'list' ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
-      onclick={() => viewMode = 'list'}
-      title="List view"
-    >
-      ☰
-    </button>
-    <button 
-      class="w-6 h-6 flex items-center justify-center rounded-md text-base transition-colors {viewMode === 'tree' ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
-      onclick={() => viewMode = 'tree'}
-      title="Tree view"
-    >
-      ⊞
-    </button>
+    <div class="flex items-center gap-0.5 p-0.5 bg-[var(--color-surface-hover)] rounded-md">
+      <button 
+        class="px-2.5 py-1 flex items-center justify-center rounded text-xs transition-colors {viewMode === 'list' ? 'bg-[var(--color-bg)] text-[var(--color-accent)] shadow-sm' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
+        onclick={() => viewMode = 'list'}
+        title="List view"
+      >
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12V12H2v-1.5z"/>
+        </svg>
+      </button>
+      <button 
+        class="px-2.5 py-1 flex items-center justify-center rounded text-xs transition-colors {viewMode === 'tree' ? 'bg-[var(--color-bg)] text-[var(--color-accent)] shadow-sm' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
+        onclick={() => viewMode = 'tree'}
+        title="Tree view"
+      >
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M1.5 2.5h4v3h-4v-3zM1.5 7.25h4v3h-4v-3zM1.5 12h4v1.5h-4v-1.5zM7.25 2.5h7.25v1.5H7.25V2.5zM7.25 7.25h7.25v1.5H7.25V7.25zM7.25 12h7.25v1.5H7.25V12z"/>
+        </svg>
+      </button>
+    </div>
 
     {#if viewMode === 'tree'}
       <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
       <button 
-        class="w-7 h-7 flex items-center justify-center rounded-md text-base text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)] transition-colors"
+        class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={expandAll}
         title="Expand all"
       >
-        ▾
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4 6l4 4 4-4H4z"/>
+        </svg>
       </button>
       <button 
-        class="w-7 h-7 flex items-center justify-center rounded-md text-base text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)] transition-colors"
+        class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={collapseAll}
         title="Collapse all"
       >
-        ▸
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M12 10L8 6l4-4v8z"/>
+        </svg>
       </button>
     {/if}
 
     <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
     <button 
-      class="w-7 h-7 flex items-center justify-center rounded-md text-base text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)] transition-colors"
+      class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
       onclick={cycleSortOrder}
       title={sortOrder === 'asc' ? 'A→Z' : 'Z→A'}
     >
-      {sortOrder === 'asc' ? '↑' : '↓'}
+      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+        {#if sortOrder === 'asc'}
+          <path d="M8 3l4 5H4l4-5zm0 10l-4-5h8l-4 5z"/>
+        {:else}
+          <path d="M8 13l-4-5h8l-4 5zm0-10l4 5H4l4-5z"/>
+        {/if}
+      </svg>
     </button>
     
     <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
@@ -417,7 +433,10 @@
           style="padding-left: {level * 16 + 12}px"
         >
           {#if hasChildren}
-            <span class="text-[var(--color-text-faint)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer">
+            <span 
+              class="text-[var(--color-text-faint)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer"
+              onclick={(e) => { e.stopPropagation(); toggleExpand(node.fullPath); }}
+            >
               {isExpanded ? '▾' : '▸'}
             </span>
           {:else}

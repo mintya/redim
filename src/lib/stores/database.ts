@@ -288,7 +288,8 @@ export async function loadKeys(connectionId: string, pattern?: string) {
       const result = await withErrorHandling(
         async () => {
           const allKeys = await scanAllKeys(connectionId, pat, 500);
-          keys.set(allKeys);
+          const uniqueKeys = [...new Set(allKeys)];
+          keys.set(uniqueKeys);
 
           const typesMap = new Map<string, string>();
           let typeCursor: number = 0;

@@ -84,7 +84,7 @@
       class="flex-shrink-0 flex flex-col gap-0.5 px-2 pt-1.5 pb-0 border-b border-[var(--color-border-divider)] bg-[var(--color-macos-surface)] overflow-x-hidden"
     >
       {#if tabBarMode === 'pager'}
-        <div class="flex items-center gap-1.5 min-w-0" role="tablist">
+        <div class="flex items-center gap-1 min-w-0" role="tablist">
           <button
             type="button"
             class="pager-nav"
@@ -101,17 +101,17 @@
             </svg>
           </button>
 
-          <div class="flex-1 min-w-0 overflow-hidden py-0.5" use:attachResize>
-            <div class="flex items-center gap-0.5 min-w-0">
+          <div class="flex-1 min-w-0 overflow-hidden" use:attachResize>
+            <div class="flex items-center min-w-0">
               {#each visibleTabsPager as tab (tab.id)}
                 <div
                   role="tab"
                   tabindex="0"
                   aria-selected={$activeTabId === tab.id}
-                  class="group flex items-center gap-1 min-w-0 flex-1 max-w-[240px] rounded-t-lg border border-b-0 font-mono text-sm transition-colors cursor-pointer
+                  class="group flex items-center gap-1 min-w-0 max-w-[200px] flex-1 font-mono text-sm transition-all cursor-pointer rounded-t-md
                     {$activeTabId === tab.id
-                    ? 'bg-[var(--color-surface-code)] border-[var(--color-border-divider)] text-[var(--color-info-text)] z-[1]'
-                    : 'bg-[var(--color-surface-input)] border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-info-text)] hover:bg-[var(--color-surface-hover)]'}"
+                    ? 'bg-[var(--color-bg)] text-[var(--color-info-text)] border-t border-l border-r border-[var(--color-border-divider)]'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-info-text)] hover:bg-[var(--color-surface-hover)]'}"
                   onclick={() => void activateTab(tab.id)}
                   onkeydown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -120,26 +120,22 @@
                     }
                   }}
                 >
-                  <div class="flex items-center gap-1.5 min-w-0 flex-1 px-2 py-1.5 pl-3">
-                    <span class="truncate" title={tab.key}>{tabTitle(tab.key)}</span>
+                  <div class="flex items-center gap-1 min-w-0 flex-1 px-2 py-1.5 pl-3">
+                    <span class="truncate" title={tab.key}>{tabTitle(tab.key, 20)}</span>
                     <span class="flex-shrink-0 text-[10px] text-[var(--color-text-faint)]">db{tab.db}</span>
-                    <span
-                      class="flex-shrink-0 truncate max-w-[72px] text-[10px] text-[var(--color-text-faint)]"
-                      title={tab.connectionLabel}
-                    >
-                      {tab.connectionLabel}
-                    </span>
                   </div>
                   <button
                     type="button"
-                    class="flex-shrink-0 w-7 min-h-[2.25rem] flex items-center justify-center rounded-tr-lg text-[var(--color-text-faint)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors"
+                    class="flex-shrink-0 w-6 h-6 flex items-center justify-center mr-1 rounded text-[var(--color-text-faint)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors"
                     aria-label="close tab"
                     onclick={(e) => {
                       e.stopPropagation();
                       closeTab(tab.id);
                     }}
                   >
-                    ×
+                    <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M4.28 3.22a.75.75 0 00-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 101.06 1.06L8 9.06l3.72 3.72a.75.75 0 101.06-1.06L9.06 8l3.72-3.72a.75.75 0 00-1.06-1.06L8 6.94 4.28 3.22z"/>
+                    </svg>
                   </button>
                 </div>
               {/each}
@@ -162,21 +158,21 @@
             </svg>
           </button>
 
-          <div
-            class="flex items-center gap-0.5 flex-shrink-0 pl-1 border-l border-[var(--color-border-subtle)] ml-0.5"
-          >
-            <span class="text-[10px] text-[var(--color-text-faint)] font-mono hidden sm:inline">tabs</span>
-            <button type="button" class="mode-chip mode-chip-on" onclick={() => (tabBarMode = 'pager')}>
-              翻动
+          <div class="flex items-center gap-0.5 flex-shrink-0 ml-1">
+            <button type="button" class="mode-chip {tabBarMode === 'pager' ? 'mode-chip-on' : ''}" onclick={() => (tabBarMode = 'pager')} title="Scroll">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/>
+              </svg>
             </button>
-            <button type="button" class="mode-chip" onclick={() => (tabBarMode = 'wrap')}>
-              多行
+            <button type="button" class="mode-chip {tabBarMode === 'wrap' ? 'mode-chip-on' : ''}" onclick={() => (tabBarMode = 'wrap')} title="Wrap">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M1.5 2.5h4v3h-4v-3zM1.5 7.25h4v3h-4v-3zM1.5 12h4v1.5h-4v-1.5zM7.25 2.5h7.25v1.5H7.25V2.5zM7.25 7.25h7.25v1.5H7.25V7.25zM7.25 12h7.25v1.5H7.25V12z"/>
+              </svg>
             </button>
           </div>
         </div>
       {:else}
-        <!-- 与标签同一行对齐，避免单独一行工具栏在上方形成空白带 -->
-        <div class="flex items-start gap-2 min-w-0 pb-0.5">
+        <div class="flex items-start gap-1 min-w-0 pb-0.5">
           <div
             class="flex flex-1 min-w-0 flex-wrap items-center gap-0.5 overflow-x-hidden content-start"
             role="tablist"
@@ -186,10 +182,10 @@
               role="tab"
               tabindex="0"
               aria-selected={$activeTabId === tab.id}
-              class="group flex items-center gap-1 w-[min(100%,240px)] min-w-[160px] flex-1 sm:flex-none sm:max-w-[240px] rounded-t-lg border border-b-0 font-mono text-sm transition-colors cursor-pointer
+              class="group flex items-center gap-1 w-[min(100%,200px)] min-w-[140px] flex-1 sm:flex-none sm:max-w-[200px] rounded-t-md font-mono text-sm transition-all cursor-pointer
                 {$activeTabId === tab.id
-                ? 'bg-[var(--color-surface-code)] border-[var(--color-border-divider)] text-[var(--color-info-text)] z-[1]'
-                : 'bg-[var(--color-surface-input)] border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-info-text)] hover:bg-[var(--color-surface-hover)]'}"
+                ? 'bg-[var(--color-bg)] text-[var(--color-info-text)] border-t border-l border-r border-[var(--color-border-divider)]'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-info-text)] hover:bg-[var(--color-surface-hover)]'}"
               onclick={() => void activateTab(tab.id)}
               onkeydown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -198,39 +194,38 @@
                 }
               }}
             >
-              <div class="flex items-center gap-1.5 min-w-0 flex-1 px-2 py-1.5 pl-3">
-                <span class="truncate" title={tab.key}>{tabTitle(tab.key)}</span>
+              <div class="flex items-center gap-1 min-w-0 flex-1 px-2 py-1.5 pl-3">
+                <span class="truncate" title={tab.key}>{tabTitle(tab.key, 20)}</span>
                 <span class="flex-shrink-0 text-[10px] text-[var(--color-text-faint)]">db{tab.db}</span>
-                <span
-                  class="flex-shrink-0 truncate max-w-[72px] text-[10px] text-[var(--color-text-faint)]"
-                  title={tab.connectionLabel}
-                >
-                  {tab.connectionLabel}
-                </span>
               </div>
               <button
                 type="button"
-                class="flex-shrink-0 w-7 min-h-[2.25rem] flex items-center justify-center rounded-tr-lg text-[var(--color-text-faint)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors"
+                class="flex-shrink-0 w-6 h-6 flex items-center justify-center mr-1 rounded text-[var(--color-text-faint)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors"
                 aria-label="close tab"
                 onclick={(e) => {
                   e.stopPropagation();
                   closeTab(tab.id);
                 }}
               >
-                ×
+                <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M4.28 3.22a.75.75 0 00-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 101.06 1.06L8 9.06l3.72 3.72a.75.75 0 101.06-1.06L9.06 8l3.72-3.72a.75.75 0 00-1.06-1.06L8 6.94 4.28 3.22z"/>
+                </svg>
               </button>
             </div>
             {/each}
           </div>
           <div
-            class="flex items-center gap-0.5 flex-shrink-0 self-start pt-0.5 pl-2 border-l border-[var(--color-border-subtle)]"
+            class="flex items-center gap-0.5 flex-shrink-0 self-start pt-0.5"
           >
-            <span class="text-[10px] text-[var(--color-text-faint)] font-mono hidden sm:inline">tabs</span>
-            <button type="button" class="mode-chip" onclick={() => (tabBarMode = 'pager')}>
-              翻动
+            <button type="button" class="mode-chip {tabBarMode === 'pager' ? 'mode-chip-on' : ''}" onclick={() => (tabBarMode = 'pager')} title="Scroll">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12v1.5H2v-1.5z"/>
+              </svg>
             </button>
-            <button type="button" class="mode-chip mode-chip-on" onclick={() => (tabBarMode = 'wrap')}>
-              多行
+            <button type="button" class="mode-chip {tabBarMode === 'wrap' ? 'mode-chip-on' : ''}" onclick={() => (tabBarMode = 'wrap')} title="Wrap">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M1.5 2.5h4v3h-4v-3zM1.5 7.25h4v3h-4v-3zM1.5 12h4v1.5h-4v-1.5zM7.25 2.5h7.25v1.5H7.25V2.5zM7.25 7.25h7.25v1.5H7.25V7.25zM7.25 12h7.25v1.5H7.25V12z"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -278,13 +273,15 @@
     height: 1.125rem;
   }
   .mode-chip {
-    padding: 0.125rem 0.5rem;
+    padding: 0.25rem;
     border-radius: 0.375rem;
     font-size: 10px;
-    font-family: ui-monospace, monospace;
     border: 1px solid transparent;
     color: var(--color-text-muted);
     background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition:
       border-color 0.15s ease,
       background-color 0.15s ease,
