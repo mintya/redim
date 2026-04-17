@@ -14,6 +14,10 @@ export default defineConfig(async () => ({
     sveltekit(),
   ],
 
+  optimizeDeps: {
+    include: ['@lucide/svelte'],
+  },
+
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

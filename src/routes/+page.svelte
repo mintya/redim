@@ -67,7 +67,7 @@
   <!-- Connected View: Database Browser -->
   <div class="flex-1 flex overflow-hidden">
     <!-- Left: DB List + Keys -->
-    <div class="flex flex-col bg-[var(--color-macos-surface)] overflow-hidden" style="width: {leftPanelWidth}px; min-width: 200px;">
+    <div class="flex flex-col bg-[var(--color-surface)] overflow-hidden" style="width: {leftPanelWidth}px; min-width: 200px;">
       <DbList />
       <KeyList />
     </div>
@@ -81,17 +81,17 @@
 {:else}
   <!-- Disconnected View: Connection Manager -->
   <div class="flex-1 flex items-center justify-center p-4 sm:p-6">
-    <div class="flex border border-[var(--color-macos-border)] rounded-xl w-full max-w-4xl h-[calc(100vh-120px)] bg-[var(--color-macos-surface)] shadow-sm overflow-hidden">
+    <div class="flex border border-[var(--color-border)] rounded-xl w-full max-w-4xl h-[calc(100vh-120px)] bg-[var(--color-surface)] shadow-[var(--shadow-md)] overflow-hidden">
       <!-- Left: Connection List -->
-      <div class="w-72 sm:w-80 border-r border-[var(--color-macos-border)] flex flex-col bg-[var(--color-macos-surface)] rounded-l-xl flex-shrink-0">
-        <div class="h-10 px-4 border-b border-[var(--color-macos-border)] flex items-center">
-          <span class="text-base text-[var(--color-macos-text-secondary)] font-medium">connections</span>
+      <div class="w-72 sm:w-80 border-r border-[var(--color-border)] flex flex-col bg-[var(--color-surface)] rounded-l-lg flex-shrink-0">
+        <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center">
+          <span class="text-sm text-[var(--color-text-secondary)] font-medium">connections</span>
         </div>
         <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
       </div>
 
       <!-- Right: New Connection Form -->
-      <div class="flex-1 flex flex-col bg-[var(--color-macos-surface)] rounded-r-xl min-w-0">
+      <div class="flex-1 flex flex-col bg-[var(--color-surface)] rounded-r-xl min-w-0">
         <ConnectionForm bind:editing={editingConnection} onsaved={handleSaved} />
       </div>
     </div>

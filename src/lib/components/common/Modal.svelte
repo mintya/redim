@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
+  
   interface Props {
     open: boolean;
     title?: string;
@@ -30,19 +32,19 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div 
-    class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
+    class="fixed inset-0 bg-[var(--color-text-primary)]/20 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={handleBackdropClick}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl w-full {sizeClasses[size]} mx-4 shadow-lg">
+    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg w-full {sizeClasses[size]} mx-4 shadow-[var(--shadow-md)]">
       {#if title}
-        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-macos-border)]">
-          <span class="font-mono text-base text-[var(--color-macos-text)] font-semibold">{title}</span>
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
+          <span class="font-sans text-base text-[var(--color-text-primary)] font-semibold">{title}</span>
           <button 
             onclick={handleClose}
-            class="text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text)] transition-colors p-1 rounded-full hover:bg-[var(--color-surface-hover)]"
+            class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors p-1 rounded-full hover:bg-[var(--color-surface-hover)]"
           >
-            ✕
+            <X class="w-4 h-4" />
           </button>
         </div>
       {/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { databases, activeDb, selectDatabase, loadDatabases, loadKeys } from '$lib/stores/database';
   import { activeConnectionId } from '$lib/stores/connection';
+  import { ChevronDown, RotateCcw } from '@lucide/svelte';
 
   let showDropdown = $state(false);
   let focusedIndex = $state(0);
@@ -52,28 +53,28 @@
   let activeDbInfo = $derived($databases.find(db => db.index === $activeDb));
 </script>
 
-<div class="h-10 px-4 border-b border-[var(--color-macos-border)] flex items-center justify-between relative">
+<div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between relative">
   <div class="flex items-center gap-2">
-    <span class="text-base text-[var(--color-macos-text-secondary)] font-medium">databases</span>
+    <span class="text-base text-[var(--color-text-secondary)] font-medium">databases</span>
     
     <!-- Database Dropdown -->
     <div class="relative">
       <button
-        class="flex items-center gap-1 px-2 py-1 text-base bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+        class="flex items-center gap-1 px-2 py-1 text-base bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={toggleDropdown}
       >
-        <span class="text-[var(--color-macos-text)]">db{$activeDb}</span>
+        <span class="text-[var(--color-text-primary)]">db{$activeDb}</span>
         {#if activeDbInfo}
-          <span class="text-[var(--color-macos-text-tertiary)]">({activeDbInfo.keys})</span>
+          <span class="text-[var(--color-text-muted)]">({activeDbInfo.keys})</span>
         {/if}
-        <span class="text-[var(--color-macos-text-tertiary)] ml-1">▾</span>
+        <ChevronDown class="w-3.5 h-3.5 text-[var(--color-text-muted)] ml-1" />
       </button>
       
       {#if showDropdown}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div 
           bind:this={dropdownEl}
-          class="absolute top-full left-0 mt-1 w-48 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl shadow-lg z-50 py-1 max-h-64 overflow-y-auto"
+          class="absolute top-full left-0 mt-1 w-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-[var(--shadow-md)] z-50 py-1 max-h-64 overflow-y-auto"
           role="listbox"
           tabindex="-1"
           onkeydown={handleKeydown}
@@ -84,10 +85,10 @@
               onclick={() => handleSelectDb(db.index)}
               tabindex="-1"
             >
-              <span class="font-mono {$activeDb === db.index ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text)]'}">
+              <span class="font-sans {$activeDb === db.index ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-primary)]'}">
                 db{db.index}
               </span>
-              <span class="text-[var(--color-macos-text-tertiary)]">
+              <span class="text-[var(--color-text-muted)]">
                 {db.keys} keys
               </span>
             </button>
@@ -98,11 +99,11 @@
   </div>
   
   <button 
-    class="text-base text-[var(--color-macos-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+    class="text-base text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
     onclick={handleRefresh}
     title="refresh"
   >
-    ↻
+    <RotateCcw class="w-4 h-4" />
   </button>
 </div>
 

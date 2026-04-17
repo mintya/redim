@@ -1,37 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace;
-  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace;
+  
+  --color-bg-primary: #faf9f7;
+  --color-bg-surface: #ffffff;
+  --color-bg-elevated: #f5f4f1;
+  
+  --color-border: #e5e2dc;
+  --color-border-dark: #d4d1c9;
+  
+  --color-text-primary: #1c1c1c;
+  --color-text-secondary: #6b6966;
+  --color-text-muted: #999592;
   
   --color-accent: #dc382d;
-  --color-accent-light: #e85d54;
-  --color-accent-subtle: #fdf0ef;
+  --color-accent-hover: #b52e26;
+  --color-accent-light: #fdeaea;
+  --color-accent-subtle: rgba(220, 56, 45, 0.08);
   
-  --color-macos-bg: #f5f5f7;
-  --color-macos-surface: #ffffff;
-  --color-macos-border: #d2d2d7;
-  --color-macos-text: #1d1d1f;
-  --color-macos-text-secondary: #86868b;
-  --color-macos-text-tertiary: #aeaeb2;
-  
-  --color-surface-hover: #f5f5f7;
-  --color-surface-code: #f0f0f0;
-  --color-surface-input: #fafafa;
-  --color-border-subtle: #e5e5e5;
-  --color-border-divider: #d4d4d4;
-  --color-text-muted: #6b6b6b;
-  --color-text-faint: #9a9a9a;
-  
-  --color-success: #34c759;
-  --color-success-bg: #eef9ee;
-  --color-success-text: #1a8c2e;
-  --color-warning-bg: #fff8e6;
-  --color-warning-border: #ff9f43;
-  --color-warning-text: #b36b00;
-  --color-info-bg: #f0f0f0;
-  --color-info-border: #d4d4d4;
-  --color-info-text: #1a1a1a;
+  --color-surface: #ffffff;
+  --color-surface-hover: rgba(28, 28, 28, 0.04);
+  --color-surface-active: rgba(28, 28, 28, 0.08);
   
   --color-type-string: #34c759;
   --color-type-hash: #ff9500;
@@ -40,21 +31,33 @@
   --color-type-zset: #ff3b30;
   --color-type-stream: #8e8e93;
   
-  --color-dark-bg: #1a1a1a;
-  --color-dark-surface: #2a2a2a;
-  --color-dark-border: #333;
-  --color-dark-border-light: #444;
-  --color-dark-text: #e0e0e0;
-  --color-dark-text-muted: #6b6b6b;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(220, 56, 45, 0.15);
+  --shadow-button-inset: rgba(255, 255, 255, 0.6) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+
+  --color-macos-text: var(--color-text-primary);
+  --color-macos-text-secondary: var(--color-text-secondary);
+  --color-macos-text-tertiary: var(--color-text-muted);
+  --color-macos-surface: var(--color-surface);
+  --color-macos-border: var(--color-border);
+
+  --color-cli-bg: #1a1a1a;
+  --color-cli-surface: #242424;
+  --color-cli-border: #3a3a3a;
+  --color-cli-text: #e5e5e5;
+  --color-cli-text-dim: #888888;
+  --color-cli-accent: #00d992;
 }
 
 @layer base {
   :root {
-    font-family: var(--font-mono);
-    font-size: 13px;
+    font-family: var(--font-sans);
+    font-size: 14px;
     line-height: 1.5;
-    color: var(--color-macos-text);
-    background-color: var(--color-macos-bg);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -63,6 +66,6 @@
   
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-macos-border) transparent;
+    scrollbar-color: var(--color-border) transparent;
   }
 }

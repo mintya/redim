@@ -185,16 +185,16 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-[var(--color-text-primary)]/30 flex items-center justify-center z-50"
     onclick={(e) => e.target === e.currentTarget && handleClose()}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="bg-[var(--color-surface-input)] border border-[var(--color-border-divider)] rounded-lg w-full max-w-md shadow-lg">
+    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg w-full max-w-md shadow-[var(--shadow-md)]">
       <!-- Header -->
-      <div class="h-10 px-4 border-b border-[var(--color-border-divider)] flex items-center justify-between">
-        <span class="text-base text-[var(--color-info-text)] font-mono">import / export</span>
+      <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between">
+        <span class="text-base text-[var(--color-text-primary)] font-mono">import / export</span>
         <button
-          class="text-[var(--color-text-muted)] hover:text-[var(--color-info-text)] transition-colors"
+          class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={handleClose}
         >
           ✕
@@ -208,25 +208,25 @@
           <h3 class="text-base text-[var(--color-text-muted)] mb-1">export</h3>
           <div class="space-y-2">
             <div>
-              <span class="block text-sm text-[var(--color-text-faint)] mb-1">pattern</span>
+              <span class="block text-sm text-[var(--color-text-muted)] mb-1">pattern</span>
               <input
                 type="text"
                 bind:value={exportPattern}
                 placeholder="*"
-                class="w-full px-2.5 py-1.5 bg-[var(--color-surface-input)] border border-[var(--color-border-divider)] rounded text-sm font-mono focus:outline-none focus:border-[var(--color-accent)]"
+                class="w-full px-2.5 py-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-sm font-mono focus:outline-none focus:border-[var(--color-accent)]"
               />
             </div>
             <div>
-              <span class="block text-sm text-[var(--color-text-faint)] mb-1">format</span>
+              <span class="block text-sm text-[var(--color-text-muted)] mb-1">format</span>
               <div class="flex gap-2">
                 <button
-                  class="px-3 py-1.5 text-sm font-mono rounded border transition-colors {exportFormat === 'json' ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' : 'bg-[var(--color-surface-input)] text-[var(--color-text-muted)] border-[var(--color-border-divider)] hover:border-[var(--color-accent)]'}"
+                  class="px-3 py-1.5 text-sm font-mono rounded border transition-colors {exportFormat === 'json' ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:border-[var(--color-accent)]'}"
                   onclick={() => exportFormat = 'json'}
                 >
                   JSON
                 </button>
                 <button
-                  class="px-3 py-1.5 text-sm font-mono rounded border transition-colors {exportFormat === 'csv' ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' : 'bg-[var(--color-surface-input)] text-[var(--color-text-muted)] border-[var(--color-border-divider)] hover:border-[var(--color-accent)]'}"
+                  class="px-3 py-1.5 text-sm font-mono rounded border transition-colors {exportFormat === 'csv' ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:border-[var(--color-accent)]'}"
                   onclick={() => exportFormat = 'csv'}
                 >
                   CSV
@@ -240,9 +240,9 @@
         </div>
 
         <!-- Import Section -->
-        <div class="pt-3 border-t border-[var(--color-border-divider)]">
+        <div class="pt-3 border-t border-[var(--color-border)]">
           <h3 class="text-base text-[var(--color-text-muted)] mb-1">import</h3>
-          <p class="text-sm text-[var(--color-text-faint)] mb-1">Import from JSON file</p>
+          <p class="text-sm text-[var(--color-text-muted)] mb-1">Import from JSON file</p>
           <Button variant="secondary" onclick={handleImport} disabled={importing}>
             {importing ? 'importing...' : 'select file'}
           </Button>

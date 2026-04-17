@@ -49,31 +49,31 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div 
-    class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
+    class="fixed inset-0 bg-[var(--color-text-primary)]/20 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
   >
-    <div class="bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl w-full max-w-sm shadow-lg">
+    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg w-full max-w-sm shadow-[var(--shadow-md)]">
       <!-- Header -->
-      <div class="px-4 py-3 border-b border-[var(--color-macos-border)]">
-        <span class="text-base text-[var(--color-macos-text)] font-semibold">{title}</span>
+      <div class="px-4 py-3 border-b border-[var(--color-border)]">
+        <span class="text-base text-[var(--color-text-primary)] font-semibold">{title}</span>
       </div>
       
       <!-- Content -->
       <div class="px-4 py-4">
-        <p class="text-base text-[var(--color-macos-text)]">{message}</p>
+        <p class="text-base text-[var(--color-text-primary)]">{message}</p>
       </div>
       
       <!-- Actions -->
-      <div class="px-4 py-3 border-t border-[var(--color-macos-border)] flex justify-end gap-2">
+      <div class="px-4 py-3 border-t border-[var(--color-border)] flex justify-end gap-2">
         <button 
-          class="px-4 py-2 text-base font-medium text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors rounded-lg hover:bg-[var(--color-surface-hover)]"
+          class="px-4 py-2 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors rounded-md hover:bg-[var(--color-surface-hover)]"
           onclick={handleCancel}
         >
           {cancelText}
         </button>
         <button 
-          class="px-4 py-2 text-base font-medium rounded-lg transition-colors {danger ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)]' : 'bg-[var(--color-macos-text)] text-white hover:bg-[var(--color-dark-border)]'}"
+          class="px-4 py-2 text-base font-medium rounded-md transition-colors {danger ? 'bg-[var(--color-accent)] text-white hover:opacity-90' : 'bg-[var(--color-text-primary)] text-[var(--color-surface)] hover:opacity-90'}"
           onclick={handleConfirm}
         >
           {confirmText}

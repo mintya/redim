@@ -10,6 +10,7 @@
   import CliTerminal from '$lib/components/cli/CliTerminal.svelte';
   import MonitorPanel from '$lib/components/monitor/MonitorPanel.svelte';
   import ImportExport from '$lib/components/import/ImportExport.svelte';
+  import { ArrowUpDown, Activity, Terminal } from '@lucide/svelte';
 
   let { children } = $props();
 
@@ -50,12 +51,12 @@
   }
 </script>
 
-<div class="h-screen flex flex-col bg-[var(--color-macos-bg)] font-mono text-base">
+<div class="h-screen flex flex-col bg-[var(--color-bg-primary)] font-sans text-base">
   <!-- Title Bar -->
-  <div class="h-12 bg-[var(--color-macos-surface)] border-b border-[var(--color-macos-border)] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
+  <div class="h-12 bg-[var(--color-bg-primary)] border-b border-[var(--color-border)] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
     <div class="flex items-center gap-2">
       <Logo size={24} />
-      <span class="text-lg text-[var(--color-macos-text)] font-semibold">Redim</span>
+      <span class="text-lg text-[var(--color-text-primary)] font-semibold tracking-tight">Redim</span>
     </div>
     <ConnectionSwitcher />
   </div>
@@ -66,41 +67,44 @@
   </div>
 
   <!-- Status Bar -->
-  <div class="h-7 bg-[var(--color-macos-surface)] border-t border-[var(--color-macos-border)] flex items-center px-3 text-base text-[var(--color-macos-text-secondary)]">
+  <div class="h-7 bg-[var(--color-bg-primary)] border-t border-[var(--color-border)] flex items-center px-3 text-sm text-[var(--color-text-secondary)]">
     {#if $activeConnection}
       <span class="flex items-center gap-2">
         <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)]"></span>
         <span>{$activeConnection.name || $activeConnection.host}:{$activeConnection.port}</span>
-        <span class="text-[var(--color-macos-text-tertiary)]">db{$activeDb}</span>
+        <span class="text-[var(--color-text-muted)]">db{$activeDb}</span>
       </span>
     {:else}
       <span class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-macos-text-tertiary)]"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-text-muted)]"></span>
         disconnected
       </span>
     {/if}
     <span class="ml-auto flex items-center gap-4">
       {#if isConnected}
         <button 
-          class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"
+          class="flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={() => showImportExport = true}
           title="Import/Export"
         >
-          ↕ data
+          <ArrowUpDown class="w-3.5 h-3.5" />
+          <span class="text-sm">data</span>
         </button>
         <button 
-          class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"
+          class="flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={() => showMonitor = true}
           title="Monitor (⌘M)"
         >
-          ◎ info
+          <Activity class="w-3.5 h-3.5" />
+          <span class="text-sm">info</span>
         </button>
         <button 
-          class="text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] transition-colors"
+          class="flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={() => showCli = true}
           title="CLI (⌘K)"
         >
-          ⌘ cli
+          <Terminal class="w-3.5 h-3.5" />
+          <span class="text-sm">cli</span>
         </button>
       {/if}
       <span>v{__APP_VERSION__}</span>

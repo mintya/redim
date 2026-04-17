@@ -16,21 +16,21 @@
   }: Props = $props();
 
   const variants = {
-    primary: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-light)] border-[var(--color-accent)] shadow-sm',
-    secondary: 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] hover:bg-[var(--color-surface-hover)] border-[var(--color-macos-border)] shadow-sm',
-    ghost: 'bg-transparent text-[var(--color-macos-text-secondary)] hover:text-[var(--color-macos-text)] hover:bg-[var(--color-surface-hover)] border-transparent',
+    primary: 'bg-[var(--color-accent)] text-white shadow-[var(--shadow-button-inset)] hover:bg-[var(--color-accent-hover)]',
+    secondary: 'bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]',
+    ghost: 'bg-transparent text-[var(--color-text-primary)] border border-transparent hover:bg-[var(--color-surface-hover)]',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-base',
-    md: 'px-4 py-2 text-base',
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
   };
 </script>
 
 <button
   {disabled}
   {onclick}
-  class="font-mono rounded-lg transition-all duration-200 border {variants[variant]} {sizes[size]} disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+  class="font-sans rounded-md transition-all duration-200 border {variants[variant]} {sizes[size]} disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 focus:shadow-[var(--shadow-focus)] focus:outline-none"
 >
   {@render children()}
 </button>

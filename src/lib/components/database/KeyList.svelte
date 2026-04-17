@@ -10,6 +10,7 @@
   import TreeNodeComponent from './TreeNode.svelte';
   import VirtualList from '$lib/components/common/VirtualList.svelte';
   import { getTypeColorBg, getTypeLabel } from '$lib/utils/redisType';
+  import { ChevronRight, ChevronDown, List, GitBranch, ArrowUpDown, Plus, CheckSquare, Search, Trash2 } from '@lucide/svelte';
 
   let pattern = $state('*');
   let contextMenu = $state<{ x: number; y: number; key: string } | null>(null);
@@ -196,55 +197,57 @@
 </script>
 
 <!-- Search -->
-<div class="p-2 border-b border-[var(--color-macos-border)]">
+<div class="p-2 border-b border-[var(--color-border)]">
   <div class="flex gap-2">
     <input 
       type="text" 
       bind:value={pattern}
       placeholder="fuzzy search..."
-      class="flex-1 px-2 py-1 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+      class="flex-1 px-2 py-1 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-base font-sans focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
       onkeydown={(e) => e.key === 'Enter' && handleSearch()}
     />
-    <Button variant="secondary" size="sm" onclick={handleSearch}>search</Button>
+    <Button variant="secondary" size="sm" onclick={handleSearch}>
+      <Search class="w-3.5 h-3.5" />
+    </Button>
   </div>
 </div>
 
 <!-- Type Filter -->
-<div class="px-2 py-1.5 border-b border-[var(--color-macos-border)] flex items-center gap-1">
+<div class="px-2 py-1.5 border-b border-[var(--color-border)] flex items-center gap-1">
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors {typeFilter === 'all' ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors {typeFilter === 'all' ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = 'all'}
   >all</button>
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'string' ? 'bg-[var(--color-type-string)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'string' ? 'bg-[var(--color-type-string)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = typeFilter === 'string' ? 'all' : 'string'}
   >
     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)] {typeFilter === 'string' ? 'bg-white' : ''}"></span>
     str
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'hash' ? 'bg-[var(--color-type-hash)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'hash' ? 'bg-[var(--color-type-hash)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = typeFilter === 'hash' ? 'all' : 'hash'}
   >
     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-hash)] {typeFilter === 'hash' ? 'bg-white' : ''}"></span>
     hash
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'list' ? 'bg-[var(--color-type-list)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'list' ? 'bg-[var(--color-type-list)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = typeFilter === 'list' ? 'all' : 'list'}
   >
     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-list)] {typeFilter === 'list' ? 'bg-white' : ''}"></span>
     list
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'set' ? 'bg-[var(--color-type-set)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'set' ? 'bg-[var(--color-type-set)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = typeFilter === 'set' ? 'all' : 'set'}
   >
     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-set)] {typeFilter === 'set' ? 'bg-white' : ''}"></span>
     set
   </button>
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'zset' ? 'bg-[var(--color-type-zset)] text-white' : 'text-[var(--color-macos-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-base transition-colors flex items-center gap-0.5 {typeFilter === 'zset' ? 'bg-[var(--color-type-zset)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = typeFilter === 'zset' ? 'all' : 'zset'}
   >
     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-zset)] {typeFilter === 'zset' ? 'bg-white' : ''}"></span>
@@ -253,111 +256,106 @@
 </div>
 
 <!-- Toolbar -->
-<div class="px-2 py-1 border-b border-[var(--color-macos-border)] flex items-center justify-between bg-[var(--color-surface-hover)]">
+<div class="px-2 py-1 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-surface-hover)]">
   <!-- View & Sort Icons -->
   <div class="flex items-center gap-1">
     <!-- List/Tree Toggle -->
     <div class="flex items-center gap-0.5 p-0.5 bg-[var(--color-surface-hover)] rounded-md">
       <button 
-        class="px-2.5 py-1 flex items-center justify-center rounded text-xs transition-colors {viewMode === 'list' ? 'bg-[var(--color-bg)] text-[var(--color-accent)] shadow-sm' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
+        class="px-2.5 py-1 flex items-center justify-center rounded text-xs transition-colors {viewMode === 'list' ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}"
         onclick={() => viewMode = 'list'}
         title="List view"
       >
-        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M2 4h12v1.5H2V4zm0 3.25h12v1.5H2v-1.5zm0 3.25h12V12H2v-1.5z"/>
-        </svg>
+        <List class="w-3.5 h-3.5" />
       </button>
       <button 
-        class="px-2.5 py-1 flex items-center justify-center rounded text-xs transition-colors {viewMode === 'tree' ? 'bg-[var(--color-bg)] text-[var(--color-accent)] shadow-sm' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
+        class="px-2.5 py-1 flex items-center justify-center rounded text-xs transition-colors {viewMode === 'tree' ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}"
         onclick={() => viewMode = 'tree'}
         title="Tree view"
       >
-        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M1.5 2.5h4v3h-4v-3zM1.5 7.25h4v3h-4v-3zM1.5 12h4v1.5h-4v-1.5zM7.25 2.5h7.25v1.5H7.25V2.5zM7.25 7.25h7.25v1.5H7.25V7.25zM7.25 12h7.25v1.5H7.25V12z"/>
-        </svg>
+        <GitBranch class="w-3.5 h-3.5" />
       </button>
     </div>
 
     {#if viewMode === 'tree'}
-      <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
+      <span class="w-px h-4 bg-[var(--color-border)] mx-1"></span>
       <button 
-        class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
+        class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={expandAll}
         title="Expand all"
       >
-        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M4 6l4 4 4-4H4z"/>
-        </svg>
+        <ChevronDown class="w-3.5 h-3.5" />
       </button>
       <button 
-        class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
+        class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={collapseAll}
         title="Collapse all"
       >
-        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M12 10L8 6l4-4v8z"/>
-        </svg>
+        <ChevronRight class="w-3.5 h-3.5" />
       </button>
     {/if}
 
-    <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
+    <span class="w-px h-4 bg-[var(--color-border)] mx-1"></span>
     <button 
-      class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
+      class="w-6 h-6 flex items-center justify-center rounded text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] transition-colors"
       onclick={cycleSortOrder}
       title={sortOrder === 'asc' ? 'A→Z' : 'Z→A'}
     >
-      <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-        {#if sortOrder === 'asc'}
-          <path d="M8 3l4 5H4l4-5zm0 10l-4-5h8l-4 5z"/>
-        {:else}
-          <path d="M8 13l-4-5h8l-4 5zm0-10l4 5H4l4-5z"/>
-        {/if}
-      </svg>
+      {#if sortOrder === 'asc'}
+        <ArrowUpDown class="w-3.5 h-3.5" />
+      {:else}
+        <ArrowUpDown class="w-3.5 h-3.5 rotate-180" />
+      {/if}
     </button>
     
-    <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
-    <span class="text-base text-[var(--color-macos-text-secondary)]">{filteredKeys.length} keys</span>
+    <span class="w-px h-4 bg-[var(--color-border)] mx-1"></span>
+    <span class="text-base text-[var(--color-text-secondary)]">{filteredKeys.length} keys</span>
   </div>
 
   <!-- Actions -->
   <div class="flex items-center gap-1">
     <button 
-      class="w-7 h-7 flex items-center justify-center rounded-md text-lg text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+      class="w-7 h-7 flex items-center justify-center rounded-md text-lg text-[var(--color-text-primary)] hover:text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
       onclick={() => showCreateModal = true}
       title="New key"
     >
-      +
+      <Plus class="w-4 h-4" />
     </button>
     <button 
-      class="w-7 h-7 flex items-center justify-center rounded-md text-base transition-colors {isSelectionMode ? 'text-[var(--color-accent)]' : 'text-[var(--color-macos-text-tertiary)] hover:text-[var(--color-macos-text-secondary)]'}"
+      class="w-7 h-7 flex items-center justify-center rounded-md text-base transition-colors {isSelectionMode ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'}"
       onclick={toggleSelectionMode}
       title={isSelectionMode ? 'Cancel' : 'Multi select'}
     >
-      ☑
+      {#if isSelectionMode}
+        <CheckSquare class="w-4 h-4" />
+      {:else}
+        <CheckSquare class="w-4 h-4 opacity-50" />
+      {/if}
     </button>
   </div>
 </div>
 
 <!-- Selection Bar -->
 {#if isSelectionMode}
-  <div class="px-3 py-1.5 border-b border-[var(--color-macos-border)] bg-[var(--color-accent-subtle)] flex items-center gap-2 text-base">
+  <div class="px-3 py-1.5 border-b border-[var(--color-border)] bg-[var(--color-surface-hover)] flex items-center gap-2 text-base">
     {#if isBatchDeleting}
-      <span class="text-[var(--color-macos-text)]">deleting...</span>
-      <div class="flex-1 h-1.5 bg-[var(--color-macos-border)] rounded-full overflow-hidden">
+      <span class="text-[var(--color-text-primary)]">deleting...</span>
+      <div class="flex-1 h-1.5 bg-[var(--color-border)] rounded-full overflow-hidden">
         <div 
-          class="h-full bg-[var(--color-accent)] transition-all duration-200 rounded-full"
+          class="h-full bg-[var(--color-text-primary)] transition-all duration-200 rounded-full"
           style="width: {batchDeleteProgress.total > 0 ? (batchDeleteProgress.current / batchDeleteProgress.total * 100) : 0}%"
         ></div>
       </div>
-      <span class="text-[var(--color-macos-text-secondary)]">{batchDeleteProgress.current}/{batchDeleteProgress.total}</span>
+      <span class="text-[var(--color-text-secondary)]">{batchDeleteProgress.current}/{batchDeleteProgress.total}</span>
     {:else}
-      <span class="text-[var(--color-macos-text)]">{selectedKeys.size} selected</span>
-      <span class="w-px h-4 bg-[var(--color-macos-border)] mx-1"></span>
-      <button class="text-[var(--color-accent)] hover:underline" onclick={selectAll}>all</button>
-      <button class="text-[var(--color-macos-text-secondary)] hover:underline" onclick={deselectAll}>none</button>
+      <span class="text-[var(--color-text-primary)]">{selectedKeys.size} selected</span>
+      <span class="w-px h-4 bg-[var(--color-border)] mx-1"></span>
+      <button class="text-[var(--color-text-primary)] hover:underline" onclick={selectAll}>all</button>
+      <button class="text-[var(--color-text-secondary)] hover:underline" onclick={deselectAll}>none</button>
       {#if selectedKeys.size > 0}
-        <button class="text-[var(--color-accent)] hover:underline ml-auto" onclick={handleBatchDelete}>
-          delete ({selectedKeys.size})
+        <button class="flex items-center gap-1.5 text-[var(--color-text-primary)] hover:opacity-80 ml-auto" onclick={handleBatchDelete}>
+          <Trash2 class="w-3.5 h-3.5" />
+          <span>delete ({selectedKeys.size})</span>
         </button>
       {/if}
     {/if}
@@ -368,13 +366,13 @@
 <div class="flex-1 min-h-0">
   {#if $keys.length === 0}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[var(--color-macos-text-tertiary)]">no keys</div>
-      <div class="text-sm text-[var(--color-macos-text-secondary)] mt-2">No keys found. Click <span class="text-[var(--color-accent)] font-bold">+</span> to create a new key.</div>
+      <div class="text-base text-[var(--color-text-muted)]">no keys</div>
+      <div class="text-sm text-[var(--color-text-secondary)] mt-2">No keys found. Click <span class="text-[var(--color-text-primary)] font-bold">+</span> to create a new key.</div>
     </div>
   {:else if filteredKeys.length === 0}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[var(--color-macos-text-tertiary)]">no keys match filter</div>
-      <div class="text-sm text-[var(--color-macos-text-secondary)] mt-2">Try adjusting your search pattern or type filter</div>
+      <div class="text-base text-[var(--color-text-muted)]">no keys match filter</div>
+      <div class="text-sm text-[var(--color-text-secondary)] mt-2">Try adjusting your search pattern or type filter</div>
     </div>
   {:else if viewMode === 'list'}
     <!-- List View with Virtual Scrolling -->
@@ -394,12 +392,12 @@
             <input 
               type="checkbox" 
               checked={selectedKeys.has(key)}
-              class="accent-[var(--color-accent)] cursor-pointer"
+              class="accent-[var(--color-text-primary)] cursor-pointer"
               onclick={(e) => { e.stopPropagation(); toggleSelection(key); }}
             />
           {/if}
           <span class="w-5 h-5 flex items-center justify-center rounded-md text-[10px] text-white font-medium {getTypeColorBg(keyType)}">{getTypeLabel(keyType)}</span>
-          <span class="text-base text-[var(--color-macos-text)] font-mono truncate">{key}</span>
+          <span class="text-base text-[var(--color-text-primary)] font-sans truncate">{key}</span>
         </div>
       {/snippet}
     </VirtualList>
@@ -429,16 +427,21 @@
         {@const isSelected = node.isLeaf && $keyListHighlightKey === node.fullPath}
         {@const keyType = node.isLeaf ? ($keyTypes.get(node.fullPath) || 'unknown') : undefined}
         <div
-          class="flex items-center gap-1.5 px-2 py-2 h-full cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-accent-subtle)]' : (hasChildren && !node.isLeaf ? 'hover:bg-[var(--color-surface-hover)]' : 'hover:bg-[var(--color-surface-hover)]')}"
+          class="flex items-center gap-1.5 px-2 py-2 h-full cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-surface-hover)]' : (hasChildren && !node.isLeaf ? 'hover:bg-[var(--color-surface-hover)]' : 'hover:bg-[var(--color-surface-hover)]')}"
           style="padding-left: {level * 16 + 12}px"
         >
           {#if hasChildren}
-            <span 
-              class="text-[var(--color-text-faint)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer"
+            <button
+              type="button"
+              class="text-[var(--color-text-muted)] text-base w-4 flex-shrink-0 hover:text-[var(--color-text-primary)] cursor-pointer"
               onclick={(e) => { e.stopPropagation(); toggleExpand(node.fullPath); }}
             >
-              {isExpanded ? '▾' : '▸'}
-            </span>
+              {#if isExpanded}
+                <ChevronDown class="w-3.5 h-3.5" />
+              {:else}
+                <ChevronRight class="w-3.5 h-3.5" />
+              {/if}
+            </button>
           {:else}
             <span class="w-4 flex-shrink-0"></span>
           {/if}
@@ -449,16 +452,16 @@
             <span class="w-4 flex-shrink-0"></span>
           {/if}
           
-          <span class="text-base font-mono truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-info-text)]'}">
+          <span class="text-base font-sans truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-secondary)]' : 'text-[var(--color-text-primary)]'}">
             {node.name}
           </span>
           
           {#if hasChildren}
-            <span class="text-[var(--color-text-faint)] text-base ml-1">({node.children.size})</span>
+            <span class="text-[var(--color-text-muted)] text-base ml-1">({node.children.size})</span>
           {/if}
           
           {#if isBothParentAndLeaf}
-            <span class="text-[var(--color-text-faint)] text-base ml-1" title="Also a key">⬤</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)] ml-1 flex-shrink-0" title="Also a key"></span>
           {/if}
         </div>
       {/snippet}
@@ -471,7 +474,7 @@
     x={contextMenu.x} 
     y={contextMenu.y} 
     items={[
-      { label: 'delete', action: () => handleDeleteKey(contextMenu!.key), danger: true },
+      { label: 'delete', action: () => handleDeleteKey(contextMenu!.key), danger: true, icon: Trash2 },
     ]}
     onclose={closeContextMenu}
   />

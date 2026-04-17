@@ -57,7 +57,7 @@
   {#if hasChildren}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <span 
-      class="text-[var(--color-text-faint)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer"
+      class="text-[var(--color-text-muted)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer"
       onclick={handleToggle}
       role="button"
       tabindex="-1"
@@ -79,10 +79,10 @@
   </span>
   
   {#if hasChildren}
-    <span class="text-[var(--color-text-faint)] text-base ml-1">({node.children.size})</span>
+    <span class="text-[var(--color-text-muted)] text-base ml-1">({node.children.size})</span>
   {/if}
   
   {#if isBothParentAndLeaf}
-    <span class="text-[var(--color-text-faint)] text-base ml-1" title="Also a key">⬤</span>
+    <span class="text-[var(--color-text-muted)] text-base ml-1" title="Also a key">⬤</span>
   {/if}
 </div>

@@ -1,8 +1,12 @@
 <script lang="ts">
+  import type { ComponentType } from 'svelte';
+  import { Trash2 } from '@lucide/svelte';
+
   interface MenuItem {
     label: string;
     action: () => void;
     danger?: boolean;
+    icon?: ComponentType;
   }
 
   interface Props {
@@ -31,14 +35,20 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div 
-  class="context-menu fixed bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-xl shadow-lg py-1 z-50 min-w-[120px]"
+  class="context-menu fixed bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-[var(--shadow-md)] py-1 z-50 min-w-[140px]"
   style="left: {x}px; top: {y}px;"
 >
   {#each items as item}
     <button
-      class="w-full px-3 py-2 text-left text-base font-mono transition-colors {item.danger ? 'text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]' : 'text-[var(--color-macos-text)] hover:bg-[var(--color-surface-hover)]'}"
+      class="w-full px-3 py-2 text-left text-base font-sans transition-colors flex items-center gap-2 {item.danger ? 'text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]'}"
       onclick={() => handleItemClick(item)}
     >
+      {#if item.icon}
+        {@const Icon = item.icon}
+        <Icon class="w-4 h-4" />
+      {:else if item.danger}
+        <Trash2 class="w-4 h-4" />
+      {/if}
       {item.label}
     </button>
   {/each}
