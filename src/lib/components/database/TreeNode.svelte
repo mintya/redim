@@ -46,7 +46,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-code)]'}"
+  class="flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
   style="padding-left: {level * 16 + 12}px"
   onclick={handleClick}
   onkeydown={(e) => e.key === 'Enter' && handleClick()}
@@ -57,7 +57,7 @@
   {#if hasChildren}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <span 
-      class="text-[var(--color-text-muted)] text-base w-4 flex-shrink-0 hover:text-[var(--color-accent)] cursor-pointer"
+      class="text-[var(--color-text-tertiary)] text-xs w-4 flex-shrink-0 hover:text-[var(--color-text-primary)] cursor-pointer"
       onclick={handleToggle}
       role="button"
       tabindex="-1"
@@ -74,12 +74,12 @@
     <span class="w-4 flex-shrink-0"></span>
   {/if}
   
-  <span class="text-base font-mono truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-muted)]' : 'text-[var(--color-info-text)]'}">
+  <span class="text-sm font-mono truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-tertiary)]' : 'text-[var(--color-text-primary)]'}">
     {node.name}
   </span>
   
   {#if hasChildren}
-    <span class="text-[var(--color-text-muted)] text-base ml-1">({node.children.size})</span>
+    <span class="text-[var(--color-text-tertiary)] text-xs ml-1">({node.children.size})</span>
   {/if}
   
   {#if isBothParentAndLeaf}

@@ -18,7 +18,7 @@
   const variants = {
     primary: 'bg-[var(--color-accent)] text-white shadow-[var(--shadow-button-inset)] hover:bg-[var(--color-accent-hover)]',
     secondary: 'bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]',
-    ghost: 'bg-transparent text-[var(--color-text-primary)] border border-transparent hover:bg-[var(--color-surface-hover)]',
+    ghost: 'bg-transparent text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]',
   };
 
   const sizes = {

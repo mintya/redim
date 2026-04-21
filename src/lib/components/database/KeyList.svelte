@@ -203,7 +203,7 @@
       type="text" 
       bind:value={pattern}
       placeholder="fuzzy search..."
-      class="flex-1 px-2 py-1 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-base font-sans focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
+      class="flex-1 px-2 py-1 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-sm font-sans placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
       onkeydown={(e) => e.key === 'Enter' && handleSearch()}
     />
     <Button variant="secondary" size="sm" onclick={handleSearch}>
@@ -215,7 +215,7 @@
 <!-- Type Filter -->
 <div class="px-2 py-1.5 border-b border-[var(--color-border)] flex items-center gap-1">
   <button 
-    class="px-1.5 py-0.5 rounded-md text-base transition-colors {typeFilter === 'all' ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
+    class="px-1.5 py-0.5 rounded-md text-xs transition-colors {typeFilter === 'all' ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]'}"
     onclick={() => typeFilter = 'all'}
   >all</button>
   <button 
@@ -309,7 +309,7 @@
     </button>
     
     <span class="w-px h-4 bg-[var(--color-border)] mx-1"></span>
-    <span class="text-base text-[var(--color-text-secondary)]">{filteredKeys.length} keys</span>
+    <span class="text-xs text-[var(--color-text-secondary)]">{filteredKeys.length} keys</span>
   </div>
 
   <!-- Actions -->
@@ -366,13 +366,13 @@
 <div class="flex-1 min-h-0">
   {#if $keys.length === 0}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[var(--color-text-muted)]">no keys</div>
-      <div class="text-sm text-[var(--color-text-secondary)] mt-2">No keys found. Click <span class="text-[var(--color-text-primary)] font-bold">+</span> to create a new key.</div>
+      <div class="text-sm text-[var(--color-text-tertiary)]">no keys</div>
+      <div class="text-xs text-[var(--color-text-tertiary)] mt-2">No keys found. Click <span class="text-[var(--color-text-primary)] font-semibold">+</span> to create a new key.</div>
     </div>
   {:else if filteredKeys.length === 0}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[var(--color-text-muted)]">no keys match filter</div>
-      <div class="text-sm text-[var(--color-text-secondary)] mt-2">Try adjusting your search pattern or type filter</div>
+      <div class="text-sm text-[var(--color-text-tertiary)]">no keys match filter</div>
+      <div class="text-xs text-[var(--color-text-tertiary)] mt-2">Try adjusting your search pattern or type filter</div>
     </div>
   {:else if viewMode === 'list'}
     <!-- List View with Virtual Scrolling -->
@@ -396,8 +396,8 @@
               onclick={(e) => { e.stopPropagation(); toggleSelection(key); }}
             />
           {/if}
-          <span class="w-5 h-5 flex items-center justify-center rounded-md text-[10px] text-white font-medium {getTypeColorBg(keyType)}">{getTypeLabel(keyType)}</span>
-          <span class="text-base text-[var(--color-text-primary)] font-sans truncate">{key}</span>
+          <span class="w-5 h-5 flex items-center justify-center rounded text-[10px] text-white font-medium {getTypeColorBg(keyType)}">{getTypeLabel(keyType)}</span>
+          <span class="text-sm text-[var(--color-text-primary)] font-sans truncate">{key}</span>
         </div>
       {/snippet}
     </VirtualList>

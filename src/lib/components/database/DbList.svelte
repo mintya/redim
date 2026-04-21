@@ -55,24 +55,24 @@
 
 <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between relative">
   <div class="flex items-center gap-2">
-    <span class="text-base text-[var(--color-text-secondary)] font-medium">databases</span>
+    <span class="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wide">databases</span>
     
     <!-- Database Dropdown -->
     <div class="relative">
       <button
-        class="flex items-center gap-1 px-2 py-1 text-base bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+        class="flex items-center gap-1 px-2 py-1 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
         onclick={toggleDropdown}
       >
         <span class="text-[var(--color-text-primary)]">db{$activeDb}</span>
         {#if activeDbInfo}
-          <span class="text-[var(--color-text-muted)]">({activeDbInfo.keys})</span>
+          <span class="text-[var(--color-text-tertiary)]">({activeDbInfo.keys})</span>
         {/if}
-        <ChevronDown class="w-3.5 h-3.5 text-[var(--color-text-muted)] ml-1" />
+        <ChevronDown class="w-3.5 h-3.5 text-[var(--color-text-tertiary)] ml-1" />
       </button>
       
       {#if showDropdown}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div 
+        <div
           bind:this={dropdownEl}
           class="absolute top-full left-0 mt-1 w-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-[var(--shadow-md)] z-50 py-1 max-h-64 overflow-y-auto"
           role="listbox"
@@ -81,14 +81,14 @@
         >
           {#each $databases as db, i}
             <button
-              class="w-full px-3 py-2 text-left text-base flex items-center justify-between hover:bg-[var(--color-surface-hover)] transition-colors {$activeDb === db.index ? 'bg-[var(--color-accent-subtle)]' : ''}"
+              class="w-full px-3 py-2 text-left text-sm flex items-center justify-between hover:bg-[var(--color-surface-hover)] transition-colors {$activeDb === db.index ? 'bg-[var(--color-accent-subtle)]' : ''}"
               onclick={() => handleSelectDb(db.index)}
               tabindex="-1"
             >
               <span class="font-sans {$activeDb === db.index ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-primary)]'}">
                 db{db.index}
               </span>
-              <span class="text-[var(--color-text-muted)]">
+              <span class="text-[var(--color-text-tertiary)]">
                 {db.keys} keys
               </span>
             </button>

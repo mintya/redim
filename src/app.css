@@ -3,46 +3,61 @@
 @theme {
   --font-sans: ui-sans-serif, system-ui, "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace;
-  
+
+  /* Backgrounds */
   --color-bg-primary: #faf9f7;
   --color-bg-surface: #ffffff;
   --color-bg-elevated: #f5f4f1;
-  
+  --color-bg-hover: rgba(28, 28, 28, 0.02);
+
+  /* Borders - warm, subtle containment */
   --color-border: #e5e2dc;
   --color-border-dark: #d4d1c9;
-  
+  --color-border-strong: #cfcbbf;
+
+  /* Text colors - warm neutrals */
   --color-text-primary: #1c1c1c;
   --color-text-secondary: #6b6966;
-  --color-text-muted: #999592;
-  
+  --color-text-tertiary: #999592;
+  --color-text-muted: #b8b5b0;
+
+  /* Accent colors - warm coral palette */
   --color-accent: #dc382d;
   --color-accent-hover: #b52e26;
   --color-accent-light: #fdeaea;
   --color-accent-subtle: rgba(220, 56, 45, 0.08);
-  
+  --color-accent-border: rgba(220, 56, 45, 0.15);
+
+  /* Surface colors */
   --color-surface: #ffffff;
   --color-surface-hover: rgba(28, 28, 28, 0.04);
   --color-surface-active: rgba(28, 28, 28, 0.08);
-  
+  --color-surface-elevated: #ffffff;
+
+  /* Data type colors */
   --color-type-string: #34c759;
   --color-type-hash: #ff9500;
   --color-type-list: #007aff;
   --color-type-set: #af52de;
   --color-type-zset: #ff3b30;
   --color-type-stream: #8e8e93;
-  
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-focus: 0 0 0 3px rgba(220, 56, 45, 0.15);
-  --shadow-button-inset: rgba(255, 255, 255, 0.6) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
 
+  /* Shadows - soft, subtle elevation */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 0 0 3px rgba(220, 56, 45, 0.12);
+  --shadow-button-inset: rgba(255, 255, 255, 0.8) 0px 1px 0px 0px inset, rgba(148, 142, 137, 0.1) 0px 1px 2px 0px;
+  --shadow-input-focus: 0 0 0 2px var(--color-accent-subtle), 0 0 0 4px var(--color-accent-border);
+
+  /* macOS-style tokens */
   --color-macos-text: var(--color-text-primary);
   --color-macos-text-secondary: var(--color-text-secondary);
-  --color-macos-text-tertiary: var(--color-text-muted);
+  --color-macos-text-tertiary: var(--color-text-tertiary);
   --color-macos-surface: var(--color-surface);
   --color-macos-border: var(--color-border);
 
+  /* CLI terminal colors (dark overlay) */
   --color-cli-bg: #1a1a1a;
   --color-cli-surface: #242424;
   --color-cli-border: #3a3a3a;
@@ -63,9 +78,28 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
+  }
+
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-border-dark);
   }
 }

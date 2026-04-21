@@ -74,7 +74,7 @@
   {#each $connections as conn}
     {@const isConnected = $activeConnectionId === conn.id}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div 
+    <div
       class="group px-4 py-3 cursor-pointer transition-all duration-200 border-b border-[var(--color-border)] {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
       ondblclick={() => !isConnected && handleConnect(conn.id, conn.name || conn.host)}
       oncontextmenu={(e) => handleContextMenu(e, conn)}
@@ -86,21 +86,21 @@
           {#if isConnected}
             <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)] flex-shrink-0"></span>
           {/if}
-          <span class="text-base text-[var(--color-text-primary)] font-medium truncate">{conn.name || conn.host}</span>
+          <span class="text-sm text-[var(--color-text-primary)] font-medium truncate">{conn.name || conn.host}</span>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
           {#if connecting === conn.id}
-            <span class="text-base text-[var(--color-accent)] animate-pulse">connecting...</span>
+            <span class="text-xs text-[var(--color-text-tertiary)]">connecting...</span>
           {:else if isConnected}
-            <button 
-              class="text-base text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+            <button
+              class="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] transition-colors"
               onclick={() => handleDisconnect(conn.id)}
             >
               disconnect
             </button>
           {:else}
-            <button 
-              class="px-2 py-0.5 text-sm text-[var(--color-accent)] border border-[var(--color-accent)] rounded-md hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+            <button
+              class="px-2.5 py-0.5 text-xs text-[var(--color-accent)] border border-[var(--color-accent)] rounded-md hover:bg-[var(--color-accent)] hover:text-white transition-colors"
               onclick={() => handleConnect(conn.id, conn.name || conn.host)}
             >
               connect
@@ -108,17 +108,17 @@
           {/if}
         </div>
       </div>
-      <div class="text-base text-[var(--color-text-muted)] mt-0.5 font-sans">{conn.host}:{conn.port}</div>
+      <div class="text-xs text-[var(--color-text-tertiary)] mt-0.5 font-sans">{conn.host}:{conn.port}</div>
     </div>
   {:else}
     <div class="px-4 py-8 text-center">
-      <div class="text-base text-[var(--color-text-muted)]">no connections</div>
-      <div class="text-sm text-[var(--color-text-secondary)] mt-2">No connections yet. Add your first connection on the right panel.</div>
+      <div class="text-sm text-[var(--color-text-tertiary)]">no connections</div>
+      <div class="text-xs text-[var(--color-text-tertiary)] mt-2">No connections yet. Add your first connection on the right panel.</div>
     </div>
   {/each}
 </div>
 <div class="h-8 px-4 border-t border-[var(--color-border)] flex items-center">
-  <span class="text-sm text-[var(--color-text-muted)]">click connect or double-click to connect</span>
+  <span class="text-xs text-[var(--color-text-tertiary)]">click connect or double-click to connect</span>
 </div>
 
 {#if contextMenu}

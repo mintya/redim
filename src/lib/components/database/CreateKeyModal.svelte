@@ -143,43 +143,43 @@
   <div class="space-y-4">
     <!-- Key Name -->
     <div>
-      <label for="key-name" class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">Key Name</label>
+      <label for="key-name" class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">Key Name</label>
       <input 
         id="key-name"
         type="text" 
         bind:value={keyName}
         placeholder="user:1001"
-        class="w-full px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+        class="w-full px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
       />
     </div>
 
     <!-- Type Selection -->
     <div>
-      <span class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">Type</span>
+      <span class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">Type</span>
       <div class="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Key type">
         {#each typeOptions as option}
           <button
             type="button"
             role="radio"
             aria-checked={keyType === option.value}
-            class="px-2 py-2 text-base font-medium rounded-lg border transition-all duration-200
+            class="px-2 py-2 text-sm font-medium rounded-md border transition-all duration-200
               {keyType === option.value 
                 ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' 
-                : 'bg-[var(--color-macos-surface)] text-[var(--color-macos-text)] border-[var(--color-macos-border)] hover:bg-[var(--color-surface-hover)]'}"
+                : 'bg-[var(--color-surface)] text-[var(--color-text-primary)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'}"
             onclick={() => { keyType = option.value; resetTypeData(); }}
           >
             {option.label}
           </button>
         {/each}
       </div>
-      <p class="mt-1.5 text-base text-[var(--color-macos-text-tertiary)]">
+      <p class="mt-1.5 text-sm text-[var(--color-text-tertiary)]">
         {typeOptions.find(t => t.value === keyType)?.description}
       </p>
     </div>
 
     <!-- Value Input -->
     <div>
-      <label for="key-value" class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">Value</label>
+      <label for="key-value" class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">Value</label>
       
       {#if keyType === 'string'}
         <textarea 
@@ -218,7 +218,7 @@
           {/each}
           <button
             type="button"
-            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
             onclick={addHashField}
           >
             + Add field
@@ -229,7 +229,7 @@
         <div class="space-y-2">
           {#each listItems as item, index}
             <div class="flex gap-2">
-              <span class="flex items-center justify-center w-6 h-10 text-base text-[var(--color-macos-text-tertiary)]">
+              <span class="flex items-center justify-center w-6 h-6 text-sm text-[var(--color-text-tertiary)]">
                 {index}
               </span>
               <input 
@@ -251,7 +251,7 @@
           {/each}
           <button
             type="button"
-            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
             onclick={addListItem}
           >
             + Add item
@@ -281,7 +281,7 @@
           {/each}
           <button
             type="button"
-            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
             onclick={addSetMember}
           >
             + Add member
@@ -317,7 +317,7 @@
           {/each}
           <button
             type="button"
-            class="text-base text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
             onclick={addZSetMember}
           >
             + Add member
@@ -328,16 +328,16 @@
 
     <!-- TTL -->
     <div>
-      <label for="key-ttl" class="block text-base text-[var(--color-macos-text)] font-medium mb-1.5">
+      <label for="key-ttl" class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">
         TTL (seconds)
-        <span class="text-[var(--color-macos-text-tertiary)] font-normal">-1 for no expiry</span>
+        <span class="text-[var(--color-text-tertiary)] font-normal">-1 for no expiry</span>
       </label>
       <input 
         id="key-ttl"
         type="number" 
         bind:value={ttl}
         placeholder="-1"
-        class="w-full px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+        class="w-full px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
       />
     </div>
 

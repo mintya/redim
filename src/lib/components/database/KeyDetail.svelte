@@ -365,28 +365,28 @@
 </script>
 
 {#if $keyInfo && $activeKey && $detailConnectionId}
-  <div class="h-11 px-6 border-b border-[var(--color-border)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-surface)] shadow-[var(--shadow-sm)]">
+  <div class="h-11 px-6 border-b border-[var(--color-border)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-surface)]">
     <div class="flex items-center gap-3 min-w-0 flex-wrap">
       {#if $activeKeyTab}
         <span
-          class="text-xs text-[var(--color-text-muted)] font-sans truncate max-w-[140px]"
+          class="text-xs text-[var(--color-text-tertiary)] font-sans truncate max-w-[140px]"
           title={$activeKeyTab.connectionLabel}
         >
           {$activeKeyTab.connectionLabel}
         </span>
-        <span class="text-xs text-[var(--color-text-muted)] font-sans">db{$activeKeyTab.db}</span>
-        <span class="text-[var(--color-border)]">|</span>
+        <span class="text-xs text-[var(--color-text-tertiary)] font-sans">db{$activeKeyTab.db}</span>
+        <span class="text-xs text-[var(--color-border)]">|</span>
       {/if}
-      <span class="text-base text-[var(--color-text-primary)] font-sans truncate">{$activeKey}</span>
-      <span class="text-base font-sans {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
+      <span class="text-sm text-[var(--color-text-primary)] font-sans truncate">{$activeKey}</span>
+      <span class="text-sm font-sans {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
     </div>
-    <div class="flex items-center gap-3 text-base">
-      <button class="flex items-center gap-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={openInlineTtl}>
+    <div class="flex items-center gap-3 text-sm">
+      <button class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" onclick={openInlineTtl}>
         <Clock class="w-3.5 h-3.5" />
         <span>ttl: {$keyInfo.ttl === -1 ? '∞' : $keyInfo.ttl + 's'}</span>
       </button>
       <span class="text-[var(--color-border)]">|</span>
-      <button class="flex items-center gap-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={openInlineRename}>
+      <button class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" onclick={openInlineRename}>
         <Edit3 class="w-3.5 h-3.5" />
         <span>rename</span>
       </button>
@@ -400,7 +400,7 @@
     {#if showInlineInput}
       <div class="absolute inset-0 bg-[var(--color-surface)]/95 backdrop-blur-sm flex items-center justify-center z-10">
         <div class="flex items-center gap-2">
-          <span class="text-base text-[var(--color-text-muted)] font-sans">{inlineInputType === 'rename' ? 'name:' : 'ttl:'}</span>
+          <span class="text-sm text-[var(--color-text-tertiary)] font-sans">{inlineInputType === 'rename' ? 'name:' : 'ttl:'}</span>
           <input 
             bind:value={inlineInputValue}
             onkeydown={handleInlineKeydown}
@@ -432,11 +432,11 @@
                   >format</button>
                 </div>
               {:else}
-                <span class="text-base text-[var(--color-text-muted)]">value</span>
+                <span class="text-sm text-[var(--color-text-tertiary)]">value</span>
               {/if}
             </div>
             {#if !isEditing}
-              <button class="text-base text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={() => startEdit($keyValue as string)}>edit</button>
+              <button class="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" onclick={() => startEdit($keyValue as string)}>edit</button>
             {/if}
           </div>
           {#if isEditing}
@@ -449,7 +449,7 @@
               <Button variant="ghost" size="sm" onclick={cancelEdit}>cancel</Button>
             </div>
           {:else}
-            <pre class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded p-4 font-mono text-base text-[var(--color-text-primary)] whitespace-pre-wrap break-all w-full">{getDisplayValue($keyValue)}</pre>
+            <pre class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded p-4 font-mono text-sm text-[var(--color-text-primary)] whitespace-pre-wrap break-all w-full">{getDisplayValue($keyValue)}</pre>
           {/if}
         </div>
       </div>
@@ -458,7 +458,7 @@
     {:else if $keyInfo.key_type === 'hash' && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} fields</span>
+          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} fields</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ field'}
           </Button>
@@ -537,7 +537,7 @@
     {:else if ($keyInfo.key_type === 'list') && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} items</span>
+          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} items</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ item'}
           </Button>
@@ -615,7 +615,7 @@
     {:else if ($keyInfo.key_type === 'set') && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} members</span>
+          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} members</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ member'}
           </Button>
@@ -674,7 +674,7 @@
     {:else if $keyInfo.key_type === 'zset' && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-base text-[var(--color-text-muted)]">{$keyValue.length} members</span>
+          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} members</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ member'}
           </Button>
@@ -763,7 +763,7 @@
 {:else}
   <div class="flex-1 flex items-center justify-center">
     <div class="text-center">
-      <div class="text-base text-[var(--color-text-muted)]">select a key to view details</div>
+      <div class="text-sm text-[var(--color-text-tertiary)]">select a key to view details</div>
     </div>
   </div>
 {/if}

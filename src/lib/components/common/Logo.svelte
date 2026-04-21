@@ -16,7 +16,7 @@
   <!-- 红色大于号 -->
   <path 
     d="M6 7L12 12L6 17" 
-    stroke="#DC382D" 
+    stroke="var(--color-accent)" 
     stroke-width="2.5" 
     stroke-linecap="round" 
     stroke-linejoin="round"
@@ -24,7 +24,7 @@
   <!-- 黑色下划线光标 -->
   <path 
     d="M14 17H20" 
-    stroke="#1a1a1a" 
+    stroke="var(--color-text-primary)" 
     stroke-width="3" 
     stroke-linecap="round"
   />

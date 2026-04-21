@@ -125,19 +125,19 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div 
-    class="fixed inset-0 bg-[var(--color-text-primary)]/30 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-[var(--color-text-primary)]/10 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={(e) => e.target === e.currentTarget && handleClose()}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
     <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col shadow-[var(--shadow-md)]">
       <!-- Header -->
       <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between">
-        <span class="text-base text-[var(--color-text-primary)] font-sans">server info</span>
+        <span class="text-xs text-[var(--color-text-secondary)] font-sans uppercase tracking-wide">server info</span>
         <div class="flex items-center gap-2">
           <div class="flex items-center gap-1 bg-[var(--color-surface-hover)] rounded px-1">
             {#each refreshOptions as secs}
               <button 
-                class="text-sm px-1.5 py-0.5 rounded transition-colors {refreshIntervalSeconds === secs ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'}"
+                class="text-xs px-1.5 py-0.5 rounded transition-colors {refreshIntervalSeconds === secs ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]'}"
                 onclick={() => { refreshIntervalSeconds = secs; startAutoRefresh(); }}
               >
                 {secs}s
@@ -145,13 +145,13 @@
             {/each}
           </div>
           <button 
-            class="text-base {showRawInfo ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)]'} hover:text-[var(--color-text-primary)] transition-colors"
+            class="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors"
             onclick={() => showRawInfo = !showRawInfo}
           >
             {showRawInfo ? 'hide raw' : 'show raw'}
           </button>
           <button 
-            class="text-base text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1"
+            class="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1"
             onclick={loadInfo}
           >
             <RotateCw class="w-3.5 h-3.5" />

@@ -135,7 +135,7 @@
 </script>
 
 <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center">
-  <span class="text-sm text-[var(--color-text-secondary)] font-medium">
+  <span class="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wide">
     {editing ? 'edit connection' : 'new connection'}
   </span>
 </div>
@@ -145,7 +145,7 @@
       <span class="block text-xs text-[var(--color-text-secondary)] mb-1">name</span>
       <Input bind:value={formData.name} placeholder="my-redis" />
     </div>
-    
+
     <div class="grid grid-cols-2 gap-3">
       <div>
         <span class="block text-xs text-[var(--color-text-secondary)] mb-1">host</span>
@@ -155,18 +155,18 @@
         <span class="block text-xs text-[var(--color-text-secondary)] mb-1">port</span>
         <Input type="number" bind:value={formData.port} onblur={validatePort} />
         {#if portError}
-          <span class="block text-xs text-red-500 mt-1">{portError}</span>
+          <span class="block text-xs text-[var(--color-accent)] mt-1">{portError}</span>
         {/if}
       </div>
     </div>
 
     <div>
-      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">username <span class="text-[var(--color-text-muted)]">(optional)</span></span>
+      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">username <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
       <Input bind:value={formData.username} placeholder="default" />
     </div>
 
     <div>
-      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">password <span class="text-[var(--color-text-muted)]">(optional)</span></span>
+      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">password <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
       <Input type="password" bind:value={formData.password} />
     </div>
 
@@ -174,14 +174,14 @@
       <span class="block text-xs text-[var(--color-text-secondary)] mb-1">database</span>
       <Input type="number" bind:value={formData.db} onblur={validateDb} />
       {#if dbError}
-        <span class="block text-xs text-red-500 mt-1">{dbError}</span>
+        <span class="block text-xs text-[var(--color-accent)] mt-1">{dbError}</span>
       {/if}
     </div>
 
     <!-- SSL -->
     <div class="pt-1">
       <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.ssl} class="accent-[var(--color-text-primary)]" />
+        <input type="checkbox" bind:checked={formData.ssl} class="accent-[var(--color-accent)]" />
         <span class="font-medium">SSL/TLS</span>
       </label>
     </div>
@@ -189,7 +189,7 @@
     <!-- SSH Tunnel -->
     <div class="pt-1 border-t border-[var(--color-border)]">
       <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.ssh_tunnel} class="accent-[var(--color-text-primary)]" />
+        <input type="checkbox" bind:checked={formData.ssh_tunnel} class="accent-[var(--color-accent)]" />
         <span class="font-medium">SSH Tunnel</span>
       </label>
       {#if formData.ssh_tunnel}
@@ -203,7 +203,7 @@
               <span class="block text-xs text-[var(--color-text-secondary)] mb-1">SSH Port</span>
               <Input type="number" bind:value={formData.ssh_port} placeholder="22" onblur={validateSshPort} />
               {#if sshPortError}
-                <span class="block text-xs text-red-500 mt-1">{sshPortError}</span>
+                <span class="block text-xs text-[var(--color-accent)] mt-1">{sshPortError}</span>
               {/if}
             </div>
           </div>
@@ -218,7 +218,7 @@
     <!-- Cluster -->
     <div class="pt-1 border-t border-[var(--color-border)]">
       <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.cluster} class="accent-[var(--color-text-primary)]" />
+        <input type="checkbox" bind:checked={formData.cluster} class="accent-[var(--color-accent)]" />
         <span class="font-medium">Redis Cluster</span>
       </label>
     </div>
@@ -226,7 +226,7 @@
     <!-- Sentinel -->
     <div class="pt-1">
       <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.sentinel} class="accent-[var(--color-text-primary)]" />
+        <input type="checkbox" bind:checked={formData.sentinel} class="accent-[var(--color-accent)]" />
         <span class="font-medium">Redis Sentinel</span>
       </label>
       {#if formData.sentinel}
@@ -252,7 +252,7 @@
   </div>
 </div>
 
-<Alert 
+<Alert
   bind:open={showAlert}
   title={alertTitle}
   message={alertMessage}

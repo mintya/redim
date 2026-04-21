@@ -53,10 +53,10 @@
 
 <div class="h-screen flex flex-col bg-[var(--color-bg-primary)] font-sans text-base">
   <!-- Title Bar -->
-  <div class="h-12 bg-[var(--color-bg-primary)] border-b border-[var(--color-border)] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
-    <div class="flex items-center gap-2">
-      <Logo size={24} />
-      <span class="text-lg text-[var(--color-text-primary)] font-semibold tracking-tight">Redim</span>
+  <div class="h-11 bg-[var(--color-bg-primary)] border-b border-[var(--color-border)] flex items-center px-4 select-none relative" style="-webkit-app-region: drag;">
+    <div class="flex items-center gap-2.5">
+      <Logo size={20} />
+      <span class="text-base text-[var(--color-text-primary)] font-semibold tracking-tight">Redim</span>
     </div>
     <ConnectionSwitcher />
   </div>
@@ -71,18 +71,18 @@
     {#if $activeConnection}
       <span class="flex items-center gap-2">
         <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)]"></span>
-        <span>{$activeConnection.name || $activeConnection.host}:{$activeConnection.port}</span>
-        <span class="text-[var(--color-text-muted)]">db{$activeDb}</span>
+        <span class="text-[var(--color-text-primary)] font-medium">{$activeConnection.name || $activeConnection.host}:{$activeConnection.port}</span>
+        <span class="text-[var(--color-text-tertiary)]">db{$activeDb}</span>
       </span>
     {:else}
       <span class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-text-muted)]"></span>
-        disconnected
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-text-tertiary)]"></span>
+        <span class="text-[var(--color-text-tertiary)]">disconnected</span>
       </span>
     {/if}
     <span class="ml-auto flex items-center gap-4">
       {#if isConnected}
-        <button 
+        <button
           class="flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={() => showImportExport = true}
           title="Import/Export"
@@ -90,7 +90,7 @@
           <ArrowUpDown class="w-3.5 h-3.5" />
           <span class="text-sm">data</span>
         </button>
-        <button 
+        <button
           class="flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={() => showMonitor = true}
           title="Monitor (⌘M)"
@@ -98,7 +98,7 @@
           <Activity class="w-3.5 h-3.5" />
           <span class="text-sm">info</span>
         </button>
-        <button 
+        <button
           class="flex items-center gap-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
           onclick={() => showCli = true}
           title="CLI (⌘K)"
@@ -107,7 +107,7 @@
           <span class="text-sm">cli</span>
         </button>
       {/if}
-      <span>v{__APP_VERSION__}</span>
+      <span class="text-[var(--color-text-tertiary)]">v{__APP_VERSION__}</span>
     </span>
   </div>
 </div>

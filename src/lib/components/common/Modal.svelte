@@ -31,8 +31,8 @@
 
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div 
-    class="fixed inset-0 bg-[var(--color-text-primary)]/20 backdrop-blur-sm flex items-center justify-center z-50"
+  <div
+    class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={handleBackdropClick}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
@@ -40,9 +40,9 @@
       {#if title}
         <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
           <span class="font-sans text-base text-[var(--color-text-primary)] font-semibold">{title}</span>
-          <button 
+          <button
             onclick={handleClose}
-            class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors p-1 rounded-full hover:bg-[var(--color-surface-hover)]"
+            class="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors p-1 rounded-full hover:bg-[var(--color-surface-hover)]"
           >
             <X class="w-4 h-4" />
           </button>

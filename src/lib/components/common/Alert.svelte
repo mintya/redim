@@ -53,8 +53,8 @@
 
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div 
-    class="fixed inset-0 bg-[var(--color-text-primary)]/30 flex items-center justify-center z-50"
+  <div
+    class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-sm flex items-center justify-center z-50"
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
   >
