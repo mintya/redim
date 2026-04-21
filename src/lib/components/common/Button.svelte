@@ -1,36 +1,39 @@
 <script lang="ts">
   interface Props {
-    variant?: 'primary' | 'secondary' | 'ghost';
+    variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
     size?: 'sm' | 'md';
     disabled?: boolean;
     onclick?: () => void;
+    class?: string;
     children: any;
   }
 
-  let { 
-    variant = 'secondary', 
-    size = 'md', 
-    disabled = false, 
+  let {
+    variant = 'secondary',
+    size = 'md',
+    disabled = false,
     onclick,
-    children 
+    class: className = '',
+    children
   }: Props = $props();
 
   const variants = {
-    primary: 'bg-[var(--color-accent)] text-white shadow-[var(--shadow-button-inset)] hover:bg-[var(--color-accent-hover)]',
-    secondary: 'bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]',
-    ghost: 'bg-transparent text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]',
+    primary: 'ui-btn-primary',
+    secondary: '',
+    ghost: 'ui-btn-ghost',
+    danger: 'ui-btn-danger'
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
+    sm: 'ui-btn-sm',
+    md: 'ui-btn-md',
   };
 </script>
 
 <button
   {disabled}
   {onclick}
-  class="font-sans rounded-md transition-all duration-200 border {variants[variant]} {sizes[size]} disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 focus:shadow-[var(--shadow-focus)] focus:outline-none"
+  class="ui-btn {variants[variant]} {sizes[size]} {className}"
 >
   {@render children()}
 </button>

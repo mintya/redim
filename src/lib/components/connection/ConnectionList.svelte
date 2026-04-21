@@ -16,7 +16,6 @@
   let contextMenu = $state<{ x: number; y: number; conn: ConnectionConfig } | null>(null);
   let showConfirm = $state(false);
   let pendingDeleteId = $state<string | null>(null);
-  let connectedConnName = $state('');
 
   function formatError(err: string): string {
     if (err.includes('Connection refused')) return 'Connection refused. Please check host and port.';
@@ -26,10 +25,9 @@
     return err;
   }
 
-  async function handleConnect(id: string, name: string) {
-    if (connecting) return; // Prevent double-click while connecting
+  async function handleConnect(id: string) {
+    if (connecting) return;
     connecting = id;
-    connectedConnName = name;
     try {
       await connect(id);
     } catch (e) {
@@ -70,61 +68,63 @@
   }
 </script>
 
-<div class="flex-1 overflow-y-auto">
+<div class="flex-1 overflow-y-auto min-h-0">
   {#each $connections as conn}
     {@const isConnected = $activeConnectionId === conn.id}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="group px-4 py-3 cursor-pointer transition-all duration-200 border-b border-[var(--color-border)] {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
-      ondblclick={() => !isConnected && handleConnect(conn.id, conn.name || conn.host)}
+      class="group px-3 py-2 cursor-pointer transition-colors border-b border-[var(--color-border)] {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
+      ondblclick={() => !isConnected && handleConnect(conn.id)}
       oncontextmenu={(e) => handleContextMenu(e, conn)}
       role="button"
       tabindex="0"
     >
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2 min-w-0">
-          {#if isConnected}
-            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)] flex-shrink-0"></span>
-          {/if}
-          <span class="text-sm text-[var(--color-text-primary)] font-medium truncate">{conn.name || conn.host}</span>
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 {isConnected ? 'bg-[var(--color-type-string)]' : 'bg-[var(--color-text-tertiary)]'}"></span>
+            <span class="text-sm text-[var(--color-text-primary)] font-medium truncate">{conn.name || conn.host}</span>
+          </div>
+          <div class="text-[11px] text-[var(--color-text-tertiary)] mt-0.5 truncate">{conn.host}:{conn.port}</div>
         </div>
+
         <div class="flex items-center gap-2 flex-shrink-0">
           {#if connecting === conn.id}
-            <span class="text-xs text-[var(--color-text-tertiary)]">connecting...</span>
+            <span class="text-[11px] text-[var(--color-text-tertiary)]">connecting...</span>
           {:else if isConnected}
             <button
-              class="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] transition-colors"
+              class="ui-btn ui-btn-ghost ui-btn-sm"
               onclick={() => handleDisconnect(conn.id)}
             >
               disconnect
             </button>
           {:else}
             <button
-              class="px-2.5 py-0.5 text-xs text-[var(--color-accent)] border border-[var(--color-accent)] rounded-md hover:bg-[var(--color-accent)] hover:text-white transition-colors"
-              onclick={() => handleConnect(conn.id, conn.name || conn.host)}
+              class="ui-btn ui-btn-primary ui-btn-sm"
+              onclick={() => handleConnect(conn.id)}
             >
               connect
             </button>
           {/if}
         </div>
       </div>
-      <div class="text-xs text-[var(--color-text-tertiary)] mt-0.5 font-sans">{conn.host}:{conn.port}</div>
     </div>
   {:else}
-    <div class="px-4 py-8 text-center">
+    <div class="px-4 py-6 text-center border-b border-[var(--color-border)]">
       <div class="text-sm text-[var(--color-text-tertiary)]">no connections</div>
-      <div class="text-xs text-[var(--color-text-tertiary)] mt-2">No connections yet. Add your first connection on the right panel.</div>
+      <div class="text-xs text-[var(--color-text-tertiary)] mt-1">Add your first connection on the right panel.</div>
     </div>
   {/each}
 </div>
-<div class="h-8 px-4 border-t border-[var(--color-border)] flex items-center">
-  <span class="text-xs text-[var(--color-text-tertiary)]">click connect or double-click to connect</span>
+
+<div class="h-7 px-3 border-t border-[var(--color-border)] flex items-center">
+  <span class="text-[11px] text-[var(--color-text-tertiary)]">double-click to connect</span>
 </div>
 
 {#if contextMenu}
-  <ContextMenu 
-    x={contextMenu.x} 
-    y={contextMenu.y} 
+  <ContextMenu
+    x={contextMenu.x}
+    y={contextMenu.y}
     items={[
       { label: 'edit', action: () => { onedit(contextMenu!.conn); closeContextMenu(); } },
       { label: 'delete', action: () => handleDeleteClick(contextMenu!.conn.id), danger: true },

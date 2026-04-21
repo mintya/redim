@@ -25,29 +25,24 @@
 
   function handleClickOutside(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    if (!target.closest('.context-menu')) {
-      onclose();
-    }
+    if (!target.closest('.context-menu')) onclose();
   }
 </script>
 
 <svelte:window onclick={handleClickOutside} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="context-menu fixed bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-[var(--shadow-md)] py-1 z-50 min-w-[140px]"
-  style="left: {x}px; top: {y}px;"
->
+<div class="context-menu ui-menu-panel fixed py-1 z-50 min-w-[132px]" style="left: {x}px; top: {y}px;">
   {#each items as item}
     <button
-      class="w-full px-3 py-2 text-left text-sm font-sans transition-colors flex items-center gap-2 {item.danger ? 'text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]'}"
+      class="ui-menu-item justify-start {item.danger ? 'ui-menu-item-danger' : ''}"
       onclick={() => handleItemClick(item)}
     >
       {#if item.icon}
         {@const Icon = item.icon}
-        <Icon class="w-4 h-4" />
+        <Icon class="w-3.5 h-3.5" />
       {:else if item.danger}
-        <Trash2 class="w-4 h-4" />
+        <Trash2 class="w-3.5 h-3.5" />
       {/if}
       {item.label}
     </button>

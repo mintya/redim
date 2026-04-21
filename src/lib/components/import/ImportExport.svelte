@@ -7,6 +7,8 @@
   import { save, open as openDialog } from '@tauri-apps/plugin-dialog';
   import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
   import Button from '$lib/components/common/Button.svelte';
+  import Input from '$lib/components/common/Input.svelte';
+  import Modal from '$lib/components/common/Modal.svelte';
   import type { KeyInfo, HashField, ZSetMember } from '$lib/types';
 
   interface Props {
@@ -182,72 +184,44 @@
   }
 </script>
 
-{#if open}
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="fixed inset-0 bg-[var(--color-text-primary)]/30 flex items-center justify-center z-50"
-    onclick={(e) => e.target === e.currentTarget && handleClose()}
-    onkeydown={(e) => e.key === 'Escape' && handleClose()}
-  >
-    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg w-full max-w-md shadow-[var(--shadow-md)]">
-      <!-- Header -->
-      <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between">
-        <span class="text-base text-[var(--color-text-primary)] font-mono">import / export</span>
-        <button
-          class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
-          onclick={handleClose}
-        >
-          ✕
-        </button>
-      </div>
-
-      <!-- Content -->
-      <div class="p-3 space-y-3">
-        <!-- Export Section -->
+<Modal bind:open title="Import / Export" size="md" onclose={handleClose}>
+  <div class="space-y-3">
+    <div>
+      <h3 class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide mb-1.5">export</h3>
+      <div class="space-y-2">
         <div>
-          <h3 class="text-base text-[var(--color-text-muted)] mb-1">export</h3>
-          <div class="space-y-2">
-            <div>
-              <span class="block text-sm text-[var(--color-text-muted)] mb-1">pattern</span>
-              <input
-                type="text"
-                bind:value={exportPattern}
-                placeholder="*"
-                class="w-full px-2.5 py-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-sm font-mono focus:outline-none focus:border-[var(--color-accent)]"
-              />
-            </div>
-            <div>
-              <span class="block text-sm text-[var(--color-text-muted)] mb-1">format</span>
-              <div class="flex gap-2">
-                <button
-                  class="px-3 py-1.5 text-sm font-mono rounded border transition-colors {exportFormat === 'json' ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:border-[var(--color-accent)]'}"
-                  onclick={() => exportFormat = 'json'}
-                >
-                  JSON
-                </button>
-                <button
-                  class="px-3 py-1.5 text-sm font-mono rounded border transition-colors {exportFormat === 'csv' ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:border-[var(--color-accent)]'}"
-                  onclick={() => exportFormat = 'csv'}
-                >
-                  CSV
-                </button>
-              </div>
-            </div>
-            <Button variant="secondary" onclick={handleExport} disabled={exporting}>
-              {exporting ? `exporting... (${exportProgress.current}/${exportProgress.total})` : 'export'}
-            </Button>
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">pattern</span>
+          <Input bind:value={exportPattern} placeholder="*" />
+        </div>
+        <div>
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">format</span>
+          <div class="ui-segment">
+            <button
+              class="ui-segment-item {exportFormat === 'json' ? 'ui-segment-item-active' : ''}"
+              onclick={() => (exportFormat = 'json')}
+            >
+              JSON
+            </button>
+            <button
+              class="ui-segment-item {exportFormat === 'csv' ? 'ui-segment-item-active' : ''}"
+              onclick={() => (exportFormat = 'csv')}
+            >
+              CSV
+            </button>
           </div>
         </div>
-
-        <!-- Import Section -->
-        <div class="pt-3 border-t border-[var(--color-border)]">
-          <h3 class="text-base text-[var(--color-text-muted)] mb-1">import</h3>
-          <p class="text-sm text-[var(--color-text-muted)] mb-1">Import from JSON file</p>
-          <Button variant="secondary" onclick={handleImport} disabled={importing}>
-            {importing ? 'importing...' : 'select file'}
-          </Button>
-        </div>
+        <Button variant="secondary" size="sm" onclick={handleExport} disabled={exporting}>
+          {exporting ? `exporting... (${exportProgress.current}/${exportProgress.total})` : 'export'}
+        </Button>
       </div>
     </div>
+
+    <div class="pt-3 border-t border-[var(--color-border)]">
+      <h3 class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide mb-1.5">import</h3>
+      <p class="text-xs text-[var(--color-text-tertiary)] mb-2">Import from JSON file</p>
+      <Button variant="secondary" size="sm" onclick={handleImport} disabled={importing}>
+        {importing ? 'importing...' : 'select file'}
+      </Button>
+    </div>
   </div>
-{/if}
+</Modal>

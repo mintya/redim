@@ -16,7 +16,7 @@
     guideLineX = e.clientX;
     const target = (e.target as HTMLElement).parentElement?.previousElementSibling;
     startWidth = target?.getBoundingClientRect().width || 288;
-    
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     document.body.style.cursor = 'col-resize';
@@ -41,14 +41,16 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div 
-  class="w-1 bg-[var(--color-border-divider)] hover:bg-[var(--color-accent)] cursor-col-resize transition-colors flex-shrink-0 {isDragging ? 'bg-[var(--color-accent)]' : ''}"
+<div
+  class="relative w-3 -mx-1.5 cursor-col-resize flex-shrink-0"
   onmousedown={handleMouseDown}
-></div>
+>
+  <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px {isDragging ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border-divider)]'}"></div>
+</div>
 
 {#if isDragging}
-  <div 
-    class="fixed top-0 bottom-0 w-0.5 bg-[var(--color-accent)] opacity-50 z-50 pointer-events-none"
+  <div
+    class="fixed top-0 bottom-0 w-px bg-[var(--color-accent)]/60 z-50 pointer-events-none"
     style="left: {guideLineX}px"
   ></div>
 {/if}

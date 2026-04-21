@@ -3,6 +3,7 @@
   import { invoke } from '@tauri-apps/api/core';
   import Button from '$lib/components/common/Button.svelte';
   import Confirm from '$lib/components/common/Confirm.svelte';
+  import { X } from '@lucide/svelte';
 
   interface Props {
     open: boolean;
@@ -209,32 +210,32 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-sm flex items-center justify-center z-50"
+    class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-[1px] flex items-center justify-center z-50"
     onclick={(e) => e.target === e.currentTarget && handleClose()}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="bg-[var(--color-cli-bg)] border border-[var(--color-cli-border)] rounded-lg w-full max-w-3xl h-[60vh] flex flex-col shadow-[var(--shadow-md)]">
+    <div class="bg-[var(--color-cli-bg)] border border-[var(--color-cli-border)] rounded-[8px] w-full max-w-3xl h-[60vh] flex flex-col shadow-[var(--shadow-md)]">
       <!-- Header -->
-        <div class="h-10 px-4 border-b border-[var(--color-cli-border)] flex items-center justify-between">
+        <div class="h-9 px-3 border-b border-[var(--color-cli-border)] flex items-center justify-between">
         <span class="text-xs text-[var(--color-cli-text-dim)] font-mono uppercase tracking-wide">redis cli</span>
         <div class="flex items-center gap-2">
           <button 
-            class="text-xs text-[var(--color-cli-text-dim)] hover:text-[var(--color-cli-accent)] transition-colors"
+            class="ui-btn ui-btn-ghost ui-btn-sm border-[var(--color-cli-border)] text-[var(--color-cli-text-dim)] hover:text-[var(--color-cli-accent)] hover:bg-[var(--color-cli-surface)]"
             onclick={clearHistory}
           >
             clear
           </button>
           <button 
-            class="text-[var(--color-cli-text-dim)] hover:text-white transition-colors"
+            class="ui-btn ui-btn-ghost ui-btn-icon border-[var(--color-cli-border)] text-[var(--color-cli-text-dim)] hover:text-white hover:bg-[var(--color-cli-surface)]"
             onclick={handleClose}
           >
-            ✕
+            <X class="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
       <!-- Output -->
-      <div id="cli-output" class="flex-1 overflow-y-auto p-4 font-mono text-sm">
+      <div id="cli-output" class="flex-1 overflow-y-auto p-3 font-mono text-sm">
         {#each history as item}
           <div class="mb-4">
             <div class="flex items-center gap-2 text-[var(--color-cli-accent)]">
@@ -254,12 +255,12 @@
       </div>
 
       <!-- Input -->
-      <div class="p-4 border-t border-[var(--color-cli-border)] relative">
+      <div class="p-3 border-t border-[var(--color-cli-border)] relative">
         {#if showSuggestions}
-          <div class="absolute bottom-full left-4 mb-1 bg-[var(--color-cli-surface)] border border-[var(--color-cli-border)] rounded-md overflow-hidden">
+          <div class="absolute bottom-full left-3 mb-1 bg-[var(--color-cli-surface)] border border-[var(--color-cli-border)] rounded-[6px] overflow-hidden">
             {#each suggestions as cmd}
               <button 
-                class="block w-full px-3 py-1.5 text-left text-sm text-[var(--color-cli-text)] hover:bg-[var(--color-cli-border)] font-mono"
+                class="block w-full px-3 py-1.5 text-left text-sm text-[var(--color-cli-text)] hover:bg-[var(--color-cli-border)] font-mono transition-colors"
                 onclick={() => selectSuggestion(cmd)}
               >
                 {cmd}

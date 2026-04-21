@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { activeConnectionId, loadConnections, deleteConnection } from '$lib/stores/connection';
+  import { activeConnectionId, deleteConnection } from '$lib/stores/connection';
   import { loadDatabases, loadKeys } from '$lib/stores/database';
   import type { ConnectionConfig } from '$lib/types';
   import ConnectionList from '$lib/components/connection/ConnectionList.svelte';
@@ -13,7 +13,7 @@
   let isConnected = $state(false);
   let currentConnectionId = $state<string | null>(null);
   let editingConnection = $state<ConnectionConfig | null>(null);
-  let leftPanelWidth = $state(350);
+  let leftPanelWidth = $state(340);
   let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const unsubscribe = activeConnectionId.subscribe(async (id) => {
@@ -38,11 +38,11 @@
   function handleResize() {
     windowWidth = window.innerWidth;
     if (windowWidth < 768) {
-      leftPanelWidth = Math.min(280, windowWidth * 0.5);
+      leftPanelWidth = Math.min(280, windowWidth * 0.52);
     } else if (windowWidth < 1024) {
       leftPanelWidth = 300;
     } else {
-      leftPanelWidth = 350;
+      leftPanelWidth = 340;
     }
   }
 
@@ -64,36 +64,29 @@
 </script>
 
 {#if isConnected}
-  <!-- Connected View: Database Browser -->
-  <div class="flex-1 flex overflow-hidden">
-    <!-- Left: DB List + Keys -->
-    <div class="flex flex-col bg-[var(--color-surface)] overflow-hidden" style="width: {leftPanelWidth}px; min-width: 200px;">
+  <div class="flex-1 flex overflow-hidden min-h-0 bg-[var(--color-bg-surface)]">
+    <div class="flex flex-col bg-[var(--color-surface)] overflow-hidden border-r border-[var(--color-border)]" style="width: {leftPanelWidth}px; min-width: 200px;">
       <DbList />
       <KeyList />
     </div>
 
-    <!-- Resizer -->
     <Resizer onresize={handlePanelResize} />
 
-    <!-- Right: Key details + tabs -->
-    <KeyDetailWorkspace />
+    <div class="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden bg-[var(--color-surface)]">
+      <KeyDetailWorkspace />
+    </div>
   </div>
 {:else}
-  <!-- Disconnected View: Connection Manager -->
-  <div class="flex-1 flex items-center justify-center p-4 sm:p-6">
-    <div class="flex border border-[var(--color-border)] rounded-xl w-full max-w-4xl h-[calc(100vh-120px)] bg-[var(--color-surface)] shadow-[var(--shadow-md)] overflow-hidden">
-      <!-- Left: Connection List -->
-      <div class="w-72 sm:w-80 border-r border-[var(--color-border)] flex flex-col bg-[var(--color-surface)] rounded-l-lg flex-shrink-0">
-        <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center">
-          <span class="text-sm text-[var(--color-text-secondary)] font-medium">connections</span>
-        </div>
-        <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
+  <div class="flex-1 flex overflow-hidden min-h-0 bg-[var(--color-bg-surface)]">
+    <div class="w-72 sm:w-80 border-r border-[var(--color-border)] flex flex-col bg-[var(--color-surface)] flex-shrink-0 min-h-0">
+      <div class="h-9 px-3 border-b border-[var(--color-border)] flex items-center">
+        <span class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">connections</span>
       </div>
+      <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
+    </div>
 
-      <!-- Right: New Connection Form -->
-      <div class="flex-1 flex flex-col bg-[var(--color-surface)] rounded-r-xl min-w-0">
-        <ConnectionForm bind:editing={editingConnection} onsaved={handleSaved} />
-      </div>
+    <div class="flex-1 flex flex-col bg-[var(--color-surface)] min-w-0 min-h-0">
+      <ConnectionForm bind:editing={editingConnection} onsaved={handleSaved} />
     </div>
   </div>
 {/if}

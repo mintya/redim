@@ -162,10 +162,10 @@
             type="button"
             role="radio"
             aria-checked={keyType === option.value}
-            class="px-2 py-2 text-sm font-medium rounded-md border transition-all duration-200
+            class="ui-btn ui-btn-sm w-full
               {keyType === option.value 
                 ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]' 
-                : 'bg-[var(--color-surface)] text-[var(--color-text-primary)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'}"
+                : ''}"
             onclick={() => { keyType = option.value; resetTypeData(); }}
           >
             {option.label}
@@ -186,7 +186,7 @@
           id="key-value"
           bind:value={stringValue}
           placeholder="Enter string value..."
-          class="w-full h-24 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 resize-none transition-all duration-200"
+          class="w-full h-24 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 resize-none transition-all duration-200"
         ></textarea>
       
       {:else if keyType === 'hash'}
@@ -197,18 +197,18 @@
                 type="text" 
                 bind:value={field.field}
                 placeholder="field"
-                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
               />
               <input 
                 type="text" 
                 bind:value={field.value}
                 placeholder="value"
-                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
               />
               {#if hashFields.length > 1}
                 <button
                   type="button"
-                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeHashField(index)}
                 >
                   ✕
@@ -218,7 +218,7 @@
           {/each}
           <button
             type="button"
-            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+            class="ui-btn ui-btn-sm"
             onclick={addHashField}
           >
             + Add field
@@ -236,12 +236,12 @@
                 type="text" 
                 bind:value={listItems[index]}
                 placeholder="item value"
-                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
               />
               {#if listItems.length > 1}
                 <button
                   type="button"
-                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeListItem(index)}
                 >
                   ✕
@@ -251,7 +251,7 @@
           {/each}
           <button
             type="button"
-            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+            class="ui-btn ui-btn-sm"
             onclick={addListItem}
           >
             + Add item
@@ -266,12 +266,12 @@
                 type="text" 
                 bind:value={setMembers[index]}
                 placeholder="member"
-                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
               />
               {#if setMembers.length > 1}
                 <button
                   type="button"
-                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeSetMember(index)}
                 >
                   ✕
@@ -281,7 +281,7 @@
           {/each}
           <button
             type="button"
-            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+            class="ui-btn ui-btn-sm"
             onclick={addSetMember}
           >
             + Add member
@@ -296,18 +296,18 @@
                 type="text" 
                 bind:value={item.member}
                 placeholder="member"
-                class="flex-1 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
               />
               <input 
                 type="number" 
                 bind:value={item.score}
                 placeholder="score"
-                class="w-24 px-3 py-2 bg-[var(--color-macos-surface)] border border-[var(--color-macos-border)] rounded-lg text-base font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="w-24 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
               />
               {#if zsetMembers.length > 1}
                 <button
                   type="button"
-                  class="px-2 text-[var(--color-accent)] hover:text-[var(--color-accent-light)] transition-colors"
+                  class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeZSetMember(index)}
                 >
                   ✕
@@ -317,7 +317,7 @@
           {/each}
           <button
             type="button"
-            class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+            class="ui-btn ui-btn-sm"
             onclick={addZSetMember}
           >
             + Add member
@@ -343,7 +343,7 @@
 
     <!-- Error -->
     {#if error}
-      <div class="px-3 py-2 bg-[var(--color-accent-subtle)] border border-[var(--color-accent)]/20 rounded-lg text-base text-[var(--color-accent)]">
+      <div class="px-3 py-2 bg-[var(--color-accent-subtle)] border border-[var(--color-accent)]/20 rounded-[6px] text-sm text-[var(--color-accent)]">
         {error}
       </div>
     {/if}

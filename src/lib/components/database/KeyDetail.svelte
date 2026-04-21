@@ -24,8 +24,9 @@
   let showInlineInput = $state(false);
   let inlineInputType = $state<'rename' | 'ttl'>('rename');
   let inlineInputValue = $state('');
+  const TABLE_VALUE_EXPAND_THRESHOLD = 120;
 
-  function toggleItemJson(id: string) {
+  function toggleExpandedItem(id: string) {
     if (expandedJsonItems.has(id)) {
       expandedJsonItems.delete(id);
     } else {
@@ -66,6 +67,15 @@
       return formatJson(value);
     }
     return decodeUnicode(value);
+  }
+
+  function shouldTruncateValue(value: string): boolean {
+    return value.length > TABLE_VALUE_EXPAND_THRESHOLD || value.includes('\n');
+  }
+
+  function canExpandTableValue(rawValue: string): boolean {
+    const displayValue = getItemDisplayValue(rawValue);
+    return isJson(rawValue) || shouldTruncateValue(displayValue);
   }
 
 
@@ -365,7 +375,8 @@
 </script>
 
 {#if $keyInfo && $activeKey && $detailConnectionId}
-  <div class="h-11 px-6 border-b border-[var(--color-border)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-surface)]">
+  <div class="h-full min-h-0 flex flex-col">
+  <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-surface)]">
     <div class="flex items-center gap-3 min-w-0 flex-wrap">
       {#if $activeKeyTab}
         <span
@@ -377,21 +388,19 @@
         <span class="text-xs text-[var(--color-text-tertiary)] font-sans">db{$activeKeyTab.db}</span>
         <span class="text-xs text-[var(--color-border)]">|</span>
       {/if}
-      <span class="text-sm text-[var(--color-text-primary)] font-sans truncate">{$activeKey}</span>
-      <span class="text-sm font-sans {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
+      <span class="text-xs text-[var(--color-text-primary)] font-sans truncate">{$activeKey}</span>
+      <span class="text-xs font-sans {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
     </div>
-    <div class="flex items-center gap-3 text-sm">
-      <button class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" onclick={openInlineTtl}>
+    <div class="flex items-center gap-1.5 text-xs">
+      <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={openInlineTtl}>
         <Clock class="w-3.5 h-3.5" />
         <span>ttl: {$keyInfo.ttl === -1 ? '∞' : $keyInfo.ttl + 's'}</span>
       </button>
-      <span class="text-[var(--color-border)]">|</span>
-      <button class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" onclick={openInlineRename}>
+      <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={openInlineRename}>
         <Edit3 class="w-3.5 h-3.5" />
         <span>rename</span>
       </button>
-      <span class="text-[var(--color-border)]">|</span>
-      <button class="flex items-center gap-1.5 text-[var(--color-accent)] hover:opacity-80" onclick={handleDeleteKey}>
+      <button class="ui-btn ui-btn-danger ui-btn-sm" onclick={handleDeleteKey}>
         <Trash2 class="w-3.5 h-3.5" />
         <span>delete</span>
       </button>
@@ -400,20 +409,20 @@
     {#if showInlineInput}
       <div class="absolute inset-0 bg-[var(--color-surface)]/95 backdrop-blur-sm flex items-center justify-center z-10">
         <div class="flex items-center gap-2">
-          <span class="text-sm text-[var(--color-text-tertiary)] font-sans">{inlineInputType === 'rename' ? 'name:' : 'ttl:'}</span>
+          <span class="text-xs text-[var(--color-text-tertiary)] font-sans">{inlineInputType === 'rename' ? 'name:' : 'ttl:'}</span>
           <input 
             bind:value={inlineInputValue}
             onkeydown={handleInlineKeydown}
-            class="w-48 px-3 py-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-base font-sans focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-subtle)]"
+            class="w-48 px-3 py-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-xs font-sans focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-subtle)]"
           />
-          <button class="px-3 py-1.5 text-base font-sans bg-[var(--color-text-primary)] text-[var(--color-surface)] rounded-md hover:opacity-90" onclick={handleInlineConfirm}>ok</button>
-          <button class="px-3 py-1.5 text-base font-sans text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={closeInlineInput}>cancel</button>
+          <button class="ui-btn ui-btn-primary ui-btn-sm" onclick={handleInlineConfirm}>ok</button>
+          <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={closeInlineInput}>cancel</button>
         </div>
       </div>
     {/if}
   </div>
 
-  <div class="flex-1 p-6 overflow-y-auto">
+  <div class="flex-1 min-h-0 px-4 py-3 overflow-y-auto bg-[var(--color-bg-surface)]">
     <!-- String -->
     {#if $keyInfo.key_type === 'string' && typeof $keyValue === 'string'}
       <div class="space-y-4">
@@ -421,35 +430,35 @@
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               {#if isJson($keyValue)}
-                <div class="flex items-center gap-1 bg-[var(--color-surface-hover)] rounded px-1">
+                <div class="ui-segment">
                   <button 
-                    class="text-base px-2 py-0.5 rounded {jsonViewMode === 'raw' ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'}"
+                    class="ui-segment-item {jsonViewMode === 'raw' ? 'ui-segment-item-active' : ''}"
                     onclick={() => jsonViewMode = 'raw'}
                   >raw</button>
                   <button 
-                    class="text-base px-2 py-0.5 rounded {jsonViewMode === 'format' ? 'bg-[var(--color-text-primary)] text-[var(--color-surface)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'}"
+                    class="ui-segment-item {jsonViewMode === 'format' ? 'ui-segment-item-active' : ''}"
                     onclick={() => jsonViewMode = 'format'}
                   >format</button>
                 </div>
               {:else}
-                <span class="text-sm text-[var(--color-text-tertiary)]">value</span>
+                <span class="text-xs text-[var(--color-text-tertiary)]">value</span>
               {/if}
             </div>
             {#if !isEditing}
-              <button class="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" onclick={() => startEdit($keyValue as string)}>edit</button>
+              <button class="ui-btn-link" onclick={() => startEdit($keyValue as string)}>edit</button>
             {/if}
           </div>
           {#if isEditing}
             <textarea 
               bind:value={editingValue}
-              class="w-full h-40 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-base font-mono focus:outline-none focus:border-[var(--color-accent)]"
+              class="w-full h-40 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-xs font-mono focus:outline-none focus:border-[var(--color-accent)]"
             ></textarea>
             <div class="flex gap-2 mt-2">
               <Button variant="primary" size="sm" onclick={saveEdit}>save</Button>
               <Button variant="ghost" size="sm" onclick={cancelEdit}>cancel</Button>
             </div>
           {:else}
-            <pre class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded p-4 font-mono text-sm text-[var(--color-text-primary)] whitespace-pre-wrap break-all w-full">{getDisplayValue($keyValue)}</pre>
+            <pre class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded p-4 font-mono text-xs text-[var(--color-text-primary)] whitespace-pre-wrap break-all w-full">{getDisplayValue($keyValue)}</pre>
           {/if}
         </div>
       </div>
@@ -458,21 +467,21 @@
     {:else if $keyInfo.key_type === 'hash' && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} fields</span>
+          <span class="text-xs text-[var(--color-text-tertiary)]">{$keyValue.length} fields</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ field'}
           </Button>
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newField} placeholder="field" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-base font-mono" />
-            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-base font-mono" />
+            <input bind:value={newField} placeholder="field" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
+            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddHashField}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-base font-mono table-fixed">
+        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
           <thead>
-            <tr class="border-b border-[var(--color-border)]">
+            <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-1/4">field</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">value</th>
@@ -480,51 +489,59 @@
           </thead>
           <tbody>
             {#each ($keyValue as HashField[]) as item}
-              <tr class="border-b border-[var(--color-border)]">
-                <td class="py-2.5 px-3">
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]">
+                <td class="py-2.5 px-3 align-top">
                   <div class="flex gap-2">
                     {#if editingField !== item.field}
-                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={() => startEditHashField(item.field, item.value)}>
+                      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={() => startEditHashField(item.field, item.value)}>
                         <Pencil class="w-3.5 h-3.5" />
                       </button>
                     {/if}
-                    <button class="text-[var(--color-accent)] hover:opacity-80" onclick={() => handleDeleteHashField(item.field)}>
+                    <button class="ui-btn ui-btn-danger ui-btn-icon-sm" onclick={() => handleDeleteHashField(item.field)}>
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </td>
-                <td class="py-2.5 px-3 text-[var(--color-text-primary)] truncate">{item.field}</td>
-                <td class="py-2.5 px-3 text-[var(--color-text-primary)]">
+                <td class="py-2.5 px-3 text-[var(--color-text-primary)] truncate align-top">{item.field}</td>
+                <td class="py-2.5 px-3 text-[var(--color-text-primary)] align-top">
                   {#if editingField === item.field}
                     <div class="flex gap-1">
-                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border)] rounded text-base font-mono" />
-                      <button class="text-[var(--color-type-string)] hover:opacity-80" onclick={saveHashFieldEdit}>
+                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border)] rounded text-xs font-mono" />
+                      <button class="ui-btn ui-btn-primary ui-btn-icon-sm" onclick={saveHashFieldEdit}>
                         <Check class="w-3.5 h-3.5" />
                       </button>
-                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={cancelHashFieldEdit}>
+                      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={cancelHashFieldEdit}>
                         <X class="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  {:else if isJson(item.value)}
-                    <div class="flex items-start gap-1.5">
-                      <button 
-                        class="text-[var(--color-type-list)] hover:opacity-80 flex-shrink-0 mt-0.5"
-                        onclick={() => toggleItemJson(`hash-${item.field}`)}
-                      >
-                        {#if expandedJsonItems.has(`hash-${item.field}`)}
-                          <ChevronDown class="w-3.5 h-3.5" />
+                  {:else}
+                    {@const hashItemId = `hash-${item.field}`}
+                    {@const hashDisplay = getItemDisplayValue(item.value)}
+                    {@const hashExpanded = expandedJsonItems.has(hashItemId)}
+                    {@const hashCanExpand = canExpandTableValue(item.value)}
+                    <div class="flex items-start gap-1.5 min-w-0">
+                      {#if hashCanExpand}
+                        <button 
+                          class="ui-btn ui-btn-ghost ui-btn-icon-sm flex-shrink-0 mt-0.5"
+                          onclick={() => toggleExpandedItem(hashItemId)}
+                        >
+                          {#if hashExpanded}
+                            <ChevronDown class="w-3.5 h-3.5" />
+                          {:else}
+                            <ChevronRight class="w-3.5 h-3.5" />
+                          {/if}
+                        </button>
+                      {/if}
+                      {#if hashExpanded}
+                        {#if isJson(item.value)}
+                          <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.value)}</pre>
                         {:else}
-                          <ChevronRight class="w-3.5 h-3.5" />
+                          <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{hashDisplay}</pre>
                         {/if}
-                      </button>
-                      {#if expandedJsonItems.has(`hash-${item.field}`)}
-                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.value)}</pre>
                       {:else}
-                        <span class="break-all">{getItemDisplayValue(item.value)}</span>
+                        <span class="block min-w-0 flex-1 truncate" title={hashDisplay}>{hashDisplay}</span>
                       {/if}
                     </div>
-                  {:else}
-                    <span class="break-all">{getItemDisplayValue(item.value)}</span>
                   {/if}
                 </td>
               </tr>
@@ -537,20 +554,20 @@
     {:else if ($keyInfo.key_type === 'list') && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} items</span>
+          <span class="text-xs text-[var(--color-text-tertiary)]">{$keyValue.length} items</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ item'}
           </Button>
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-base font-mono" />
+            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddListItem}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-base font-mono table-fixed">
+        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
           <thead>
-            <tr class="border-b border-[var(--color-border)]">
+            <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-14">#</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">value</th>
@@ -558,51 +575,59 @@
           </thead>
           <tbody>
             {#each ($keyValue as string[]) as item, i}
-              <tr class="border-b border-[var(--color-border)]">
-                <td class="py-2.5 px-3">
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]">
+                <td class="py-2.5 px-3 align-top">
                   <div class="flex gap-2">
                     {#if editingIndex !== i}
-                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={() => startEditListItem(i, item)}>
+                      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={() => startEditListItem(i, item)}>
                         <Pencil class="w-3.5 h-3.5" />
                       </button>
                     {/if}
-                    <button class="text-[var(--color-accent)] hover:opacity-80" onclick={() => handleRemoveListItem(item)}>
+                    <button class="ui-btn ui-btn-danger ui-btn-icon-sm" onclick={() => handleRemoveListItem(item)}>
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </td>
-                <td class="py-2.5 px-3 text-[var(--color-text-muted)]">{i}</td>
-                <td class="py-2.5 px-3 text-[var(--color-text-primary)]">
+                <td class="py-2.5 px-3 text-[var(--color-text-muted)] align-top">{i}</td>
+                <td class="py-2.5 px-3 text-[var(--color-text-primary)] align-top">
                   {#if editingIndex === i}
                     <div class="flex gap-1">
-                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border)] rounded text-base font-mono" />
-                      <button class="text-[var(--color-type-string)] hover:opacity-80" onclick={saveListItemEdit}>
+                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border)] rounded text-xs font-mono" />
+                      <button class="ui-btn ui-btn-primary ui-btn-icon-sm" onclick={saveListItemEdit}>
                         <Check class="w-3.5 h-3.5" />
                       </button>
-                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={cancelListItemEdit}>
+                      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={cancelListItemEdit}>
                         <X class="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  {:else if isJson(item)}
-                    <div class="flex items-start gap-1.5">
-                      <button 
-                        class="text-[var(--color-type-list)] hover:opacity-80 flex-shrink-0 mt-0.5"
-                        onclick={() => toggleItemJson(`list-${i}`)}
-                      >
-                        {#if expandedJsonItems.has(`list-${i}`)}
-                          <ChevronDown class="w-3.5 h-3.5" />
+                  {:else}
+                    {@const listItemId = `list-${i}`}
+                    {@const listDisplay = getItemDisplayValue(item)}
+                    {@const listExpanded = expandedJsonItems.has(listItemId)}
+                    {@const listCanExpand = canExpandTableValue(item)}
+                    <div class="flex items-start gap-1.5 min-w-0">
+                      {#if listCanExpand}
+                        <button 
+                          class="ui-btn ui-btn-ghost ui-btn-icon-sm flex-shrink-0 mt-0.5"
+                          onclick={() => toggleExpandedItem(listItemId)}
+                        >
+                          {#if listExpanded}
+                            <ChevronDown class="w-3.5 h-3.5" />
+                          {:else}
+                            <ChevronRight class="w-3.5 h-3.5" />
+                          {/if}
+                        </button>
+                      {/if}
+                      {#if listExpanded}
+                        {#if isJson(item)}
+                          <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
                         {:else}
-                          <ChevronRight class="w-3.5 h-3.5" />
+                          <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{listDisplay}</pre>
                         {/if}
-                      </button>
-                      {#if expandedJsonItems.has(`list-${i}`)}
-                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
                       {:else}
-                        <span class="break-all">{getItemDisplayValue(item)}</span>
+                        <span class="block min-w-0 flex-1 truncate" title={listDisplay}>{listDisplay}</span>
                       {/if}
                     </div>
-                  {:else}
-                    <span class="break-all">{getItemDisplayValue(item)}</span>
                   {/if}
                 </td>
               </tr>
@@ -615,54 +640,60 @@
     {:else if ($keyInfo.key_type === 'set') && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} members</span>
+          <span class="text-xs text-[var(--color-text-tertiary)]">{$keyValue.length} members</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ member'}
           </Button>
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newValue} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-base font-mono" />
+            <input bind:value={newValue} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddSetMember}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-base font-mono table-fixed">
+        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
           <thead>
-            <tr class="border-b border-[var(--color-border)]">
+            <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">member</th>
             </tr>
           </thead>
           <tbody>
             {#each ($keyValue as string[]) as item, i}
-              <tr class="border-b border-[var(--color-border)]">
-                <td class="py-2.5 px-3">
-                  <button class="text-[var(--color-accent)] hover:opacity-80" onclick={() => handleRemoveSetMember(item)}>
+              {@const setItemId = `set-${i}`}
+              {@const setDisplay = getItemDisplayValue(item)}
+              {@const setExpanded = expandedJsonItems.has(setItemId)}
+              {@const setCanExpand = canExpandTableValue(item)}
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]">
+                <td class="py-2.5 px-3 align-top">
+                  <button class="ui-btn ui-btn-danger ui-btn-icon-sm" onclick={() => handleRemoveSetMember(item)}>
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
                 </td>
-                <td class="py-2.5 px-3 text-[var(--color-text-primary)]">
-                  {#if isJson(item)}
-                    <div class="flex items-start gap-1.5">
+                <td class="py-2.5 px-3 text-[var(--color-text-primary)] align-top">
+                  <div class="flex items-start gap-1.5 min-w-0">
+                    {#if setCanExpand}
                       <button 
-                        class="text-[var(--color-type-list)] hover:opacity-80 flex-shrink-0 mt-0.5"
-                        onclick={() => toggleItemJson(`set-${i}`)}
+                        class="ui-btn ui-btn-ghost ui-btn-icon-sm flex-shrink-0 mt-0.5"
+                        onclick={() => toggleExpandedItem(setItemId)}
                       >
-                        {#if expandedJsonItems.has(`set-${i}`)}
+                        {#if setExpanded}
                           <ChevronDown class="w-3.5 h-3.5" />
                         {:else}
                           <ChevronRight class="w-3.5 h-3.5" />
                         {/if}
                       </button>
-                      {#if expandedJsonItems.has(`set-${i}`)}
-                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
+                    {/if}
+                    {#if setExpanded}
+                      {#if isJson(item)}
+                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{getItemFormatValue(item)}</pre>
                       {:else}
-                        <span class="break-all">{getItemDisplayValue(item)}</span>
+                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{setDisplay}</pre>
                       {/if}
-                    </div>
-                  {:else}
-                    <span class="break-all">{getItemDisplayValue(item)}</span>
-                  {/if}
+                    {:else}
+                      <span class="block min-w-0 flex-1 truncate" title={setDisplay}>{setDisplay}</span>
+                    {/if}
+                  </div>
                 </td>
               </tr>
             {/each}
@@ -674,21 +705,21 @@
     {:else if $keyInfo.key_type === 'zset' && Array.isArray($keyValue)}
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-sm text-[var(--color-text-tertiary)]">{$keyValue.length} members</span>
+          <span class="text-xs text-[var(--color-text-tertiary)]">{$keyValue.length} members</span>
           <Button variant="secondary" size="sm" onclick={() => showAddForm = !showAddForm}>
             {showAddForm ? 'cancel' : '+ member'}
           </Button>
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newField} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-base font-mono" />
-            <input bind:value={newScore} placeholder="score" type="number" step="0.1" class="w-20 px-2 py-1.5 border border-[var(--color-border)] rounded text-base font-mono" />
+            <input bind:value={newField} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
+            <input bind:value={newScore} placeholder="score" type="number" step="0.1" class="w-20 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
             <Button variant="primary" size="sm" onclick={handleAddZSetMember}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-base font-mono table-fixed">
+        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
           <thead>
-            <tr class="border-b border-[var(--color-border)]">
+            <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">member</th>
               <th class="text-right py-2 px-3 text-[var(--color-text-muted)] w-24">score</th>
@@ -696,50 +727,56 @@
           </thead>
           <tbody>
             {#each ($keyValue as ZSetMember[]) as item, i}
-              <tr class="border-b border-[var(--color-border)]">
-                <td class="py-2.5 px-3">
+              {@const zsetItemId = `zset-${i}`}
+              {@const zsetDisplay = getItemDisplayValue(item.member)}
+              {@const zsetExpanded = expandedJsonItems.has(zsetItemId)}
+              {@const zsetCanExpand = canExpandTableValue(item.member)}
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]">
+                <td class="py-2.5 px-3 align-top">
                   <div class="flex gap-2">
                     {#if editingField !== item.member}
-                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={() => startEditZSetMember(item.member, item.score)}>
+                      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={() => startEditZSetMember(item.member, item.score)}>
                         <Pencil class="w-3.5 h-3.5" />
                       </button>
                     {/if}
-                    <button class="text-[var(--color-accent)] hover:opacity-80" onclick={() => handleDeleteZSetMember(item.member)}>
+                    <button class="ui-btn ui-btn-danger ui-btn-icon-sm" onclick={() => handleDeleteZSetMember(item.member)}>
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </td>
-                <td class="py-2.5 px-3 text-[var(--color-text-primary)]">
-                  {#if isJson(item.member)}
-                    <div class="flex items-start gap-1.5">
+                <td class="py-2.5 px-3 text-[var(--color-text-primary)] align-top">
+                  <div class="flex items-start gap-1.5 min-w-0">
+                    {#if zsetCanExpand}
                       <button 
-                        class="text-[var(--color-type-list)] hover:opacity-80 flex-shrink-0 mt-0.5"
-                        onclick={() => toggleItemJson(`zset-${i}`)}
+                        class="ui-btn ui-btn-ghost ui-btn-icon-sm flex-shrink-0 mt-0.5"
+                        onclick={() => toggleExpandedItem(zsetItemId)}
                       >
-                        {#if expandedJsonItems.has(`zset-${i}`)}
+                        {#if zsetExpanded}
                           <ChevronDown class="w-3.5 h-3.5" />
                         {:else}
                           <ChevronRight class="w-3.5 h-3.5" />
                         {/if}
                       </button>
-                      {#if expandedJsonItems.has(`zset-${i}`)}
-                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-base whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.member)}</pre>
+                    {/if}
+                    {#if zsetExpanded}
+                      {#if isJson(item.member)}
+                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{getItemFormatValue(item.member)}</pre>
                       {:else}
-                        <span class="break-all">{getItemDisplayValue(item.member)}</span>
+                        <pre class="p-2 bg-[var(--color-surface-hover)] rounded text-xs whitespace-pre-wrap break-all w-full">{zsetDisplay}</pre>
                       {/if}
-                    </div>
-                  {:else}
-                    <span class="break-all">{getItemDisplayValue(item.member)}</span>
-                  {/if}
+                    {:else}
+                      <span class="block min-w-0 flex-1 truncate" title={zsetDisplay}>{zsetDisplay}</span>
+                    {/if}
+                  </div>
                 </td>
-                <td class="py-2.5 px-3 text-right text-[var(--color-text-muted)]">
+                <td class="py-2.5 px-3 text-right text-[var(--color-text-muted)] align-top">
                   {#if editingField === item.member}
                     <div class="flex gap-1 justify-end">
-                      <input bind:value={editingValue} type="number" step="0.1" class="w-16 px-1.5 py-0.5 border border-[var(--color-border)] rounded text-base font-mono text-right" />
-                      <button class="text-[var(--color-type-string)] hover:opacity-80" onclick={saveZSetMemberEdit}>
+                      <input bind:value={editingValue} type="number" step="0.1" class="w-16 px-1.5 py-0.5 border border-[var(--color-border)] rounded text-xs font-mono text-right" />
+                      <button class="ui-btn ui-btn-primary ui-btn-icon-sm" onclick={saveZSetMemberEdit}>
                         <Check class="w-3.5 h-3.5" />
                       </button>
-                      <button class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" onclick={cancelZSetMemberEdit}>
+                      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={cancelZSetMemberEdit}>
                         <X class="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -755,15 +792,16 @@
     {/if}
 
     {#if error}
-      <div class="fixed bottom-4 right-4 bg-[var(--color-text-primary)] text-[var(--color-surface)] px-4 py-2 rounded text-base font-sans shadow-lg">
+      <div class="fixed bottom-4 right-4 bg-[var(--color-text-primary)] text-[var(--color-surface)] px-4 py-2 rounded text-xs font-sans shadow-lg">
         {error}
       </div>
     {/if}
   </div>
+  </div>
 {:else}
-  <div class="flex-1 flex items-center justify-center">
+  <div class="h-full min-h-0 flex items-center justify-center">
     <div class="text-center">
-      <div class="text-sm text-[var(--color-text-tertiary)]">select a key to view details</div>
+      <div class="text-xs text-[var(--color-text-tertiary)]">select a key to view details</div>
     </div>
   </div>
 {/if}

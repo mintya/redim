@@ -24,7 +24,7 @@
   function toggleDropdown() {
     showDropdown = !showDropdown;
     if (showDropdown) {
-      focusedIndex = $databases.findIndex(db => db.index === $activeDb);
+      focusedIndex = $databases.findIndex((db) => db.index === $activeDb);
       setTimeout(() => dropdownEl?.querySelector('button')?.focus(), 0);
     }
   }
@@ -49,61 +49,53 @@
     }
   }
 
-  // 获取当前活跃数据库信息
-  let activeDbInfo = $derived($databases.find(db => db.index === $activeDb));
+  let activeDbInfo = $derived($databases.find((db) => db.index === $activeDb));
 </script>
 
-<div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between relative">
-  <div class="flex items-center gap-2">
-    <span class="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wide">databases</span>
-    
-    <!-- Database Dropdown -->
+<div class="h-9 px-3 border-b border-[var(--color-border)] flex items-center justify-between relative">
+  <div class="flex items-center gap-1.5">
+    <span class="text-[11px] text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">databases</span>
+
     <div class="relative">
       <button
-        class="flex items-center gap-1 px-2 py-1 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+        class="ui-btn ui-btn-sm"
         onclick={toggleDropdown}
       >
         <span class="text-[var(--color-text-primary)]">db{$activeDb}</span>
         {#if activeDbInfo}
-          <span class="text-[var(--color-text-tertiary)]">({activeDbInfo.keys})</span>
+          <span class="text-[var(--color-text-tertiary)]">{activeDbInfo.keys}</span>
         {/if}
-        <ChevronDown class="w-3.5 h-3.5 text-[var(--color-text-tertiary)] ml-1" />
+        <ChevronDown class="w-3 h-3 text-[var(--color-text-tertiary)]" />
       </button>
-      
+
       {#if showDropdown}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           bind:this={dropdownEl}
-          class="absolute top-full left-0 mt-1 w-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-[var(--shadow-md)] z-50 py-1 max-h-64 overflow-y-auto"
+          class="ui-menu-panel absolute top-full left-0 mt-1 w-44 z-50 py-1 max-h-64 overflow-y-auto"
           role="listbox"
           tabindex="-1"
           onkeydown={handleKeydown}
         >
           {#each $databases as db, i}
             <button
-              class="w-full px-3 py-2 text-left text-sm flex items-center justify-between hover:bg-[var(--color-surface-hover)] transition-colors {$activeDb === db.index ? 'bg-[var(--color-accent-subtle)]' : ''}"
+              class="ui-menu-item {$activeDb === db.index ? 'ui-menu-item-active' : ''}"
               onclick={() => handleSelectDb(db.index)}
               tabindex="-1"
             >
-              <span class="font-sans {$activeDb === db.index ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-primary)]'}">
+              <span class="{$activeDb === db.index ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-primary)]'}">
                 db{db.index}
               </span>
-              <span class="text-[var(--color-text-tertiary)]">
-                {db.keys} keys
-              </span>
+              <span class="text-[var(--color-text-tertiary)]">{db.keys}</span>
             </button>
           {/each}
         </div>
       {/if}
     </div>
   </div>
-  
-  <button 
-    class="text-base text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-    onclick={handleRefresh}
-    title="refresh"
-  >
-    <RotateCcw class="w-4 h-4" />
+
+  <button class="ui-btn ui-btn-ghost ui-btn-icon" onclick={handleRefresh} title="refresh">
+    <RotateCcw class="w-3.5 h-3.5" />
   </button>
 </div>
 

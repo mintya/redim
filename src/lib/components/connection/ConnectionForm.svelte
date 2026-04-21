@@ -64,15 +64,15 @@
   }
 
   function validatePort() {
-    validateNumber(formData.port, { min: 1, max: 65535, integerOnly: true, enabled: true }, 'Port must be between 1 and 65535', (err) => portError = err);
+    validateNumber(formData.port, { min: 1, max: 65535, integerOnly: true, enabled: true }, 'Port must be between 1 and 65535', (err) => (portError = err));
   }
 
   function validateSshPort() {
-    validateNumber(formData.ssh_port, { min: 1, max: 65535, integerOnly: true, enabled: !!formData.ssh_tunnel }, 'SSH Port must be between 1 and 65535', (err) => sshPortError = err);
+    validateNumber(formData.ssh_port, { min: 1, max: 65535, integerOnly: true, enabled: !!formData.ssh_tunnel }, 'SSH Port must be between 1 and 65535', (err) => (sshPortError = err));
   }
 
   function validateDb() {
-    validateNumber(formData.db, { min: 0, integerOnly: true, enabled: true }, 'Database must be >= 0', (err) => dbError = err);
+    validateNumber(formData.db, { min: 0, integerOnly: true, enabled: true }, 'Database must be >= 0', (err) => (dbError = err));
   }
 
   const hasValidationErrors = $derived(!!portError || !!sshPortError || !!dbError);
@@ -103,6 +103,9 @@
       sentinel_master: undefined,
     };
     editing = null;
+    portError = '';
+    sshPortError = '';
+    dbError = '';
   }
 
   async function handleTest() {
@@ -134,67 +137,67 @@
   }
 </script>
 
-<div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center">
-  <span class="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wide">
+<div class="h-9 px-3 border-b border-[var(--color-border)] flex items-center">
+  <span class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">
     {editing ? 'edit connection' : 'new connection'}
   </span>
 </div>
-<div class="flex-1 flex items-start justify-center p-4 overflow-y-auto">
-  <div class="w-full max-w-sm space-y-3 pt-2">
-    <div>
-      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">name</span>
-      <Input bind:value={formData.name} placeholder="my-redis" />
-    </div>
 
-    <div class="grid grid-cols-2 gap-3">
+<div class="flex-1 overflow-y-auto min-h-0 p-3">
+  <div class="w-full max-w-lg mx-auto space-y-3">
+    <div class="space-y-3 pb-3 border-b border-[var(--color-border)]">
       <div>
-        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">host</span>
-        <Input bind:value={formData.host} placeholder="127.0.0.1" />
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">name</span>
+        <Input bind:value={formData.name} placeholder="my-redis" />
       </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">host</span>
+          <Input bind:value={formData.host} placeholder="127.0.0.1" />
+        </div>
+        <div>
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">port</span>
+          <Input type="number" bind:value={formData.port} onblur={validatePort} />
+          {#if portError}
+            <span class="block text-xs text-[var(--color-accent)] mt-1">{portError}</span>
+          {/if}
+        </div>
+      </div>
+
       <div>
-        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">port</span>
-        <Input type="number" bind:value={formData.port} onblur={validatePort} />
-        {#if portError}
-          <span class="block text-xs text-[var(--color-accent)] mt-1">{portError}</span>
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">username <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
+        <Input bind:value={formData.username} placeholder="default" />
+      </div>
+
+      <div>
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">password <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
+        <Input type="password" bind:value={formData.password} />
+      </div>
+
+      <div class="max-w-[180px]">
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">database</span>
+        <Input type="number" bind:value={formData.db} onblur={validateDb} />
+        {#if dbError}
+          <span class="block text-xs text-[var(--color-accent)] mt-1">{dbError}</span>
         {/if}
       </div>
     </div>
 
-    <div>
-      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">username <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
-      <Input bind:value={formData.username} placeholder="default" />
-    </div>
-
-    <div>
-      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">password <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
-      <Input type="password" bind:value={formData.password} />
-    </div>
-
-    <div>
-      <span class="block text-xs text-[var(--color-text-secondary)] mb-1">database</span>
-      <Input type="number" bind:value={formData.db} onblur={validateDb} />
-      {#if dbError}
-        <span class="block text-xs text-[var(--color-accent)] mt-1">{dbError}</span>
-      {/if}
-    </div>
-
-    <!-- SSL -->
-    <div class="pt-1">
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.ssl} class="accent-[var(--color-accent)]" />
+    <div class="space-y-2.5 pb-2 border-b border-[var(--color-border)]">
+      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+        <input type="checkbox" bind:checked={formData.ssl} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">SSL/TLS</span>
       </label>
-    </div>
 
-    <!-- SSH Tunnel -->
-    <div class="pt-1 border-t border-[var(--color-border)]">
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.ssh_tunnel} class="accent-[var(--color-accent)]" />
+      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+        <input type="checkbox" bind:checked={formData.ssh_tunnel} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">SSH Tunnel</span>
       </label>
+
       {#if formData.ssh_tunnel}
-        <div class="mt-2 space-y-2 pl-6">
-          <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-2 pl-5">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
               <span class="block text-xs text-[var(--color-text-secondary)] mb-1">SSH Host</span>
               <Input bind:value={formData.ssh_host} placeholder="ssh.example.com" />
@@ -213,34 +216,27 @@
           </div>
         </div>
       {/if}
-    </div>
 
-    <!-- Cluster -->
-    <div class="pt-1 border-t border-[var(--color-border)]">
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.cluster} class="accent-[var(--color-accent)]" />
+      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+        <input type="checkbox" bind:checked={formData.cluster} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">Redis Cluster</span>
       </label>
-    </div>
 
-    <!-- Sentinel -->
-    <div class="pt-1">
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer">
-        <input type="checkbox" bind:checked={formData.sentinel} class="accent-[var(--color-accent)]" />
+      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+        <input type="checkbox" bind:checked={formData.sentinel} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">Redis Sentinel</span>
       </label>
+
       {#if formData.sentinel}
-        <div class="mt-2 space-y-2 pl-6">
-          <div>
-            <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Master Name</span>
-            <Input bind:value={formData.sentinel_master} placeholder="mymaster" />
-          </div>
+        <div class="pl-5">
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Master Name</span>
+          <Input bind:value={formData.sentinel_master} placeholder="mymaster" />
         </div>
       {/if}
     </div>
 
-    <div class="pt-3 border-t border-[var(--color-border)]">
-      <div class="flex gap-2">
+    <div class="pt-1">
+      <div class="flex items-center gap-2">
         <Button variant="secondary" size="sm" onclick={handleTest}>test</Button>
         <div class="flex-1"></div>
         {#if editing}
