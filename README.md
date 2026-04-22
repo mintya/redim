@@ -14,7 +14,12 @@ A modern, cross-platform Redis desktop client built with Tauri.
 
 English | **[中文](./README_CN.md)**
 
+![](./images/img1.jpg)
+![](./images/img2.jpg)
+
 </div>
+
+
 
 ## Features
 

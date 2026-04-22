@@ -10,6 +10,9 @@
 
 **[English](./README.md)** | 中文
 
+![](./images/img1.jpg)
+![](./images/img2.jpg)
+
 </div>
 
 ## 功能特性
