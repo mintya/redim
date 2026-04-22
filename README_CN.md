@@ -4,7 +4,11 @@
 
 一款基于 Tauri 构建的现代化跨平台 Redis 桌面客户端。
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mintya/redim/release.yml)
+![GitHub release](https://img.shields.io/github/release/mintya/redim)
+![GitHub stars](https://img.shields.io/github/stars/mintya/redim)
+![GitHub forks](https://img.shields.io/github/forks/mintya/redim) 
+
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
