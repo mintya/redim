@@ -15,7 +15,7 @@
     </button>
 
     {#if showDetails}
-      <div class="absolute bottom-full right-0 mb-1.5 w-60 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[7px] shadow-[var(--shadow-md)] overflow-hidden">
+      <div class="ui-menu-panel absolute bottom-full right-0 mb-1.5 w-60 overflow-hidden">
         <div class="px-2.5 py-1.5 border-b border-[var(--color-border)]">
           <span class="text-xs font-medium text-[var(--color-text-primary)]">loading tasks</span>
         </div>

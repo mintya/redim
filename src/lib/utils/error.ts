@@ -162,7 +162,12 @@ export async function withErrorHandling<T>(
     if (loadingToastId) {
       removeToast(loadingToastId);
     }
-    
+
+    console.error('[app-error]', {
+      message: errorMessage || 'Unhandled operation error',
+      error,
+    });
+
     showError(error, errorMessage);
     return { success: false, error };
   }

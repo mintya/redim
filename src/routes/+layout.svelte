@@ -45,11 +45,11 @@
   }
 </script>
 
-<div class="h-screen flex flex-col bg-[var(--color-bg-primary)] font-sans text-base">
+<div class="h-screen flex flex-col bg-[var(--color-bg-primary)] font-sans">
   <div class="h-10 bg-[var(--color-bg-surface)] border-b border-[var(--color-border)] flex items-center px-3 select-none relative" style="-webkit-app-region: drag;">
     <div class="flex items-center gap-2">
       <Logo size={16} />
-      <span class="text-sm text-[var(--color-text-primary)] font-semibold tracking-tight">Redim</span>
+      <span class="ui-title tracking-tight">Redim</span>
     </div>
     <ConnectionSwitcher />
   </div>

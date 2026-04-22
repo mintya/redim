@@ -1,7 +1,6 @@
 <script lang="ts">
   import { activeConnectionId } from '$lib/stores/connection';
   import { invoke } from '@tauri-apps/api/core';
-  import Button from '$lib/components/common/Button.svelte';
   import Confirm from '$lib/components/common/Confirm.svelte';
   import { X } from '@lucide/svelte';
 
@@ -214,9 +213,9 @@
     onclick={(e) => e.target === e.currentTarget && handleClose()}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="bg-[var(--color-cli-bg)] border border-[var(--color-cli-border)] rounded-[8px] w-full max-w-3xl h-[60vh] flex flex-col shadow-[var(--shadow-md)]">
+    <div class="ui-cli-panel w-full max-w-3xl h-[60vh] flex flex-col">
       <!-- Header -->
-        <div class="h-9 px-3 border-b border-[var(--color-cli-border)] flex items-center justify-between">
+        <div class="ui-cli-header">
         <span class="text-xs text-[var(--color-cli-text-dim)] font-mono uppercase tracking-wide">redis cli</span>
         <div class="flex items-center gap-2">
           <button 
@@ -235,18 +234,18 @@
       </div>
 
       <!-- Output -->
-      <div id="cli-output" class="flex-1 overflow-y-auto p-3 font-mono text-sm">
+      <div id="cli-output" class="flex-1 overflow-y-auto p-3 font-mono text-xs">
         {#each history as item}
           <div class="mb-4">
             <div class="flex items-center gap-2 text-[var(--color-cli-accent)]">
               <span>&gt;</span>
               <span>{item.command}</span>
             </div>
-            <pre class="{item.isError ? 'text-[var(--color-accent)]' : 'text-[var(--color-cli-text)]'} whitespace-pre-wrap mt-1 text-sm">{item.result}</pre>
+            <pre class="{item.isError ? 'text-[var(--color-accent)]' : 'text-[var(--color-cli-text)]'} whitespace-pre-wrap mt-1 text-xs">{item.result}</pre>
           </div>
         {/each}
         {#if history.length === 0}
-          <div class="text-[var(--color-cli-text-dim)] text-sm">
+          <div class="text-[var(--color-cli-text-dim)] text-xs">
             <p>Welcome to Redis CLI</p>
             <p class="mt-1">Type a command and press Enter to execute.</p>
             <p class="mt-1">Use ↑/↓ arrows for command history, Tab for autocomplete.</p>
@@ -257,10 +256,10 @@
       <!-- Input -->
       <div class="p-3 border-t border-[var(--color-cli-border)] relative">
         {#if showSuggestions}
-          <div class="absolute bottom-full left-3 mb-1 bg-[var(--color-cli-surface)] border border-[var(--color-cli-border)] rounded-[6px] overflow-hidden">
+          <div class="ui-cli-subpanel absolute bottom-full left-3 mb-1 overflow-hidden">
             {#each suggestions as cmd}
               <button 
-                class="block w-full px-3 py-1.5 text-left text-sm text-[var(--color-cli-text)] hover:bg-[var(--color-cli-border)] font-mono transition-colors"
+                class="block w-full px-3 py-1.5 text-left text-xs text-[var(--color-cli-text)] hover:bg-[var(--color-cli-border)] font-mono transition-colors"
                 onclick={() => selectSuggestion(cmd)}
               >
                 {cmd}
@@ -276,7 +275,7 @@
             oninput={handleInput}
             onkeydown={handleKeydown}
             placeholder="Enter command..."
-            class="flex-1 bg-transparent text-[var(--color-cli-text)] font-mono text-sm focus:outline-none placeholder:text-[var(--color-cli-text-dim)]"
+            class="ui-cli-input flex-1 font-mono text-xs placeholder:text-[var(--color-cli-text-dim)]"
             spellcheck="false"
             autocomplete="off"
           />
@@ -287,9 +286,9 @@
 
   <Confirm
     bind:open={showDangerConfirm}
-    title="Dangerous Command"
-    message={`Are you sure you want to execute "${pendingDangerousCmd}"? This operation may permanently delete data.`}
-    confirmText="Execute"
+    title="dangerous command"
+    message={`are you sure you want to execute "${pendingDangerousCmd}"? this operation may permanently delete data.`}
+    confirmText="execute"
     danger={true}
     onconfirm={handleDangerConfirm}
     oncancel={handleDangerCancel}

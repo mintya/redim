@@ -73,7 +73,7 @@
             >
               <div class="min-w-0">
                 <div class="text-xs text-[var(--color-text-primary)] truncate">{conn.name || conn.host}</div>
-                <div class="text-[11px] text-[var(--color-text-tertiary)] truncate">{conn.host}:{conn.port}</div>
+                <div class="text-xs text-[var(--color-text-tertiary)] truncate">{conn.host}:{conn.port}</div>
               </div>
               <span class="w-1.5 h-1.5 rounded-full {conn.id === currentConnectionId ? 'bg-[var(--color-type-string)]' : 'bg-[var(--color-text-tertiary)]'}"></span>
             </button>

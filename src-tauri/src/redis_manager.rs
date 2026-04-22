@@ -1,6 +1,7 @@
 use redis::Client;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::Write as _;
 use std::sync::Mutex;
 use std::time::Duration;
 use tokio::time::timeout;
@@ -34,6 +35,42 @@ pub struct HashField {
 pub struct ZSetMember {
     pub member: String,
     pub score: f64,
+}
+
+fn decode_redis_bytes(bytes: Vec<u8>) -> String {
+    const PREVIEW_LIMIT: usize = 96;
+
+    match String::from_utf8(bytes) {
+        Ok(s) => s,
+        Err(err) => {
+            let raw = err.into_bytes();
+            let preview_len = raw.len().min(PREVIEW_LIMIT);
+            let preview = &raw[..preview_len];
+
+            let lossy = String::from_utf8_lossy(preview)
+                .replace('\n', "\\n")
+                .replace('\r', "\\r")
+                .replace('\t', "\\t");
+
+            let mut hex = String::with_capacity(preview.len() * 3);
+            for (i, b) in preview.iter().enumerate() {
+                if i > 0 {
+                    hex.push(' ');
+                }
+                let _ = write!(hex, "{b:02X}");
+            }
+
+            let truncated = if raw.len() > PREVIEW_LIMIT { " ..." } else { "" };
+            format!(
+                "[binary {} bytes] utf8-lossy: {}{}\nhex: {}{}",
+                raw.len(),
+                lossy,
+                truncated,
+                hex,
+                truncated
+            )
+        }
+    }
 }
 
 impl RedisManager {
@@ -224,12 +261,14 @@ impl RedisManager {
     // String operations
     pub async fn get_string(&self, config: &ConnectionConfig, key: &str) -> Result<String, String> {
         let mut conn = self.get_connection(config).await?;
-        let value: String = redis::cmd("GET")
+        let value: Option<Vec<u8>> = redis::cmd("GET")
             .arg(key)
             .query_async(&mut conn)
             .await
             .map_err(|e| format!("Failed to get string: {}", e))?;
-        Ok(value)
+
+        let raw = value.ok_or_else(|| "Failed to get string: key not found".to_string())?;
+        Ok(decode_redis_bytes(raw))
     }
 
     pub async fn set_string(&self, config: &ConnectionConfig, key: &str, value: &str) -> Result<bool, String> {
@@ -246,14 +285,17 @@ impl RedisManager {
     // Hash operations
     pub async fn get_hash(&self, config: &ConnectionConfig, key: &str) -> Result<Vec<HashField>, String> {
         let mut conn = self.get_connection(config).await?;
-        let result: HashMap<String, String> = redis::cmd("HGETALL")
+        let result: Vec<(Vec<u8>, Vec<u8>)> = redis::cmd("HGETALL")
             .arg(key)
             .query_async(&mut conn)
             .await
             .map_err(|e| format!("Failed to get hash: {}", e))?;
         
         let fields = result.into_iter()
-            .map(|(field, value)| HashField { field, value })
+            .map(|(field, value)| HashField {
+                field: decode_redis_bytes(field),
+                value: decode_redis_bytes(value),
+            })
             .collect();
         Ok(fields)
     }
@@ -284,14 +326,14 @@ impl RedisManager {
     // List operations
     pub async fn get_list(&self, config: &ConnectionConfig, key: &str, start: i64, stop: i64) -> Result<Vec<String>, String> {
         let mut conn = self.get_connection(config).await?;
-        let result: Vec<String> = redis::cmd("LRANGE")
+        let result: Vec<Vec<u8>> = redis::cmd("LRANGE")
             .arg(key)
             .arg(start)
             .arg(stop)
             .query_async(&mut conn)
             .await
             .map_err(|e| format!("Failed to get list: {}", e))?;
-        Ok(result)
+        Ok(result.into_iter().map(decode_redis_bytes).collect())
     }
 
     pub async fn push_list(&self, config: &ConnectionConfig, key: &str, value: &str, at_head: bool) -> Result<i64, String> {
@@ -343,12 +385,12 @@ impl RedisManager {
     // Set operations
     pub async fn get_set(&self, config: &ConnectionConfig, key: &str) -> Result<Vec<String>, String> {
         let mut conn = self.get_connection(config).await?;
-        let result: Vec<String> = redis::cmd("SMEMBERS")
+        let result: Vec<Vec<u8>> = redis::cmd("SMEMBERS")
             .arg(key)
             .query_async(&mut conn)
             .await
             .map_err(|e| format!("Failed to get set: {}", e))?;
-        Ok(result)
+        Ok(result.into_iter().map(decode_redis_bytes).collect())
     }
 
     pub async fn add_set(&self, config: &ConnectionConfig, key: &str, member: &str) -> Result<bool, String> {
@@ -376,7 +418,7 @@ impl RedisManager {
     // Sorted Set operations
     pub async fn get_zset(&self, config: &ConnectionConfig, key: &str, start: i64, stop: i64) -> Result<Vec<ZSetMember>, String> {
         let mut conn = self.get_connection(config).await?;
-        let result: Vec<(String, f64)> = redis::cmd("ZRANGE")
+        let result: Vec<(Vec<u8>, f64)> = redis::cmd("ZRANGE")
             .arg(key)
             .arg(start)
             .arg(stop)
@@ -386,7 +428,10 @@ impl RedisManager {
             .map_err(|e| format!("Failed to get zset: {}", e))?;
         
         let members = result.into_iter()
-            .map(|(member, score)| ZSetMember { member, score })
+            .map(|(member, score)| ZSetMember {
+                member: decode_redis_bytes(member),
+                score,
+            })
             .collect();
         Ok(members)
     }

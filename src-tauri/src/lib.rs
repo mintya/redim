@@ -6,6 +6,25 @@ use models::ConnectionConfig;
 use redis_manager::{DatabaseInfo, HashField, KeyInfo, RedisManager, ZSetMember};
 use tauri::State;
 
+const KEY_PREVIEW_LIMIT: usize = 120;
+
+fn preview_key(key: &str) -> String {
+    let compact = key.replace('\n', "\\n").replace('\r', "\\r");
+    let total_chars = compact.chars().count();
+    if total_chars <= KEY_PREVIEW_LIMIT {
+        return compact;
+    }
+    let preview: String = compact.chars().take(KEY_PREVIEW_LIMIT).collect();
+    format!("{preview}...({total_chars})")
+}
+
+fn log_key_load_error(command: &str, id: &str, key: &str, error: &str) {
+    eprintln!(
+        "[key-load] {command} failed | id={id} | key={} | error={error}",
+        preview_key(key)
+    );
+}
+
 #[tauri::command]
 fn get_connections() -> Vec<ConnectionConfig> {
     connection::load_connections()
@@ -72,21 +91,53 @@ async fn select_db(id: String, db: i64, redis: State<'_, RedisManager>) -> Resul
 async fn get_keys(id: String, pattern: Option<String>, cursor: Option<u64>, count: Option<u64>, redis: State<'_, RedisManager>) -> Result<(u64, Vec<String>), String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_keys(&config, &pattern.unwrap_or_else(|| "*".to_string()), cursor.unwrap_or(0), count.unwrap_or(100)).await
+    let pattern = pattern.unwrap_or_else(|| "*".to_string());
+    let cursor = cursor.unwrap_or(0);
+    let count = count.unwrap_or(100);
+    let result = redis.get_keys(&config, &pattern, cursor, count).await;
+    if let Err(err) = &result {
+        eprintln!(
+            "[key-load] get_keys failed | id={} | pattern={} | cursor={} | count={} | error={}",
+            id,
+            pattern,
+            cursor,
+            count,
+            err
+        );
+    }
+    result
 }
 
 #[tauri::command]
 async fn get_keys_with_types(id: String, pattern: Option<String>, cursor: Option<u64>, count: Option<u64>, redis: State<'_, RedisManager>) -> Result<(u64, Vec<(String, String)>), String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_keys_with_types(&config, &pattern.unwrap_or_else(|| "*".to_string()), cursor.unwrap_or(0), count.unwrap_or(100)).await
+    let pattern = pattern.unwrap_or_else(|| "*".to_string());
+    let cursor = cursor.unwrap_or(0);
+    let count = count.unwrap_or(100);
+    let result = redis.get_keys_with_types(&config, &pattern, cursor, count).await;
+    if let Err(err) = &result {
+        eprintln!(
+            "[key-load] get_keys_with_types failed | id={} | pattern={} | cursor={} | count={} | error={}",
+            id,
+            pattern,
+            cursor,
+            count,
+            err
+        );
+    }
+    result
 }
 
 #[tauri::command]
 async fn get_key_info(id: String, key: String, redis: State<'_, RedisManager>) -> Result<KeyInfo, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_key_info(&config, &key).await
+    let result = redis.get_key_info(&config, &key).await;
+    if let Err(err) = &result {
+        log_key_load_error("get_key_info", &id, &key, err);
+    }
+    result
 }
 
 // String commands
@@ -94,7 +145,11 @@ async fn get_key_info(id: String, key: String, redis: State<'_, RedisManager>) -
 async fn get_string(id: String, key: String, redis: State<'_, RedisManager>) -> Result<String, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_string(&config, &key).await
+    let result = redis.get_string(&config, &key).await;
+    if let Err(err) = &result {
+        log_key_load_error("get_string", &id, &key, err);
+    }
+    result
 }
 
 #[tauri::command]
@@ -109,7 +164,11 @@ async fn set_string(id: String, key: String, value: String, redis: State<'_, Red
 async fn get_hash(id: String, key: String, redis: State<'_, RedisManager>) -> Result<Vec<HashField>, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_hash(&config, &key).await
+    let result = redis.get_hash(&config, &key).await;
+    if let Err(err) = &result {
+        log_key_load_error("get_hash", &id, &key, err);
+    }
+    result
 }
 
 #[tauri::command]
@@ -131,7 +190,20 @@ async fn delete_hash_field(id: String, key: String, field: String, redis: State<
 async fn get_list(id: String, key: String, start: Option<i64>, stop: Option<i64>, redis: State<'_, RedisManager>) -> Result<Vec<String>, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_list(&config, &key, start.unwrap_or(0), stop.unwrap_or(-1)).await
+    let start = start.unwrap_or(0);
+    let stop = stop.unwrap_or(-1);
+    let result = redis.get_list(&config, &key, start, stop).await;
+    if let Err(err) = &result {
+        eprintln!(
+            "[key-load] get_list failed | id={} | key={} | start={} | stop={} | error={}",
+            id,
+            preview_key(&key),
+            start,
+            stop,
+            err
+        );
+    }
+    result
 }
 
 #[tauri::command]
@@ -167,7 +239,11 @@ async fn remove_list_value(id: String, key: String, count: i64, value: String, r
 async fn get_set(id: String, key: String, redis: State<'_, RedisManager>) -> Result<Vec<String>, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_set(&config, &key).await
+    let result = redis.get_set(&config, &key).await;
+    if let Err(err) = &result {
+        log_key_load_error("get_set", &id, &key, err);
+    }
+    result
 }
 
 #[tauri::command]
@@ -189,7 +265,20 @@ async fn remove_set_member(id: String, key: String, member: String, redis: State
 async fn get_zset(id: String, key: String, start: Option<i64>, stop: Option<i64>, redis: State<'_, RedisManager>) -> Result<Vec<ZSetMember>, String> {
     let config = connection::get_connection(&id)
         .ok_or_else(|| "Connection not found".to_string())?;
-    redis.get_zset(&config, &key, start.unwrap_or(0), stop.unwrap_or(-1)).await
+    let start = start.unwrap_or(0);
+    let stop = stop.unwrap_or(-1);
+    let result = redis.get_zset(&config, &key, start, stop).await;
+    if let Err(err) = &result {
+        eprintln!(
+            "[key-load] get_zset failed | id={} | key={} | start={} | stop={} | error={}",
+            id,
+            preview_key(&key),
+            start,
+            stop,
+            err
+        );
+    }
+    result
 }
 
 #[tauri::command]

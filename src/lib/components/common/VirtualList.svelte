@@ -11,6 +11,9 @@
     onItemContextMenu?: (item: any, index: number, event: MouseEvent) => void;
     selectedKey?: string | null;
     className?: string;
+    rowClassName?: string;
+    selectedClassName?: string;
+    hoverClassName?: string;
   }
 
   let {
@@ -22,7 +25,10 @@
     onItemClick,
     onItemContextMenu,
     selectedKey = null,
-    className = ''
+    className = '',
+    rowClassName = 'border-b border-[var(--color-border)]',
+    selectedClassName = 'bg-[var(--color-accent-subtle)]',
+    hoverClassName = 'hover:bg-[var(--color-surface-hover)]'
   }: Props = $props();
 
   let container: HTMLDivElement;
@@ -77,7 +83,7 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           style="height: {itemHeight}px;"
-          class="cursor-pointer transition-colors border-b border-[var(--color-border)] {selectedKey !== null && selectedKey === String(key) ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
+          class="cursor-pointer transition-colors {rowClassName} {selectedKey !== null && selectedKey === String(key) ? selectedClassName : hoverClassName}"
           onclick={() => onItemClick?.(item, index)}
           oncontextmenu={(e) => onItemContextMenu?.(item, index, e)}
         >

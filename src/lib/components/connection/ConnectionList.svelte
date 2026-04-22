@@ -83,14 +83,14 @@
         <div class="min-w-0">
           <div class="flex items-center gap-1.5 min-w-0">
             <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 {isConnected ? 'bg-[var(--color-type-string)]' : 'bg-[var(--color-text-tertiary)]'}"></span>
-            <span class="text-sm text-[var(--color-text-primary)] font-medium truncate">{conn.name || conn.host}</span>
+            <span class="text-xs text-[var(--color-text-primary)] font-medium truncate">{conn.name || conn.host}</span>
           </div>
-          <div class="text-[11px] text-[var(--color-text-tertiary)] mt-0.5 truncate">{conn.host}:{conn.port}</div>
+          <div class="text-xs text-[var(--color-text-tertiary)] mt-0.5 truncate">{conn.host}:{conn.port}</div>
         </div>
 
         <div class="flex items-center gap-2 flex-shrink-0">
           {#if connecting === conn.id}
-            <span class="text-[11px] text-[var(--color-text-tertiary)]">connecting...</span>
+            <span class="text-xs text-[var(--color-text-tertiary)]">connecting...</span>
           {:else if isConnected}
             <button
               class="ui-btn ui-btn-ghost ui-btn-sm"
@@ -111,14 +111,14 @@
     </div>
   {:else}
     <div class="px-4 py-6 text-center border-b border-[var(--color-border)]">
-      <div class="text-sm text-[var(--color-text-tertiary)]">no connections</div>
+      <div class="text-xs text-[var(--color-text-tertiary)]">no connections</div>
       <div class="text-xs text-[var(--color-text-tertiary)] mt-1">Add your first connection on the right panel.</div>
     </div>
   {/each}
 </div>
 
 <div class="h-7 px-3 border-t border-[var(--color-border)] flex items-center">
-  <span class="text-[11px] text-[var(--color-text-tertiary)]">double-click to connect</span>
+  <span class="text-xs text-[var(--color-text-tertiary)]">double-click to connect</span>
 </div>
 
 {#if contextMenu}
@@ -135,9 +135,9 @@
 
 <Confirm
   bind:open={showConfirm}
-  title="Delete Connection"
-  message="Are you sure you want to delete this connection?"
-  confirmText="Delete"
+  title="delete connection"
+  message="are you sure you want to delete this connection?"
+  confirmText="delete"
   danger={true}
   onconfirm={handleConfirmDelete}
   oncancel={handleCancelDelete}

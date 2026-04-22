@@ -7,6 +7,8 @@ import { activeConnectionId, connections } from '$lib/stores/connection';
 import type { DatabaseInfo, KeyInfo, HashField, ZSetMember, KeyTab, KeyValue } from '$lib/types';
 
 export const MAX_KEY_TABS = 20;
+const KEY_LOAD_LOG_PREFIX = '[key-load]';
+const KEY_PREVIEW_LIMIT = 120;
 
 // 当前选中的数据库
 export const activeDb = writable<number>(0);
@@ -59,6 +61,38 @@ function getConnectionLabel(connectionId: string): string {
   const c = list.find(x => x.id === connectionId);
   if (!c) return connectionId.slice(0, 8);
   return c.name?.trim() || `${c.host}:${c.port}`;
+}
+
+function previewKey(key: string): string {
+  if (key.length <= KEY_PREVIEW_LIMIT) return key;
+  return `${key.slice(0, KEY_PREVIEW_LIMIT)}...(${key.length})`;
+}
+
+function summarizeLoadedValue(value: KeyValue): string {
+  if (value === null) return 'null';
+  if (typeof value === 'string') return `string(len=${value.length})`;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return 'array(len=0)';
+    const first = value[0];
+    if (typeof first === 'string') return `string[](len=${value.length})`;
+    if (typeof first === 'object' && first !== null && 'field' in first) return `hash(len=${value.length})`;
+    if (typeof first === 'object' && first !== null && 'member' in first) return `zset(len=${value.length})`;
+    return `array(len=${value.length})`;
+  }
+  return typeof value;
+}
+
+function loadLog(level: 'info' | 'warn' | 'error', event: string, payload: Record<string, unknown>) {
+  const message = `${KEY_LOAD_LOG_PREFIX} ${event}`;
+  if (level === 'error') {
+    console.error(message, payload);
+    return;
+  }
+  if (level === 'warn') {
+    console.warn(message, payload);
+    return;
+  }
+  console.info(message, payload);
 }
 
 /** 将当前镜像写回激活标签（切换标签前调用） */
@@ -156,6 +190,12 @@ export async function activateTab(tabId: string) {
     const info = await loadKeyInfo(tab.connectionId, tab.key);
     if (info) {
       await loadKeyValue(tab.connectionId, tab.key, info.key_type);
+    } else {
+      loadLog('warn', 'activateTab:missing-key-info', {
+        tabId,
+        connectionId: tab.connectionId,
+        key: previewKey(tab.key),
+      });
     }
   }
   syncActiveTabFromMirrors();
@@ -210,6 +250,13 @@ export async function openOrFocusTab(connectionId: string, db: number, key: stri
   const info = await loadKeyInfo(connectionId, key);
   if (info) {
     await loadKeyValue(connectionId, key, info.key_type);
+  } else {
+    loadLog('warn', 'openOrFocusTab:missing-key-info', {
+      tabId: newTab.id,
+      connectionId,
+      db,
+      key: previewKey(key),
+    });
   }
   syncActiveTabFromMirrors();
 }
@@ -240,6 +287,21 @@ export function closeTab(tabId: string) {
 
   const newIdx = Math.min(idx, nextTabs.length - 1);
   void activateTab(nextTabs[newIdx].id);
+}
+
+export function reorderKeyTab(tabId: string, toIndex: number) {
+  keyTabs.update((tabs) => {
+    const fromIndex = tabs.findIndex((tab) => tab.id === tabId);
+    if (fromIndex < 0) return tabs;
+
+    const clampedTo = Math.max(0, Math.min(tabs.length - 1, toIndex));
+    if (fromIndex === clampedTo) return tabs;
+
+    const next = [...tabs];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(clampedTo, 0, moved);
+    return next;
+  });
 }
 
 // 加载数据库列表
@@ -330,6 +392,10 @@ export async function refreshKeys(connectionId: string) {
 
 // 加载 Key 详情
 export async function loadKeyInfo(connectionId: string, key: string) {
+  const startedAt = performance.now();
+  const keyPreview = previewKey(key);
+  loadLog('info', 'loadKeyInfo:start', { connectionId, key: keyPreview });
+
   const result = await withErrorHandling(
     () => invoke<KeyInfo>('get_key_info', { id: connectionId, key }),
     { errorMessage: '加载键详情失败' }
@@ -337,14 +403,32 @@ export async function loadKeyInfo(connectionId: string, key: string) {
 
   if (result.success && result.data) {
     keyInfo.set(result.data);
+    loadLog('info', 'loadKeyInfo:success', {
+      connectionId,
+      key: keyPreview,
+      keyType: result.data.key_type,
+      ttl: result.data.ttl,
+      durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+    });
     syncActiveTabFromMirrors();
     return result.data;
   }
+
+  loadLog('error', 'loadKeyInfo:failed', {
+    connectionId,
+    key: keyPreview,
+    durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+    error: String(result.error ?? 'unknown error'),
+  });
   return null;
 }
 
 // 加载 Key 值
 export async function loadKeyValue(connectionId: string, key: string, keyType: string) {
+  const startedAt = performance.now();
+  const keyPreview = previewKey(key);
+  loadLog('info', 'loadKeyValue:start', { connectionId, key: keyPreview, keyType });
+
   const result = await withErrorHandling(
     async () => {
       let value: KeyValue;
@@ -374,7 +458,22 @@ export async function loadKeyValue(connectionId: string, key: string, keyType: s
   );
 
   if (result.success) {
+    loadLog('info', 'loadKeyValue:success', {
+      connectionId,
+      key: keyPreview,
+      keyType,
+      valueSummary: summarizeLoadedValue(result.data ?? null),
+      durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+    });
     syncActiveTabFromMirrors();
+  } else {
+    loadLog('error', 'loadKeyValue:failed', {
+      connectionId,
+      key: keyPreview,
+      keyType,
+      durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+      error: String(result.error ?? 'unknown error'),
+    });
   }
   return result.success ? result.data : null;
 }

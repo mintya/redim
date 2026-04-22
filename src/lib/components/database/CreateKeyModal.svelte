@@ -139,23 +139,23 @@
   }
 </script>
 
-<Modal bind:open title="Create New Key" size="lg" onclose={handleClose}>
+<Modal bind:open title="create key" size="lg" onclose={handleClose}>
   <div class="space-y-4">
     <!-- Key Name -->
     <div>
-      <label for="key-name" class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">Key Name</label>
+      <label for="key-name" class="block text-xs text-[var(--color-text-secondary)] font-medium mb-1.5">Key Name</label>
       <input 
         id="key-name"
         type="text" 
         bind:value={keyName}
         placeholder="user:1001"
-        class="w-full px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
+        class="ui-input ui-input-mono"
       />
     </div>
 
     <!-- Type Selection -->
     <div>
-      <span class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">Type</span>
+      <span class="block text-xs text-[var(--color-text-secondary)] font-medium mb-1.5">Type</span>
       <div class="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Key type">
         {#each typeOptions as option}
           <button
@@ -172,21 +172,21 @@
           </button>
         {/each}
       </div>
-      <p class="mt-1.5 text-sm text-[var(--color-text-tertiary)]">
+      <p class="mt-1.5 text-xs text-[var(--color-text-tertiary)]">
         {typeOptions.find(t => t.value === keyType)?.description}
       </p>
     </div>
 
     <!-- Value Input -->
     <div>
-      <label for="key-value" class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">Value</label>
+      <label for="key-value" class="block text-xs text-[var(--color-text-secondary)] font-medium mb-1.5">Value</label>
       
       {#if keyType === 'string'}
         <textarea 
           id="key-value"
           bind:value={stringValue}
           placeholder="Enter string value..."
-          class="w-full h-24 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 resize-none transition-all duration-200"
+          class="ui-input ui-input-mono h-24 py-2 resize-none"
         ></textarea>
       
       {:else if keyType === 'hash'}
@@ -197,13 +197,13 @@
                 type="text" 
                 bind:value={field.field}
                 placeholder="field"
-                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="ui-input ui-input-mono flex-1"
               />
               <input 
                 type="text" 
                 bind:value={field.value}
                 placeholder="value"
-                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="ui-input ui-input-mono flex-1"
               />
               {#if hashFields.length > 1}
                 <button
@@ -236,7 +236,7 @@
                 type="text" 
                 bind:value={listItems[index]}
                 placeholder="item value"
-                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="ui-input ui-input-mono flex-1"
               />
               {#if listItems.length > 1}
                 <button
@@ -266,7 +266,7 @@
                 type="text" 
                 bind:value={setMembers[index]}
                 placeholder="member"
-                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="ui-input ui-input-mono flex-1"
               />
               {#if setMembers.length > 1}
                 <button
@@ -296,13 +296,13 @@
                 type="text" 
                 bind:value={item.member}
                 placeholder="member"
-                class="flex-1 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="ui-input ui-input-mono flex-1"
               />
               <input 
                 type="number" 
                 bind:value={item.score}
                 placeholder="score"
-                class="w-24 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all duration-200"
+                class="ui-input ui-input-mono w-24"
               />
               {#if zsetMembers.length > 1}
                 <button
@@ -328,7 +328,7 @@
 
     <!-- TTL -->
     <div>
-      <label for="key-ttl" class="block text-sm text-[var(--color-text-secondary)] font-medium mb-1.5">
+      <label for="key-ttl" class="block text-xs text-[var(--color-text-secondary)] font-medium mb-1.5">
         TTL (seconds)
         <span class="text-[var(--color-text-tertiary)] font-normal">-1 for no expiry</span>
       </label>
@@ -337,13 +337,13 @@
         type="number" 
         bind:value={ttl}
         placeholder="-1"
-        class="w-full px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-sm font-mono focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-subtle)] transition-all duration-200"
+        class="ui-input ui-input-mono"
       />
     </div>
 
     <!-- Error -->
     {#if error}
-      <div class="px-3 py-2 bg-[var(--color-accent-subtle)] border border-[var(--color-accent)]/20 rounded-[6px] text-sm text-[var(--color-accent)]">
+      <div class="px-3 py-2 bg-[var(--color-accent-subtle)] border border-[var(--color-accent)]/20 rounded-[6px] text-xs text-[var(--color-accent)]">
         {error}
       </div>
     {/if}

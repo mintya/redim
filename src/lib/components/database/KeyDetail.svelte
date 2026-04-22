@@ -376,22 +376,22 @@
 
 {#if $keyInfo && $activeKey && $detailConnectionId}
   <div class="h-full min-h-0 flex flex-col">
-  <div class="h-10 px-4 border-b border-[var(--color-border)] flex items-center justify-between relative sticky top-0 z-10 bg-[var(--color-surface)]">
-    <div class="flex items-center gap-3 min-w-0 flex-wrap">
+  <div class="min-h-10 px-3 py-1.5 border-b border-[var(--color-border)] flex items-center justify-between gap-2 relative sticky top-0 z-10 bg-[var(--color-surface)]">
+    <div class="flex items-center gap-2 min-w-0 flex-1">
       {#if $activeKeyTab}
         <span
-          class="text-xs text-[var(--color-text-tertiary)] font-sans truncate max-w-[140px]"
+          class="ui-subtle truncate max-w-[140px] hidden sm:inline"
           title={$activeKeyTab.connectionLabel}
         >
           {$activeKeyTab.connectionLabel}
         </span>
-        <span class="text-xs text-[var(--color-text-tertiary)] font-sans">db{$activeKeyTab.db}</span>
-        <span class="text-xs text-[var(--color-border)]">|</span>
+        <span class="ui-subtle">db{$activeKeyTab.db}</span>
+        <span class="text-xs text-[var(--color-border)] hidden sm:inline">|</span>
       {/if}
-      <span class="text-xs text-[var(--color-text-primary)] font-sans truncate">{$activeKey}</span>
+      <span class="text-xs text-[var(--color-text-primary)] font-sans truncate min-w-0">{$activeKey}</span>
       <span class="text-xs font-sans {getTypeColorText($keyInfo.key_type)}">{$keyInfo.key_type}</span>
     </div>
-    <div class="flex items-center gap-1.5 text-xs">
+    <div class="flex items-center gap-1 text-xs flex-wrap justify-end">
       <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={openInlineTtl}>
         <Clock class="w-3.5 h-3.5" />
         <span>ttl: {$keyInfo.ttl === -1 ? '∞' : $keyInfo.ttl + 's'}</span>
@@ -413,7 +413,7 @@
           <input 
             bind:value={inlineInputValue}
             onkeydown={handleInlineKeydown}
-            class="w-48 px-3 py-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-xs font-sans focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-subtle)]"
+            class="ui-input w-52"
           />
           <button class="ui-btn ui-btn-primary ui-btn-sm" onclick={handleInlineConfirm}>ok</button>
           <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={closeInlineInput}>cancel</button>
@@ -445,13 +445,16 @@
               {/if}
             </div>
             {#if !isEditing}
-              <button class="ui-btn-link" onclick={() => startEdit($keyValue as string)}>edit</button>
+              <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={() => startEdit($keyValue as string)}>
+                <Pencil class="w-3.5 h-3.5" />
+                <span>edit</span>
+              </button>
             {/if}
           </div>
           {#if isEditing}
             <textarea 
               bind:value={editingValue}
-              class="w-full h-40 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md text-xs font-mono focus:outline-none focus:border-[var(--color-accent)]"
+              class="ui-input ui-input-mono h-40 py-2 resize-y"
             ></textarea>
             <div class="flex gap-2 mt-2">
               <Button variant="primary" size="sm" onclick={saveEdit}>save</Button>
@@ -474,12 +477,12 @@
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newField} placeholder="field" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
-            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
+            <input bind:value={newField} placeholder="field" class="ui-input ui-input-mono flex-1" />
+            <input bind:value={newValue} placeholder="value" class="ui-input ui-input-mono flex-1" />
             <Button variant="primary" size="sm" onclick={handleAddHashField}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
+        <table class="ui-data-table font-mono table-fixed">
           <thead>
             <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
@@ -506,7 +509,7 @@
                 <td class="py-2.5 px-3 text-[var(--color-text-primary)] align-top">
                   {#if editingField === item.field}
                     <div class="flex gap-1">
-                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border)] rounded text-xs font-mono" />
+                      <input bind:value={editingValue} class="ui-input ui-input-mono flex-1" />
                       <button class="ui-btn ui-btn-primary ui-btn-icon-sm" onclick={saveHashFieldEdit}>
                         <Check class="w-3.5 h-3.5" />
                       </button>
@@ -561,11 +564,11 @@
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newValue} placeholder="value" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
+            <input bind:value={newValue} placeholder="value" class="ui-input ui-input-mono flex-1" />
             <Button variant="primary" size="sm" onclick={handleAddListItem}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
+        <table class="ui-data-table font-mono table-fixed">
           <thead>
             <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
@@ -592,7 +595,7 @@
                 <td class="py-2.5 px-3 text-[var(--color-text-primary)] align-top">
                   {#if editingIndex === i}
                     <div class="flex gap-1">
-                      <input bind:value={editingValue} class="flex-1 px-2 py-1 border border-[var(--color-border)] rounded text-xs font-mono" />
+                      <input bind:value={editingValue} class="ui-input ui-input-mono flex-1" />
                       <button class="ui-btn ui-btn-primary ui-btn-icon-sm" onclick={saveListItemEdit}>
                         <Check class="w-3.5 h-3.5" />
                       </button>
@@ -647,11 +650,11 @@
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newValue} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
+            <input bind:value={newValue} placeholder="member" class="ui-input ui-input-mono flex-1" />
             <Button variant="primary" size="sm" onclick={handleAddSetMember}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
+        <table class="ui-data-table font-mono table-fixed">
           <thead>
             <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
@@ -712,17 +715,17 @@
         </div>
         {#if showAddForm}
           <div class="flex gap-2 px-3 py-2 bg-[var(--color-surface-hover)] rounded">
-            <input bind:value={newField} placeholder="member" class="flex-1 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
-            <input bind:value={newScore} placeholder="score" type="number" step="0.1" class="w-20 px-2 py-1.5 border border-[var(--color-border)] rounded text-xs font-mono" />
+            <input bind:value={newField} placeholder="member" class="ui-input ui-input-mono flex-1" />
+            <input bind:value={newScore} placeholder="score" type="number" step="0.1" class="ui-input ui-input-mono w-24" />
             <Button variant="primary" size="sm" onclick={handleAddZSetMember}>add</Button>
           </div>
         {/if}
-        <table class="w-full text-xs font-mono table-fixed border border-[var(--color-border)] rounded-[6px] overflow-hidden bg-[var(--color-surface)]">
+        <table class="ui-data-table font-mono table-fixed">
           <thead>
             <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)] w-16">act</th>
               <th class="text-left py-2 px-3 text-[var(--color-text-muted)]">member</th>
-              <th class="text-right py-2 px-3 text-[var(--color-text-muted)] w-24">score</th>
+              <th class="text-right py-2 px-3 text-[var(--color-text-muted)] w-40">score</th>
             </tr>
           </thead>
           <tbody>
@@ -772,7 +775,7 @@
                 <td class="py-2.5 px-3 text-right text-[var(--color-text-muted)] align-top">
                   {#if editingField === item.member}
                     <div class="flex gap-1 justify-end">
-                      <input bind:value={editingValue} type="number" step="0.1" class="w-16 px-1.5 py-0.5 border border-[var(--color-border)] rounded text-xs font-mono text-right" />
+                      <input bind:value={editingValue} type="number" step="0.1" class="ui-input ui-input-mono w-20 text-right" />
                       <button class="ui-btn ui-btn-primary ui-btn-icon-sm" onclick={saveZSetMemberEdit}>
                         <Check class="w-3.5 h-3.5" />
                       </button>
@@ -781,7 +784,7 @@
                       </button>
                     </div>
                   {:else}
-                    {item.score}
+                    <span class="block break-all leading-4" title={String(item.score)}>{item.score}</span>
                   {/if}
                 </td>
               </tr>

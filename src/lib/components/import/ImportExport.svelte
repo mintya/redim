@@ -184,7 +184,7 @@
   }
 </script>
 
-<Modal bind:open title="Import / Export" size="md" onclose={handleClose}>
+<Modal bind:open title="import / export" size="md" onclose={handleClose}>
   <div class="space-y-3">
     <div>
       <h3 class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide mb-1.5">export</h3>

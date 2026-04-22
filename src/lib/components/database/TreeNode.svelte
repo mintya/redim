@@ -47,7 +47,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors {isSelected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
-  style="padding-left: {level * 16 + 12}px"
+  style="padding-left: {level * 14 + 10}px"
   onclick={handleClick}
   onkeydown={(e) => e.key === 'Enter' && handleClick()}
   oncontextmenu={handleContextMenu}
@@ -55,15 +55,17 @@
   tabindex="0"
 >
   {#if hasChildren}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <span 
-      class="text-[var(--color-text-tertiary)] text-xs w-4 flex-shrink-0 hover:text-[var(--color-text-primary)] cursor-pointer"
+    <button 
+      type="button"
+      class="ui-btn ui-btn-ghost ui-btn-icon-sm w-4 flex-shrink-0 cursor-pointer"
       onclick={handleToggle}
-      role="button"
-      tabindex="-1"
     >
-      {isExpanded ? '▾' : '▸'}
-    </span>
+      {#if isExpanded}
+        ▾
+      {:else}
+        ▸
+      {/if}
+    </button>
   {:else}
     <span class="w-4 flex-shrink-0"></span>
   {/if}
@@ -74,7 +76,7 @@
     <span class="w-4 flex-shrink-0"></span>
   {/if}
   
-  <span class="text-sm font-mono truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-tertiary)]' : 'text-[var(--color-text-primary)]'}">
+  <span class="text-xs font-sans truncate {hasChildren && !isBothParentAndLeaf ? 'text-[var(--color-text-secondary)]' : 'text-[var(--color-text-primary)]'}">
     {node.name}
   </span>
   
@@ -83,6 +85,6 @@
   {/if}
   
   {#if isBothParentAndLeaf}
-    <span class="text-[var(--color-text-muted)] text-base ml-1" title="Also a key">⬤</span>
+    <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)] ml-1 flex-shrink-0" title="Also a key"></span>
   {/if}
 </div>

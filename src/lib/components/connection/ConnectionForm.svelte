@@ -4,6 +4,7 @@
   import Input from '$lib/components/common/Input.svelte';
   import Alert from '$lib/components/common/Alert.svelte';
   import { testConnection, createConnection, updateConnection } from '$lib/stores/connection';
+  import { ChevronDown, ChevronRight } from '@lucide/svelte';
 
   interface Props {
     editing: ConnectionConfig | null;
@@ -35,6 +36,7 @@
   let alertTitle = $state('');
   let alertMessage = $state('');
   let alertType = $state<'info' | 'success' | 'error'>('info');
+  let showAdvancedOptions = $state(false);
 
   let portError = $state('');
   let sshPortError = $state('');
@@ -80,6 +82,7 @@
   $effect(() => {
     if (editing) {
       formData = { ...editing };
+      showAdvancedOptions = !!(editing.ssl || editing.ssh_tunnel || editing.cluster || editing.sentinel);
     }
   });
 
@@ -106,6 +109,7 @@
     portError = '';
     sshPortError = '';
     dbError = '';
+    showAdvancedOptions = false;
   }
 
   async function handleTest() {
@@ -184,13 +188,27 @@
       </div>
     </div>
 
-    <div class="space-y-2.5 pb-2 border-b border-[var(--color-border)]">
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+    <div class="pb-2 border-b border-[var(--color-border)]">
+      <button
+        class="ui-btn ui-btn-ghost ui-btn-sm w-full justify-start"
+        onclick={() => (showAdvancedOptions = !showAdvancedOptions)}
+      >
+        {#if showAdvancedOptions}
+          <ChevronDown class="w-3.5 h-3.5" />
+        {:else}
+          <ChevronRight class="w-3.5 h-3.5" />
+        {/if}
+        <span>advanced options</span>
+      </button>
+
+      {#if showAdvancedOptions}
+        <div class="space-y-2.5 pt-2">
+      <label class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer select-none">
         <input type="checkbox" bind:checked={formData.ssl} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">SSL/TLS</span>
       </label>
 
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+      <label class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer select-none">
         <input type="checkbox" bind:checked={formData.ssh_tunnel} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">SSH Tunnel</span>
       </label>
@@ -217,12 +235,12 @@
         </div>
       {/if}
 
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+      <label class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer select-none">
         <input type="checkbox" bind:checked={formData.cluster} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">Redis Cluster</span>
       </label>
 
-      <label class="flex items-center gap-2 text-sm text-[var(--color-text-primary)] cursor-pointer select-none">
+      <label class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer select-none">
         <input type="checkbox" bind:checked={formData.sentinel} class="h-3.5 w-3.5 accent-[var(--color-accent)]" />
         <span class="font-medium">Redis Sentinel</span>
       </label>
@@ -231,6 +249,8 @@
         <div class="pl-5">
           <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Master Name</span>
           <Input bind:value={formData.sentinel_master} placeholder="mymaster" />
+        </div>
+      {/if}
         </div>
       {/if}
     </div>

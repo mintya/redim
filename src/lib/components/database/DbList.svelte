@@ -54,7 +54,7 @@
 
 <div class="h-9 px-3 border-b border-[var(--color-border)] flex items-center justify-between relative">
   <div class="flex items-center gap-1.5">
-    <span class="text-[11px] text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">databases</span>
+    <span class="ui-section-label">databases</span>
 
     <div class="relative">
       <button

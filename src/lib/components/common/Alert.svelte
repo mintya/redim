@@ -54,14 +54,14 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-[1px] flex items-center justify-center z-50" onclick={handleBackdropClick} onkeydown={handleKeydown}>
-    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[8px] w-full max-w-sm shadow-[var(--shadow-md)]">
-      <div class="px-3 py-2 border-b border-[var(--color-border)] flex items-center gap-2">
+    <div class="ui-panel w-full max-w-sm shadow-[var(--shadow-md)]">
+      <div class="ui-panel-header justify-start gap-2">
         <IconComponent class="w-4 h-4 {getTypeColor()}" />
-        <span class="text-sm text-[var(--color-text-primary)] font-semibold">{title}</span>
+        <span class="ui-title">{title}</span>
       </div>
 
       <div class="px-3 py-3">
-        <p class="text-sm text-[var(--color-text-primary)]">{message}</p>
+        <p class="text-xs text-[var(--color-text-primary)]">{message}</p>
       </div>
 
       <div class="px-3 py-2 border-t border-[var(--color-border)] flex justify-end">
