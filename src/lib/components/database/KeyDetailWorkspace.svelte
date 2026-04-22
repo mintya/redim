@@ -9,11 +9,13 @@
 
   let tabBarMode = $state<TabBarMode>('single');
   let singleLineEl = $state<HTMLDivElement | null>(null);
+  let multiGridEl = $state<HTMLDivElement | null>(null);
   let singleScroll = $state({ left: 0, max: 0 });
   let syncedActiveTabId = $state<string | null>(null);
   let draggingTabId = $state<string | null>(null);
   let dropTargetTabId = $state<string | null>(null);
   let dropPosition = $state<'before' | 'after' | null>(null);
+  let multiLastRowTabIds = $state<Set<string>>(new Set());
 
   let canPrev = $derived(singleScroll.left > 1);
   let canNext = $derived(singleScroll.left < singleScroll.max - 1);
@@ -58,6 +60,48 @@
         node.removeEventListener('scroll', onScroll);
         ro.disconnect();
         if (singleLineEl === node) singleLineEl = null;
+      },
+    };
+  }
+
+  function updateMultiLastRowTabs() {
+    const container = multiGridEl;
+    if (!container) {
+      multiLastRowTabIds = new Set();
+      return;
+    }
+
+    const tabNodes = Array.from(container.querySelectorAll('[data-tab-id]')) as HTMLElement[];
+    if (tabNodes.length === 0) {
+      multiLastRowTabIds = new Set();
+      return;
+    }
+
+    let maxTop = -Infinity;
+    for (const node of tabNodes) {
+      if (node.offsetTop > maxTop) maxTop = node.offsetTop;
+    }
+
+    const next = new Set<string>();
+    for (const node of tabNodes) {
+      if (node.offsetTop === maxTop) {
+        const id = node.dataset.tabId;
+        if (id) next.add(id);
+      }
+    }
+    multiLastRowTabIds = next;
+  }
+
+  function attachMultiGrid(node: HTMLDivElement) {
+    multiGridEl = node;
+    const ro = new ResizeObserver(() => updateMultiLastRowTabs());
+    ro.observe(node);
+    updateMultiLastRowTabs();
+
+    return {
+      destroy() {
+        ro.disconnect();
+        if (multiGridEl === node) multiGridEl = null;
       },
     };
   }
@@ -147,6 +191,10 @@
     return dropPosition === 'before' ? 'ui-tab-drop-before' : 'ui-tab-drop-after';
   }
 
+  function tabBottomRowClass(tabId: string): string {
+    return tabBarMode === 'single' || multiLastRowTabIds.has(tabId) ? 'ui-tab-bottom-row' : '';
+  }
+
   function handleTabDragStart(e: DragEvent, tabId: string) {
     draggingTabId = tabId;
     dropTargetTabId = null;
@@ -204,6 +252,7 @@
     tabBarMode;
     $keyTabs.length;
     requestAnimationFrame(() => updateSingleScrollState());
+    requestAnimationFrame(() => updateMultiLastRowTabs());
     if (tabBarMode !== 'single') {
       syncedActiveTabId = null;
     }
@@ -274,7 +323,7 @@
                   tabindex="0"
                   data-tab-id={tab.id}
                   aria-selected={$activeTabId === tab.id}
-                  class="ui-tab ui-tab-single {$activeTabId === tab.id ? 'ui-tab-active' : ''} {tabDragClass(tab.id)} {tabDropClass(tab.id)}"
+                  class="ui-tab ui-tab-single {$activeTabId === tab.id ? 'ui-tab-active' : ''} {tabBottomRowClass(tab.id)} {tabDragClass(tab.id)} {tabDropClass(tab.id)}"
                   draggable="true"
                   onclick={() => void activateTab(tab.id)}
                   onkeydown={(e) => handleTabKeydown(e, tab.id)}
@@ -319,13 +368,18 @@
         </div>
       {:else}
         <div class="px-2">
-          <div role="tablist" class="ui-tab-grid grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-1">
+          <div
+            role="tablist"
+            class="ui-tab-grid grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-1"
+            use:attachMultiGrid
+          >
             {#each $keyTabs as tab (tab.id)}
               <div
                 role="tab"
                 tabindex="0"
+                data-tab-id={tab.id}
                 aria-selected={$activeTabId === tab.id}
-                class="ui-tab ui-tab-multi {$activeTabId === tab.id ? 'ui-tab-active' : ''} {tabDragClass(tab.id)} {tabDropClass(tab.id)}"
+                class="ui-tab ui-tab-multi {$activeTabId === tab.id ? 'ui-tab-active' : ''} {tabBottomRowClass(tab.id)} {tabDragClass(tab.id)} {tabDropClass(tab.id)}"
                 draggable="true"
                 onclick={() => void activateTab(tab.id)}
                 onkeydown={(e) => handleTabKeydown(e, tab.id)}

@@ -380,7 +380,6 @@
     color: var(--color-text-primary);
     transform: translateY(-1px);
     z-index: 2;
-    box-shadow: 0 6px 14px rgba(28, 27, 24, 0.12);
   }
 
   .ui-tab-active:hover {
@@ -447,7 +446,7 @@
   .ui-tab-multi {
     width: 100%;
     transform: translateY(0);
-    border-bottom-color: var(--color-border-divider);
+    border-bottom-color: transparent;
   }
 
   .ui-tab-multi:hover {
@@ -458,11 +457,21 @@
     transform: translateY(0);
     margin-bottom: -1px;
     border-bottom-color: var(--color-surface);
-    box-shadow: 0 3px 8px rgba(28, 27, 24, 0.1);
   }
 
   .ui-tab-multi.ui-tab-active:hover {
     transform: translateY(0);
+  }
+
+  .ui-tab-bottom-row.ui-tab-active::after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    right: -1px;
+    bottom: -2px;
+    height: 2px;
+    background: var(--color-surface);
+    pointer-events: none;
   }
 
   .ui-tab-title {
