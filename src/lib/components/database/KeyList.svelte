@@ -198,7 +198,9 @@
       </Button>
       <span class="ui-keylist-count">{filteredKeys.length}</span>
     </div>
+  </div>
 
+  <div class="ui-toolbar ui-keylist-toolbar">
     <div class="flex items-center gap-1 shrink-0">
       <div class="ui-keylist-toggle-group">
         <button
@@ -229,9 +231,9 @@
       <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={cycleSortOrder} title={sortOrder === 'asc' ? 'A→Z' : 'Z→A'}>
         <ArrowUpDown class="w-3 h-3 {sortOrder === 'asc' ? '' : 'rotate-180'}" />
       </button>
+    </div>
 
-      <span class="ui-keylist-divider"></span>
-
+    <div class="flex items-center gap-1 shrink-0">
       {#if isSelectionMode}
         {#if isBatchDeleting}
           <div class="ui-keylist-delete-progress">
