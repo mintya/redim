@@ -297,15 +297,15 @@
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-[1px] flex items-center justify-center z-50"
+    class="fixed inset-0 flex items-center justify-center z-50 glass-backdrop"
     onclick={(e) => e.target === e.currentTarget && handleClose()}
     onkeydown={(e) => e.key === 'Escape' && handleClose()}
   >
-    <div class="ui-panel w-full max-w-5xl max-h-[86vh] flex flex-col shadow-[var(--shadow-md)]">
-      <div class="ui-panel-header">
+    <div class="ui-panel w-full max-w-5xl max-h-[86vh] flex flex-col shadow-[var(--shadow-glass-lg)]">
+      <div class="ui-panel-header ui-monitor-header">
         <span class="ui-section-label">server info</span>
-        <div class="flex items-center gap-2">
-          <div class="ui-segment">
+        <div class="ui-monitor-actions">
+          <div class="ui-segment ui-monitor-segment">
             {#each refreshOptions as secs}
               <button
                 class="ui-segment-item {refreshIntervalSeconds === secs ? 'ui-segment-item-active' : ''}"
@@ -318,7 +318,7 @@
               </button>
             {/each}
           </div>
-          <div class="ui-segment">
+          <div class="ui-segment ui-monitor-segment">
             {#each windowOptions as mins}
               <button
                 class="ui-segment-item {chartWindowMinutes === mins ? 'ui-segment-item-active' : ''}"
@@ -343,7 +343,7 @@
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-3 bg-[var(--color-bg-surface)]">
+      <div class="flex-1 overflow-y-auto p-3">
         {#if error}
           <div class="mb-3 px-3 py-2 text-xs rounded-[6px] border border-[var(--color-accent-border)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)]">
             {error}
@@ -398,28 +398,28 @@
             {#if showPerformance}
               <div class="ui-panel-body space-y-3">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                  <div class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded-[6px] px-3 py-2">
+                  <div class="glass-card-soft px-3 py-2">
                     <div class="ui-subtle mb-1">ops/sec</div>
                     <div class="text-xs text-[var(--color-text-primary)] font-sans">{formatNumber(latestSnapshot.opsPerSec)}</div>
                     <div class={`text-[10px] ${deltaToneClass(opsDelta)}`}>
                       {deltaSymbol(opsDelta)} {formatAbsDelta(opsDelta, 0)}
                     </div>
                   </div>
-                  <div class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded-[6px] px-3 py-2">
+                  <div class="glass-card-soft px-3 py-2">
                     <div class="ui-subtle mb-1">hit rate</div>
                     <div class="text-xs text-[var(--color-text-primary)] font-sans">{latestSnapshot.hitRate.toFixed(1)}%</div>
                     <div class={`text-[10px] ${deltaToneClass(hitDelta)}`}>
                       {deltaSymbol(hitDelta)} {formatAbsDelta(hitDelta, 1, '%')}
                     </div>
                   </div>
-                  <div class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded-[6px] px-3 py-2">
+                  <div class="glass-card-soft px-3 py-2">
                     <div class="ui-subtle mb-1">memory</div>
                     <div class="text-xs text-[var(--color-text-primary)] font-sans">{formatBytes(latestSnapshot.usedMemoryBytes)}</div>
                     <div class={`text-[10px] ${deltaToneClass(memoryDelta, 1)}`}>
                       {deltaSymbol(memoryDelta, 1)} {formatAbsBytesDelta(memoryDelta)}
                     </div>
                   </div>
-                  <div class="bg-[var(--color-surface-hover)] border border-[var(--color-border)] rounded-[6px] px-3 py-2">
+                  <div class="glass-card-soft px-3 py-2">
                     <div class="ui-subtle mb-1">clients</div>
                     <div class="text-xs text-[var(--color-text-primary)] font-sans">{formatNumber(latestSnapshot.connectedClients)}</div>
                     <div class={`text-[10px] ${deltaToneClass(clientsDelta)}`}>
@@ -429,21 +429,14 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="flex items-center justify-between mb-1">
                       <span class="ui-subtle">ops/sec trend</span>
                       <span class="text-[10px] text-[var(--color-text-secondary)]">{formatNumber(latestSnapshot.opsPerSec)}</span>
                     </div>
-                    <SparklineChart
-                      series={opsSeries}
-                      stroke="var(--color-chart-ops)"
-                      strokeWidth={1.1}
-                      strokeOpacity={0.76}
-                      areaOpacity={0.05}
-                      pointRadius={1.35}
-                    />
+                    <SparklineChart series={opsSeries} stroke="var(--color-chart-ops)" />
                   </div>
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="flex items-center justify-between mb-1">
                       <span class="ui-subtle">hit rate trend</span>
                       <span class="text-[10px] text-[var(--color-text-secondary)]">{latestSnapshot.hitRate.toFixed(1)}%</span>
@@ -451,13 +444,10 @@
                     <SparklineChart
                       series={hitRateSeries}
                       stroke="var(--color-chart-hit)"
-                      strokeWidth={1.1}
-                      strokeOpacity={0.76}
-                      areaOpacity={0.05}
-                      pointRadius={1.35}
+                      formatValue={(v) => `${v.toFixed(1)}%`}
                     />
                   </div>
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="flex items-center justify-between mb-1">
                       <span class="ui-subtle">memory trend</span>
                       <span class="text-[10px] text-[var(--color-text-secondary)]">{formatBytes(latestSnapshot.usedMemoryBytes)}</span>
@@ -465,25 +455,15 @@
                     <SparklineChart
                       series={memorySeries}
                       stroke="var(--color-chart-memory)"
-                      strokeWidth={1.1}
-                      strokeOpacity={0.76}
-                      areaOpacity={0.05}
-                      pointRadius={1.35}
+                      formatValue={formatBytes}
                     />
                   </div>
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="flex items-center justify-between mb-1">
                       <span class="ui-subtle">clients trend</span>
                       <span class="text-[10px] text-[var(--color-text-secondary)]">{formatNumber(latestSnapshot.connectedClients)}</span>
                     </div>
-                    <SparklineChart
-                      series={clientSeries}
-                      stroke="var(--color-chart-clients)"
-                      strokeWidth={1.1}
-                      strokeOpacity={0.76}
-                      areaOpacity={0.05}
-                      pointRadius={1.35}
-                    />
+                    <SparklineChart series={clientSeries} stroke="var(--color-chart-clients)" />
                   </div>
                 </div>
               </div>
@@ -504,15 +484,15 @@
             {#if showKeyspace}
               <div class="ui-panel-body space-y-3">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-2">
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="ui-subtle mb-1">db keys (top 10)</div>
                     <MiniBarChart items={dbKeyItems} barColor="var(--color-type-list)" />
                   </div>
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="ui-subtle mb-1">expires ratio</div>
                     <MiniBarChart items={dbExpiresRatioItems} barColor="var(--color-type-zset)" />
                   </div>
-                  <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[6px] p-2">
+                  <div class="glass-card-soft p-2">
                     <div class="ui-subtle mb-1">avg ttl</div>
                     <MiniBarChart items={dbTtlItems} barColor="var(--color-type-hash)" />
                   </div>

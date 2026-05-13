@@ -92,5 +92,5 @@
   class="relative w-3 -mx-1.5 cursor-col-resize flex-shrink-0"
   onmousedown={handleMouseDown}
 >
-  <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px {isDragging ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border-divider)]'}"></div>
+  <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px {isDragging ? 'bg-[var(--color-accent)]' : 'bg-white/30'}"></div>
 </div>

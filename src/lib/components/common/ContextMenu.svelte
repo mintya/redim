@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { ComponentType } from 'svelte';
+  import type { Component } from 'svelte';
   import { Trash2 } from '@lucide/svelte';
 
   interface MenuItem {
     label: string;
     action: () => void;
     danger?: boolean;
-    icon?: ComponentType;
+    icon?: Component;
   }
 
   interface Props {
@@ -32,7 +32,7 @@
 <svelte:window onclick={handleClickOutside} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="context-menu ui-menu-panel fixed py-1 z-50 min-w-[132px]" style="left: {x}px; top: {y}px;">
+<div class="context-menu ui-menu-panel fixed py-1 z-[200] min-w-[132px]" style="left: {x}px; top: {y}px;">
   {#each items as item}
     <button
       class="ui-menu-item justify-start {item.danger ? 'ui-menu-item-danger' : ''}"

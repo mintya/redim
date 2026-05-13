@@ -274,7 +274,7 @@
   });
 </script>
 
-<div class="h-full min-h-0 flex flex-col bg-[var(--color-surface)] overflow-hidden min-w-0">
+<div class="h-full min-h-0 flex flex-col overflow-hidden min-w-0">
   {#if $keyTabs.length > 0}
     <div class="flex-shrink-0 ui-tab-strip">
       <div class="flex items-center gap-2 px-2 py-1">

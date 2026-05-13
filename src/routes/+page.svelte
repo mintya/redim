@@ -64,28 +64,28 @@
 </script>
 
 {#if isConnected}
-  <div class="flex-1 flex overflow-hidden min-h-0 bg-[var(--color-bg-surface)]">
-    <div class="flex flex-col bg-[var(--color-surface)] overflow-hidden border-r border-[var(--color-border)]" style="width: {leftPanelWidth}px; min-width: 200px;">
+  <div class="flex-1 flex overflow-hidden min-h-0">
+    <div class="flex flex-col overflow-hidden glass-pane glass-pane-right" style="width: {leftPanelWidth}px; min-width: 200px;">
       <DbList />
       <KeyList />
     </div>
 
     <Resizer onresize={handlePanelResize} />
 
-    <div class="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden bg-[var(--color-surface)]">
+    <div class="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden glass-content">
       <KeyDetailWorkspace />
     </div>
   </div>
 {:else}
-  <div class="flex-1 flex overflow-hidden min-h-0 bg-[var(--color-bg-surface)]">
-    <div class="w-72 sm:w-80 border-r border-[var(--color-border)] flex flex-col bg-[var(--color-surface)] flex-shrink-0 min-h-0">
-      <div class="h-9 px-3 border-b border-[var(--color-border)] flex items-center">
+  <div class="flex-1 flex overflow-hidden min-h-0">
+    <div class="w-72 sm:w-80 flex flex-col flex-shrink-0 min-h-0 glass-pane glass-pane-right">
+      <div class="h-9 px-3 flex items-center glass-subtle-divider-bottom">
         <span class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">connections</span>
       </div>
       <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
     </div>
 
-    <div class="flex-1 flex flex-col bg-[var(--color-surface)] min-w-0 min-h-0">
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 glass-content">
       <ConnectionForm bind:editing={editingConnection} onsaved={handleSaved} />
     </div>
   </div>

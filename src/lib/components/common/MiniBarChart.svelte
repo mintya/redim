@@ -32,25 +32,81 @@
   }
 </script>
 
-<div class={`space-y-2 ${className}`}>
+<div class={`mini-bar-wrap ${className}`}>
   {#if items.length === 0}
-    <div
-      class="h-[118px] rounded-[6px] border border-[var(--color-border)] bg-[var(--color-surface-hover)] text-[10px] text-[var(--color-text-muted)] flex items-center justify-center"
-    >
-      {emptyText}
-    </div>
+    <div class="mini-bar-empty">{emptyText}</div>
   {:else}
     {#each items as item}
-      <div class="grid grid-cols-[2.3rem_1fr_auto] gap-2 items-center">
-        <span class="text-[10px] text-[var(--color-text-muted)]">{item.label}</span>
-        <div class="h-2 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] overflow-hidden">
+      <div class="mini-bar-row">
+        <span class="mini-bar-label">{item.label}</span>
+        <div class="mini-bar-track">
           <div
-            class="h-full rounded-full"
-            style={`width:${widthPercent(item.value)}%;background:${barColor};`}
+            class="mini-bar-fill"
+            style={`width:${widthPercent(item.value)}%;--bar-color:${barColor};`}
           ></div>
         </div>
-        <span class="text-[10px] text-[var(--color-text-secondary)] tabular-nums">{item.displayValue ?? item.value}</span>
+        <span class="mini-bar-value">{item.displayValue ?? item.value}</span>
       </div>
     {/each}
   {/if}
 </div>
+
+<style>
+  .mini-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mini-bar-empty {
+    height: 118px;
+    border-radius: 8px;
+    border: 0.5px solid var(--color-glass-border-subtle, rgba(0, 0, 0, 0.06));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.25) 100%);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mini-bar-row {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .mini-bar-label {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mini-bar-track {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .mini-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--bar-color) 65%, transparent) 0%,
+      var(--bar-color) 100%
+    );
+    box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--bar-color) 35%, transparent) inset;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mini-bar-value {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+</style>

@@ -289,7 +289,7 @@
   </div>
 </div>
 
-<div class="flex-1 min-h-0 bg-[var(--color-surface)]">
+<div class="flex-1 min-h-0">
   {#if $keys.length === 0}
     <div class="px-4 py-6 text-center">
       <div class="text-xs text-[var(--color-text-tertiary)]">no keys</div>

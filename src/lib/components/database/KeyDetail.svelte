@@ -376,7 +376,7 @@
 
 {#if $keyInfo && $activeKey && $detailConnectionId}
   <div class="h-full min-h-0 flex flex-col">
-  <div class="min-h-10 px-3 py-1.5 border-b border-[var(--color-border)] flex items-center justify-between gap-2 relative sticky top-0 z-10 bg-[var(--color-surface)]">
+  <div class="min-h-10 px-3 py-1.5 flex items-center justify-between gap-2 relative sticky top-0 z-10 glass-section-header">
     <div class="flex items-center gap-2 min-w-0 flex-1">
       {#if $activeKeyTab}
         <span
@@ -407,7 +407,7 @@
     </div>
 
     {#if showInlineInput}
-      <div class="absolute inset-0 bg-[var(--color-surface)]/95 backdrop-blur-sm flex items-center justify-center z-10">
+      <div class="absolute inset-0 flex items-center justify-center z-10 glass-inline-overlay">
         <div class="flex items-center gap-2">
           <span class="text-xs text-[var(--color-text-tertiary)] font-sans">{inlineInputType === 'rename' ? 'name:' : 'ttl:'}</span>
           <input 
@@ -422,7 +422,7 @@
     {/if}
   </div>
 
-  <div class="flex-1 min-h-0 px-4 py-3 overflow-y-auto bg-[var(--color-bg-surface)]">
+  <div class="flex-1 min-h-0 px-4 py-3 overflow-y-auto">
     <!-- String -->
     {#if $keyInfo.key_type === 'string' && typeof $keyValue === 'string'}
       <div class="space-y-4">

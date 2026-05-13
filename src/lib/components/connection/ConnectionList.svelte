@@ -73,7 +73,7 @@
     {@const isConnected = $activeConnectionId === conn.id}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="group px-3 py-2 cursor-pointer transition-colors border-b border-[var(--color-border)] {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
+      class="group px-3 py-2 cursor-pointer transition-colors glass-subtle-divider-bottom {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
       ondblclick={() => !isConnected && handleConnect(conn.id)}
       oncontextmenu={(e) => handleContextMenu(e, conn)}
       role="button"

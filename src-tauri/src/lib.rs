@@ -3,10 +3,16 @@ mod connection;
 mod redis_manager;
 
 use models::ConnectionConfig;
+use tauri::Emitter;
+use tauri::image::Image;
+use tauri::menu::{
+    AboutMetadataBuilder, Menu, MenuItem, PredefinedMenuItem, Submenu,
+};
 use redis_manager::{DatabaseInfo, HashField, KeyInfo, RedisManager, ZSetMember};
 use tauri::State;
 
 const KEY_PREVIEW_LIMIT: usize = 120;
+const CHECK_UPDATES_MENU_ID: &str = "redim_check_updates";
 
 fn preview_key(key: &str) -> String {
     let compact = key.replace('\n', "\\n").replace('\r', "\\r");
@@ -332,13 +338,94 @@ async fn execute_command(id: String, args: Vec<String>, redis: State<'_, RedisMa
     redis.execute_command(&config, args).await
 }
 
+fn app_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
+    let about_icon = Image::from_bytes(include_bytes!("../icons/128x128.png")).ok();
+    let about_metadata = AboutMetadataBuilder::new()
+        .name(Some("redim"))
+        .version(Some(env!("CARGO_PKG_VERSION")))
+        .comments(Some("Redis desktop manager"))
+        .icon(about_icon)
+        .build();
+
+    let about = PredefinedMenuItem::about(app, Some("About redim"), Some(about_metadata))?;
+    let check_updates = MenuItem::with_id(
+        app,
+        CHECK_UPDATES_MENU_ID,
+        "Check for Updates...",
+        true,
+        None::<&str>,
+    )?;
+    let app_separator_a = PredefinedMenuItem::separator(app)?;
+    let app_separator_b = PredefinedMenuItem::separator(app)?;
+    let app_separator_c = PredefinedMenuItem::separator(app)?;
+    let services = PredefinedMenuItem::services(app, None)?;
+    let hide = PredefinedMenuItem::hide(app, None)?;
+    let hide_others = PredefinedMenuItem::hide_others(app, None)?;
+    let show_all = PredefinedMenuItem::show_all(app, None)?;
+    let quit = PredefinedMenuItem::quit(app, None)?;
+    let app_submenu = Submenu::with_items(
+        app,
+        "redim",
+        true,
+        &[
+            &about,
+            &check_updates,
+            &app_separator_a,
+            &services,
+            &app_separator_b,
+            &hide,
+            &hide_others,
+            &show_all,
+            &app_separator_c,
+            &quit,
+        ],
+    )?;
+
+    let edit_separator = PredefinedMenuItem::separator(app)?;
+    let copy = PredefinedMenuItem::copy(app, None)?;
+    let cut = PredefinedMenuItem::cut(app, None)?;
+    let paste = PredefinedMenuItem::paste(app, None)?;
+    let select_all = PredefinedMenuItem::select_all(app, None)?;
+    let edit_submenu = Submenu::with_items(
+        app,
+        "Edit",
+        true,
+        &[&cut, &copy, &paste, &edit_separator, &select_all],
+    )?;
+
+    let window_separator = PredefinedMenuItem::separator(app)?;
+    let minimize = PredefinedMenuItem::minimize(app, None)?;
+    let maximize = PredefinedMenuItem::maximize(app, None)?;
+    let fullscreen = PredefinedMenuItem::fullscreen(app, None)?;
+    let close = PredefinedMenuItem::close_window(app, None)?;
+    let window_submenu = Submenu::with_items(
+        app,
+        "Window",
+        true,
+        &[&minimize, &maximize, &fullscreen, &window_separator, &close],
+    )?;
+
+    Menu::with_items(app, &[&app_submenu, &edit_submenu, &window_submenu])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(RedisManager::new())
+        .setup(|app| {
+            let menu = app_menu(app.handle())?;
+            app.set_menu(menu)?;
+            Ok(())
+        })
+        .on_menu_event(|app, event| {
+            if event.id() == CHECK_UPDATES_MENU_ID {
+                let _ = app.emit("redim://check-updates", ());
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             get_connections,
             create_connection,

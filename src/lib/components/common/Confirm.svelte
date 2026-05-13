@@ -45,8 +45,8 @@
 
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 bg-[var(--color-text-primary)]/5 backdrop-blur-[1px] flex items-center justify-center z-50" onclick={handleBackdropClick} onkeydown={handleKeydown}>
-    <div class="ui-panel w-full max-w-sm shadow-[var(--shadow-md)]">
+  <div class="fixed inset-0 flex items-center justify-center z-50 glass-backdrop" onclick={handleBackdropClick} onkeydown={handleKeydown}>
+    <div class="ui-panel w-full max-w-sm shadow-[var(--shadow-glass-lg)]">
       <div class="ui-panel-header">
         <span class="ui-title">{title}</span>
       </div>

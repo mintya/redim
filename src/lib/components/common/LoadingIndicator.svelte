@@ -16,18 +16,18 @@
 
     {#if showDetails}
       <div class="ui-menu-panel absolute bottom-full right-0 mb-1.5 w-60 overflow-hidden">
-        <div class="px-2.5 py-1.5 border-b border-[var(--color-border)]">
+        <div class="px-2.5 py-1.5 glass-subtle-divider-bottom">
           <span class="text-xs font-medium text-[var(--color-text-primary)]">loading tasks</span>
         </div>
         <div class="max-h-44 overflow-y-auto">
           {#each $loadingList as state}
-            <div class="px-2.5 py-1.5 border-b border-[var(--color-border)] last:border-b-0">
+            <div class="px-2.5 py-1.5 last:border-b-0 glass-subtle-divider-bottom">
               <div class="flex items-center gap-1.5">
                 <div class="w-3 h-3 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin"></div>
                 <span class="text-xs text-[var(--color-text-primary)] truncate">{state.message}</span>
               </div>
               {#if state.progress !== undefined}
-                <div class="mt-1 h-1 bg-[var(--color-border)] rounded-full overflow-hidden">
+                <div class="mt-1 h-1 rounded-full overflow-hidden glass-progress-track">
                   <div class="h-full bg-[var(--color-accent)] transition-all duration-300" style="width: {state.progress}%"></div>
                 </div>
               {/if}

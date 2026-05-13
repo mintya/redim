@@ -6,6 +6,9 @@
   let showMenu = $state(false);
   let isConnected = $state(false);
   let currentConnectionId = $state<string | null>(null);
+  let btnEl: HTMLButtonElement | null = $state(null);
+  let menuEl: HTMLDivElement | null = $state(null);
+  let menuPos = $state({ top: 0, right: 0 });
 
   const unsubscribe = activeConnectionId.subscribe((id) => {
     isConnected = !!id;
@@ -39,18 +42,52 @@
     }
   }
 
-  function toggleMenu() {
-    showMenu = !showMenu;
+  function updateMenuPosition() {
+    if (btnEl) {
+      const rect = btnEl.getBoundingClientRect();
+      menuPos = { top: rect.bottom + 4, right: window.innerWidth - rect.right };
+    }
   }
 
-  function closeMenu() {
+  function toggleMenu() {
+    showMenu = !showMenu;
+    if (showMenu) updateMenuPosition();
+  }
+
+  function handleDocumentPointerDown(e: PointerEvent) {
+    const target = e.target as Node | null;
+    if (!target) return;
+    if (menuEl?.contains(target)) return;
+    if (btnEl?.contains(target)) return;
     showMenu = false;
   }
+
+  function handleDocumentKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') showMenu = false;
+  }
+
+  $effect(() => {
+    if (!showMenu) return;
+
+    updateMenuPosition();
+    window.addEventListener('resize', updateMenuPosition);
+    window.addEventListener('scroll', updateMenuPosition, true);
+    document.addEventListener('pointerdown', handleDocumentPointerDown, true);
+    document.addEventListener('keydown', handleDocumentKeydown);
+
+    return () => {
+      window.removeEventListener('resize', updateMenuPosition);
+      window.removeEventListener('scroll', updateMenuPosition, true);
+      document.removeEventListener('pointerdown', handleDocumentPointerDown, true);
+      document.removeEventListener('keydown', handleDocumentKeydown);
+    };
+  });
 </script>
 
 {#if isConnected}
-  <div class="ml-auto flex items-center gap-2" style="-webkit-app-region: no-drag;">
+  <div class="ml-auto flex items-center gap-2">
     <button
+      bind:this={btnEl}
       class="ui-btn ui-btn-sm"
       onclick={toggleMenu}
     >
@@ -59,11 +96,10 @@
     </button>
 
     {#if showMenu}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
-        class="ui-menu-panel absolute right-3 top-8 w-56 z-50"
-        onclick={(e) => e.stopPropagation()}
+        bind:this={menuEl}
+        class="ui-menu-panel fixed w-56 z-[1000]"
+        style="top: {menuPos.top}px; right: {menuPos.right}px;"
       >
         <div class="py-1">
           {#each $connections as conn}
@@ -79,7 +115,7 @@
             </button>
           {/each}
         </div>
-        <div class="border-t border-[var(--color-border)] py-1">
+        <div class="py-1 glass-subtle-divider-top">
           <button
             class="ui-menu-item ui-menu-item-danger"
             onclick={handleDisconnect}
@@ -90,10 +126,4 @@
       </div>
     {/if}
   </div>
-{/if}
-
-{#if showMenu}
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <div class="fixed inset-0 z-40" onclick={closeMenu}></div>
 {/if}

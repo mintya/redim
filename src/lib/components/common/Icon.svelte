@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  import type { ComponentType } from 'svelte';
+  import type { Component } from 'svelte';
 
   interface Props {
-    icon: ComponentType;
+    icon: Component;
     size?: number;
     class?: string;
     onclick?: () => void;
@@ -18,10 +17,10 @@
     class={className}
     onclick={onclick}
   >
-    <svelte:component this={Icon} {size} />
+    <Icon {size} />
   </button>
 {:else}
   <span class={className}>
-    <svelte:component this={Icon} {size} />
+    <Icon {size} />
   </span>
 {/if}

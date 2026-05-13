@@ -10,7 +10,16 @@
   import CliTerminal from '$lib/components/cli/CliTerminal.svelte';
   import MonitorPanel from '$lib/components/monitor/MonitorPanel.svelte';
   import ImportExport from '$lib/components/import/ImportExport.svelte';
-  import { ArrowUpDown, Activity, Terminal } from '@lucide/svelte';
+  import { listen, type UnlistenFn } from '@tauri-apps/api/event';
+  import { check } from '@tauri-apps/plugin-updater';
+  import { openUrl } from '@tauri-apps/plugin-opener';
+  import { toast } from '$lib/stores/toast';
+  import { updateState, setAvailableUpdate } from '$lib/stores/update';
+  import { ArrowUpDown, Activity, Terminal, ArrowUpCircle } from '@lucide/svelte';
+
+  const RELEASE_URL = 'https://github.com/mintya/redim/releases/latest';
+  const AUTO_CHECK_DELAY_MS = 4000;
+  const AUTO_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
   let { children } = $props();
 
@@ -18,6 +27,10 @@
   let showCli = $state(false);
   let showMonitor = $state(false);
   let showImportExport = $state(false);
+  let unlistenCheckUpdates: UnlistenFn | null = null;
+  let checkingUpdates = $state(false);
+  let autoCheckTimer: ReturnType<typeof setTimeout> | null = null;
+  let autoCheckInterval: ReturnType<typeof setInterval> | null = null;
 
   const unsubscribe = activeConnectionId.subscribe((id) => {
     isConnected = !!id;
@@ -26,11 +39,25 @@
   onMount(() => {
     loadConnections();
     window.addEventListener('keydown', handleGlobalKeydown);
+    listen('redim://check-updates', () => {
+      void handleCheckUpdates();
+    }).then((unlisten) => {
+      unlistenCheckUpdates = unlisten;
+    });
+    autoCheckTimer = setTimeout(() => {
+      void runBackgroundUpdateCheck();
+    }, AUTO_CHECK_DELAY_MS);
+    autoCheckInterval = setInterval(() => {
+      void runBackgroundUpdateCheck();
+    }, AUTO_CHECK_INTERVAL_MS);
   });
 
   onDestroy(() => {
     unsubscribe();
+    unlistenCheckUpdates?.();
     window.removeEventListener('keydown', handleGlobalKeydown);
+    if (autoCheckTimer) clearTimeout(autoCheckTimer);
+    if (autoCheckInterval) clearInterval(autoCheckInterval);
   });
 
   function handleGlobalKeydown(e: KeyboardEvent) {
@@ -43,10 +70,48 @@
       if (isConnected) showMonitor = !showMonitor;
     }
   }
+
+  async function handleCheckUpdates() {
+    if (checkingUpdates) return;
+    checkingUpdates = true;
+    toast.info('checking for updates...');
+    try {
+      const update = await check();
+      if (update) {
+        await setAvailableUpdate(update);
+        toast.success(`update available: ${update.version}`, 7000);
+      } else {
+        await setAvailableUpdate(null);
+        toast.success('redim is up to date');
+      }
+    } catch (e) {
+      toast.error(`failed to check for updates: ${String(e)}`);
+    } finally {
+      checkingUpdates = false;
+    }
+  }
+
+  async function runBackgroundUpdateCheck() {
+    if (checkingUpdates) return;
+    try {
+      const update = await check();
+      await setAvailableUpdate(update ?? null);
+    } catch (e) {
+      console.warn('background update check failed', e);
+    }
+  }
+
+  async function handleOpenRelease() {
+    try {
+      await openUrl(RELEASE_URL);
+    } catch (e) {
+      toast.error(`failed to open release page: ${String(e)}`);
+    }
+  }
 </script>
 
-<div class="h-screen flex flex-col bg-[var(--color-bg-primary)] font-sans">
-  <div class="h-10 bg-[var(--color-bg-surface)] border-b border-[var(--color-border)] flex items-center px-3 select-none relative" style="-webkit-app-region: drag;">
+<div class="h-screen flex flex-col font-sans app-shell">
+  <div class="h-10 flex items-center px-3 select-none relative glass-titlebar glass-border app-toolbar">
     <div class="flex items-center gap-2">
       <Logo size={16} />
       <span class="ui-title tracking-tight">Redim</span>
@@ -58,7 +123,7 @@
     {@render children()}
   </div>
 
-  <div class="h-7 bg-[var(--color-bg-surface)] border-t border-[var(--color-border)] flex items-center px-3 text-xs text-[var(--color-text-secondary)]">
+  <div class="h-7 flex items-center px-3 text-xs text-[var(--color-text-secondary)] glass-statusbar">
     {#if $activeConnection}
       <span class="flex items-center gap-2 min-w-0">
         <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-type-string)]"></span>
@@ -99,6 +164,16 @@
           <span>cli</span>
         </button>
       {/if}
+      {#if $updateState.available}
+        <button
+          class="ui-btn ui-btn-ghost ui-btn-sm update-indicator"
+          onclick={handleOpenRelease}
+          title="update available: v{$updateState.version} (click to open release)"
+          aria-label="update available"
+        >
+          <ArrowUpCircle class="w-3 h-3" />
+        </button>
+      {/if}
       <span class="text-[var(--color-text-tertiary)]">v{__APP_VERSION__}</span>
     </span>
   </div>
@@ -109,3 +184,21 @@
 <ImportExport bind:open={showImportExport} onclose={() => (showImportExport = false)} />
 <ToastContainer />
 <LoadingIndicator />
+
+<style>
+  .update-indicator {
+    color: var(--color-accent);
+    position: relative;
+  }
+  .update-indicator::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 1.5px var(--color-glass-elevated, rgba(255, 255, 255, 0.9));
+  }
+</style>
