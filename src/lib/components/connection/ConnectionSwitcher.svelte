@@ -2,6 +2,7 @@
   import { onDestroy } from 'svelte';
   import { connections, activeConnection, activeConnectionId, connect, disconnect } from '$lib/stores/connection';
   import { loadDatabases, loadKeys } from '$lib/stores/database';
+  import { ChevronDown } from '@lucide/svelte';
 
   let showMenu = $state(false);
   let isConnected = $state(false);
@@ -92,7 +93,7 @@
       onclick={toggleMenu}
     >
       <span class="truncate max-w-[220px]">{$activeConnection?.name || $activeConnection?.host}:{$activeConnection?.port}</span>
-      <span class="text-[var(--color-text-tertiary)]">▾</span>
+      <ChevronDown class="w-3 h-3 text-[var(--color-text-tertiary)]" />
     </button>
 
     {#if showMenu}
@@ -120,7 +121,7 @@
             class="ui-menu-item ui-menu-item-danger"
             onclick={handleDisconnect}
           >
-            disconnect
+            Disconnect
           </button>
         </div>
       </div>

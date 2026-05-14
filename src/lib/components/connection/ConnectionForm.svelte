@@ -2,8 +2,8 @@
   import type { ConnectionConfig } from '$lib/types';
   import Button from '$lib/components/common/Button.svelte';
   import Input from '$lib/components/common/Input.svelte';
-  import Alert from '$lib/components/common/Alert.svelte';
   import { testConnection, createConnection, updateConnection } from '$lib/stores/connection';
+  import { toast } from '$lib/stores/toast';
   import { ChevronDown, ChevronRight } from '@lucide/svelte';
 
   interface Props {
@@ -32,10 +32,6 @@
     sentinel_master: undefined,
   });
 
-  let showAlert = $state(false);
-  let alertTitle = $state('');
-  let alertMessage = $state('');
-  let alertType = $state<'info' | 'success' | 'error'>('info');
   let showAdvancedOptions = $state(false);
 
   let portError = $state('');
@@ -115,15 +111,10 @@
   async function handleTest() {
     const latency = await testConnection(formData);
     if (latency !== null) {
-      alertTitle = 'success';
-      alertMessage = `Connection OK - ${latency}ms`;
-      alertType = 'success';
+      toast.success(`Connection OK - ${latency}ms`);
     } else {
-      alertTitle = 'error';
-      alertMessage = 'Connection failed';
-      alertType = 'error';
+      toast.error('Connection failed');
     }
-    showAlert = true;
   }
 
   async function handleSave() {
@@ -135,15 +126,11 @@
     resetForm();
     onsaved();
   }
-
-  function handleAlertClose() {
-    showAlert = false;
-  }
 </script>
 
 <div class="h-9 px-3 border-b border-[var(--color-border)] flex items-center">
   <span class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">
-    {editing ? 'edit connection' : 'new connection'}
+    {editing ? 'Edit Connection' : 'New Connection'}
   </span>
 </div>
 
@@ -151,17 +138,17 @@
   <div class="w-full max-w-lg mx-auto space-y-3">
     <div class="space-y-3 pb-3 border-b border-[var(--color-border)]">
       <div>
-        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">name</span>
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Name</span>
         <Input bind:value={formData.name} placeholder="my-redis" />
       </div>
 
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">host</span>
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Host</span>
           <Input bind:value={formData.host} placeholder="127.0.0.1" />
         </div>
         <div>
-          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">port</span>
+          <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Port</span>
           <Input type="number" bind:value={formData.port} onblur={validatePort} />
           {#if portError}
             <span class="block text-xs text-[var(--color-accent)] mt-1">{portError}</span>
@@ -170,17 +157,17 @@
       </div>
 
       <div>
-        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">username <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Username <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
         <Input bind:value={formData.username} placeholder="default" />
       </div>
 
       <div>
-        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">password <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Password <span class="text-[var(--color-text-tertiary)]">(optional)</span></span>
         <Input type="password" bind:value={formData.password} />
       </div>
 
       <div class="max-w-[180px]">
-        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">database</span>
+        <span class="block text-xs text-[var(--color-text-secondary)] mb-1">Database</span>
         <Input type="number" bind:value={formData.db} onblur={validateDb} />
         {#if dbError}
           <span class="block text-xs text-[var(--color-accent)] mt-1">{dbError}</span>
@@ -198,7 +185,7 @@
         {:else}
           <ChevronRight class="w-3.5 h-3.5" />
         {/if}
-        <span>advanced options</span>
+        <span>Advanced Options</span>
       </button>
 
       {#if showAdvancedOptions}
@@ -257,21 +244,13 @@
 
     <div class="pt-1">
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" onclick={handleTest}>test</Button>
+        <Button variant="secondary" size="sm" onclick={handleTest}>Test</Button>
         <div class="flex-1"></div>
         {#if editing}
-          <Button variant="ghost" size="sm" onclick={resetForm}>cancel</Button>
+          <Button variant="ghost" size="sm" onclick={resetForm}>Cancel</Button>
         {/if}
-        <Button variant="primary" size="sm" onclick={handleSave} disabled={hasValidationErrors}>save</Button>
+        <Button variant="primary" size="sm" onclick={handleSave} disabled={hasValidationErrors}>Save</Button>
       </div>
     </div>
   </div>
 </div>
-
-<Alert
-  bind:open={showAlert}
-  title={alertTitle}
-  message={alertMessage}
-  type={alertType}
-  onClose={handleAlertClose}
-/>

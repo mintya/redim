@@ -11,8 +11,8 @@
   --color-bg-hover: rgba(28, 28, 28, 0.025);
 
   /* Borders (glass-style) */
-  --color-border: rgba(255, 255, 255, 0.45);
-  --color-border-dark: rgba(0, 0, 0, 0.08);
+  --color-border: rgba(60, 52, 40, 0.14);
+  --color-border-dark: rgba(60, 52, 40, 0.22);
   --color-border-strong: rgba(0, 0, 0, 0.12);
   --color-border-divider: rgba(140, 133, 121, 0.30);
   --color-divider-soft: rgba(140, 133, 121, 0.18);
@@ -28,6 +28,8 @@
   --color-accent-hover: #b63529;
   --color-accent-light: #fbe9e7;
   --color-accent-subtle: rgba(207, 63, 50, 0.09);
+  --color-accent-soft: rgba(207, 63, 50, 0.14);
+  --color-accent-stripe: rgba(207, 63, 50, 0.85);
   --color-accent-border: rgba(207, 63, 50, 0.18);
 
   /* Surface states (semi-transparent) */
@@ -59,18 +61,19 @@
   --shadow-input-focus: 0 0 0 2px var(--color-accent-subtle);
 
   /* Glass-specific tokens */
-  --color-glass-bg: rgba(255, 255, 255, 0.45);
-  --color-glass-bg-hover: rgba(255, 255, 255, 0.55);
-  --color-glass-surface: rgba(255, 255, 255, 0.50);
-  --color-glass-elevated: rgba(255, 255, 255, 0.60);
-  --color-glass-panel: rgba(255, 255, 255, 0.35);
-  --color-glass-titlebar: rgba(255, 255, 255, 0.30);
-  --color-glass-statusbar: rgba(255, 255, 255, 0.25);
-  --color-glass-input: rgba(255, 255, 255, 0.40);
-  --color-glass-border: rgba(255, 255, 255, 0.50);
-  --color-glass-border-subtle: rgba(255, 255, 255, 0.30);
+  --color-glass-bg: rgba(255, 255, 255, 0.55);
+  --color-glass-bg-hover: rgba(255, 255, 255, 0.68);
+  --color-glass-surface: rgba(255, 255, 255, 0.62);
+  --color-glass-elevated: rgba(255, 255, 255, 0.78);
+  --color-glass-panel: rgba(255, 255, 255, 0.32);
+  --color-glass-titlebar: rgba(255, 255, 255, 0.42);
+  --color-glass-statusbar: rgba(255, 255, 255, 0.22);
+  --color-glass-input: rgba(255, 255, 255, 0.72);
+  --color-glass-border: rgba(60, 52, 40, 0.16);
+  --color-glass-border-subtle: rgba(60, 52, 40, 0.08);
   --color-glass-border-dark: rgba(0, 0, 0, 0.06);
   --color-glass-highlight: rgba(255, 255, 255, 0.70);
+  --color-glass-divider-strong: rgba(60, 52, 40, 0.22);
 
   /* Glass shadows */
   --shadow-glass-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.03);
@@ -191,6 +194,15 @@
     box-shadow: var(--shadow-glass-sm);
   }
 
+  .ui-modal {
+    border: 0.5px solid var(--color-glass-border);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(var(--blur-glass-lg)) saturate(1.3);
+    -webkit-backdrop-filter: blur(var(--blur-glass-lg)) saturate(1.3);
+    box-shadow: var(--shadow-glass-lg);
+  }
+
   .ui-panel-header {
     height: 2.25rem;
     padding: 0 0.75rem;
@@ -284,11 +296,18 @@
   }
 
   .ui-btn-link {
-    border-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
     background: transparent;
     color: var(--color-text-secondary);
     padding: 0 0.25rem;
     height: 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    transition: color 0.2s ease;
   }
 
   .ui-btn-link:hover {
@@ -537,7 +556,7 @@
   .ui-tab-meta {
     flex-shrink: 0;
     font-size: 10px;
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
     line-height: 1;
   }
 
@@ -811,7 +830,7 @@
 
   .ui-keylist-row {
     position: relative;
-    border-bottom: 0.5px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 0.5px solid rgba(60, 52, 40, 0.06);
   }
 
   .ui-keylist-row-hover:hover {
@@ -846,6 +865,14 @@
     line-height: 1;
     font-weight: 600;
   }
+
+  /* JSON syntax highlighting — reuses --color-type-* palette for visual consistency */
+  .json-key { color: var(--color-type-list); }
+  .json-string { color: var(--color-type-string); }
+  .json-number { color: var(--color-type-hash); }
+  .json-bool { color: var(--color-type-set); font-weight: 500; }
+  .json-null { color: var(--color-text-tertiary); font-style: italic; }
+  .json-punct { color: var(--color-text-tertiary); }
 
   .ui-keytree-toggle {
     width: 16px;
@@ -895,7 +922,7 @@
   .ui-data-table td {
     padding: 0.625rem 0.75rem;
     color: var(--color-text-primary);
-    border-bottom: 0.5px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 0.5px solid rgba(60, 52, 40, 0.06);
     vertical-align: top;
   }
 
@@ -1032,7 +1059,7 @@
   }
 
   .glass-pane-right {
-    border-right: 0.5px solid var(--color-glass-border);
+    border-right: 1px solid var(--color-glass-divider-strong);
   }
 
   .glass-content {
@@ -1042,7 +1069,7 @@
   }
 
   .glass-section-header {
-    background: var(--color-glass-titlebar);
+    background: rgba(255, 255, 255, 0.66);
     backdrop-filter: blur(var(--blur-glass-md)) saturate(1.2);
     -webkit-backdrop-filter: blur(var(--blur-glass-md)) saturate(1.2);
     border-bottom: 0.5px solid var(--color-glass-border);
@@ -1054,6 +1081,21 @@
 
   .glass-subtle-divider-top {
     border-top: 0.5px solid var(--color-glass-border-subtle);
+  }
+
+  .glass-accent-stripe-left {
+    position: relative;
+  }
+  .glass-accent-stripe-left::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+    background: var(--color-accent-stripe);
+    pointer-events: none;
   }
 
   .glass-backdrop {
@@ -1099,6 +1141,7 @@
   .glass-backdrop-strong,
   .glass-inline-overlay,
   .ui-panel,
+  .ui-modal,
   .ui-btn,
   .ui-input,
   .ui-menu-panel,
@@ -1117,6 +1160,10 @@
   .ui-panel,
   .ui-menu-panel {
     background: rgba(255, 255, 255, 0.85);
+  }
+
+  .ui-modal {
+    background: rgba(255, 255, 255, 0.95);
   }
 
   .glass-elevated {

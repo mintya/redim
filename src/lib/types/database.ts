@@ -7,6 +7,7 @@ export interface KeyInfo {
   name: string;
   key_type: RedisType;
   ttl: number;
+  size_bytes: number | null;
 }
 
 export type RedisType = 'string' | 'hash' | 'list' | 'set' | 'zset' | 'stream' | 'none';
@@ -32,5 +33,6 @@ export interface KeyTab {
   key: string;
   keyInfo: KeyInfo | null;
   keyValue: KeyValue;
+  keyInfoLoadedAt: number | null;
   lastFocusedAt: number;
 }

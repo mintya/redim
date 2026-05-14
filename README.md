@@ -23,14 +23,35 @@ English | **[中文](./README_CN.md)**
 
 ## Features
 
-- **Connection Management** - Save, test and switch between multiple Redis connections
-- **Tree View** - Browse keys by prefix with expandable tree structure
-- **Data Operations** - Full CRUD support for String, Hash, List, Set, ZSet
-- **Fuzzy Search** - Search keys with pattern matching (e.g., `user:*`)
-- **CLI Terminal** - Execute Redis commands with autocomplete
-- **Monitor Panel** - Real-time server stats, memory usage, ops/sec
-- **Import/Export** - Backup and restore data in JSON/CSV format
-- **Minimal UI** - Clean interface with dark/light theme
+**Connections**
+- Multiple saved profiles with SSL/TLS, SSH tunnel, Cluster, and Sentinel support
+- Test, connect, and switch profiles from the sidebar
+
+**Key browser**
+- Tree view (prefix-grouped) and flat list, virtualized for large key sets
+- Pattern search (e.g. `user:*`) and type filter chips
+- Multi-select mode for batch delete
+
+**Detail editor**
+- Multi-tab workspace — open several keys side by side
+- Full CRUD for String, Hash, List, Set, ZSet
+- Inline rename and TTL editing with a **live TTL countdown** (per tab)
+- JSON syntax highlighting + Raw / Format / Hex view modes for String values
+- Per-type filter, sort, expand-to-inspect for long values
+- Hash: multi-select batch delete (variadic HDEL, one round trip)
+- List: head/tail push toggle, duplicate-count badge
+- ZSet: rank column, score sort, integer & float-aware score formatting
+- One-click copy on every value, field, member, or score
+
+**Tools**
+- CLI terminal with command autocomplete (`⌘K` / `Ctrl+K`)
+- Monitor panel — server stats, memory, ops/sec, hit rate (`⌘M` / `Ctrl+M`)
+- Import / Export keys in JSON or CSV
+- Built-in auto-update check via GitHub Releases
+
+**UI**
+- macOS-style warm glass aesthetic with semantic type colors
+- Cross-platform: Windows, macOS, Linux
 
 ## Installation
 
@@ -60,31 +81,41 @@ yarn tauri build    # Production
 |----------|--------|
 | `⌘K` / `Ctrl+K` | Open CLI terminal |
 | `⌘M` / `Ctrl+M` | Open monitor panel |
+| `Enter` | Save inline edit (textarea: `⌘↩` / `Ctrl+↩`) |
+| `Esc` | Cancel inline edit |
 
 ## Tech Stack
 
-- [Tauri](https://tauri.app/) - Desktop application framework
-- [Svelte 5](https://svelte.dev/) - Frontend framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
-- [Redis](https://redis.io/) - In-memory data store
+- [Tauri 2](https://tauri.app/) - Desktop application framework (Rust + WebView)
+- [Svelte 5](https://svelte.dev/) - Frontend framework (runes mode)
+- [Tailwind CSS 4](https://tailwindcss.com/) - Utility-first CSS
+- [redis-rs](https://github.com/redis-rs/redis-rs) - Async Redis client
+- [Lucide Icons](https://lucide.dev/) - Icon set
 
 ## Project Structure
 
 ```
 src/
 ├── lib/
-│   ├── components/     # UI components
-│   ├── stores/         # State management
-│   ├── types/          # TypeScript types
-│   └── utils/          # Helper functions
-└── routes/             # Pages
+│   ├── components/
+│   │   ├── cli/           # CLI terminal panel
+│   │   ├── common/        # Button, Modal, Toast, VirtualList, …
+│   │   ├── connection/    # Connection list / form / switcher
+│   │   ├── database/      # DbList, KeyList, KeyDetail(Workspace)
+│   │   ├── import/        # Import / Export
+│   │   └── monitor/       # Server monitor panel
+│   ├── stores/            # Svelte stores (connection, database, toast, …)
+│   ├── types/             # TypeScript types
+│   └── utils/             # JSON helpers, Redis helpers, error handling
+└── routes/                # SvelteKit pages
 
 src-tauri/
 ├── src/
-│   ├── lib.rs          # Tauri commands
-│   ├── models.rs       # Data models
-│   └── redis_manager.rs
-└── icons/              # App icons
+│   ├── lib.rs             # Tauri command handlers
+│   ├── connection.rs      # Connection registry + keyring storage
+│   ├── redis_manager.rs   # Async Redis client (cluster / sentinel / SSH)
+│   └── models.rs          # Shared data models
+└── icons/                 # App icons
 ```
 
 ## Contributing

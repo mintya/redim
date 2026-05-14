@@ -73,7 +73,7 @@
     {@const isConnected = $activeConnectionId === conn.id}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="group px-3 py-2 cursor-pointer transition-colors glass-subtle-divider-bottom {isConnected ? 'bg-[var(--color-accent-subtle)]' : 'hover:bg-[var(--color-surface-hover)]'}"
+      class="group px-3 py-2 cursor-pointer transition-colors glass-subtle-divider-bottom {isConnected ? 'bg-[var(--color-accent-soft)] glass-accent-stripe-left' : 'hover:bg-[var(--color-surface-hover)]'}"
       ondblclick={() => !isConnected && handleConnect(conn.id)}
       oncontextmenu={(e) => handleContextMenu(e, conn)}
       role="button"
@@ -90,20 +90,20 @@
 
         <div class="flex items-center gap-2 flex-shrink-0">
           {#if connecting === conn.id}
-            <span class="text-xs text-[var(--color-text-tertiary)]">connecting...</span>
+            <span class="text-xs text-[var(--color-text-tertiary)]">Connecting…</span>
           {:else if isConnected}
             <button
               class="ui-btn ui-btn-ghost ui-btn-sm"
               onclick={() => handleDisconnect(conn.id)}
             >
-              disconnect
+              Disconnect
             </button>
           {:else}
             <button
               class="ui-btn ui-btn-primary ui-btn-sm"
               onclick={() => handleConnect(conn.id)}
             >
-              connect
+              Connect
             </button>
           {/if}
         </div>
@@ -111,14 +111,14 @@
     </div>
   {:else}
     <div class="px-4 py-6 text-center border-b border-[var(--color-border)]">
-      <div class="text-xs text-[var(--color-text-tertiary)]">no connections</div>
+      <div class="text-xs text-[var(--color-text-tertiary)]">No connections</div>
       <div class="text-xs text-[var(--color-text-tertiary)] mt-1">Add your first connection on the right panel.</div>
     </div>
   {/each}
 </div>
 
 <div class="h-7 px-3 border-t border-[var(--color-border)] flex items-center">
-  <span class="text-xs text-[var(--color-text-tertiary)]">double-click to connect</span>
+  <span class="text-xs text-[var(--color-text-tertiary)]">Double-click to connect</span>
 </div>
 
 {#if contextMenu}
@@ -126,8 +126,8 @@
     x={contextMenu.x}
     y={contextMenu.y}
     items={[
-      { label: 'edit', action: () => { onedit(contextMenu!.conn); closeContextMenu(); } },
-      { label: 'delete', action: () => handleDeleteClick(contextMenu!.conn.id), danger: true },
+      { label: 'Edit', action: () => { onedit(contextMenu!.conn); closeContextMenu(); } },
+      { label: 'Delete', action: () => handleDeleteClick(contextMenu!.conn.id), danger: true },
     ]}
     onclose={closeContextMenu}
   />
@@ -135,9 +135,9 @@
 
 <Confirm
   bind:open={showConfirm}
-  title="delete connection"
-  message="are you sure you want to delete this connection?"
-  confirmText="delete"
+  title="Delete Connection"
+  message="Are you sure you want to delete this connection?"
+  confirmText="Delete"
   danger={true}
   onconfirm={handleConfirmDelete}
   oncancel={handleCancelDelete}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { TreeNode } from '$lib/utils/tree';
   import { getTypeColorBg, getTypeLabel } from '$lib/utils/redisType';
+  import { ChevronDown, ChevronRight } from '@lucide/svelte';
 
   interface Props {
     node: TreeNode;
@@ -55,15 +56,15 @@
   tabindex="0"
 >
   {#if hasChildren}
-    <button 
+    <button
       type="button"
       class="ui-btn ui-btn-ghost ui-btn-icon-sm w-4 flex-shrink-0 cursor-pointer"
       onclick={handleToggle}
     >
       {#if isExpanded}
-        ▾
+        <ChevronDown class="w-3 h-3" />
       {:else}
-        ▸
+        <ChevronRight class="w-3 h-3" />
       {/if}
     </button>
   {:else}

@@ -89,8 +89,12 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   bind:this={resizerEl}
-  class="relative w-3 -mx-1.5 cursor-col-resize flex-shrink-0"
+  class="group relative w-3 -mx-1.5 cursor-col-resize flex-shrink-0"
   onmousedown={handleMouseDown}
 >
-  <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px {isDragging ? 'bg-[var(--color-accent)]' : 'bg-white/30'}"></div>
+  <div
+    class="absolute inset-y-0 left-1/2 -translate-x-1/2 transition-[width,background-color] duration-150 {isDragging
+      ? 'w-px bg-[var(--color-accent)]'
+      : 'w-px bg-white/30 group-hover:w-0.5 group-hover:bg-[var(--color-accent)]/35'}"
+  ></div>
 </div>

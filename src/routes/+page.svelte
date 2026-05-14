@@ -80,7 +80,7 @@
   <div class="flex-1 flex overflow-hidden min-h-0">
     <div class="w-72 sm:w-80 flex flex-col flex-shrink-0 min-h-0 glass-pane glass-pane-right">
       <div class="h-9 px-3 flex items-center glass-subtle-divider-bottom">
-        <span class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">connections</span>
+        <span class="text-xs text-[var(--color-text-secondary)] font-semibold uppercase tracking-wide">Connections</span>
       </div>
       <ConnectionList onedit={handleEdit} ondelete={handleDelete} />
     </div>

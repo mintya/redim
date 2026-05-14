@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from './Button.svelte';
+  import { portal } from '$lib/utils/portal';
   import { CheckCircle, XCircle, Info } from '@lucide/svelte';
 
   interface Props {
@@ -12,7 +13,7 @@
 
   let {
     open = $bindable(),
-    title = 'alert',
+    title = 'Alert',
     message,
     type = 'info',
     onClose
@@ -53,8 +54,8 @@
 
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 flex items-center justify-center z-50 glass-backdrop" onclick={handleBackdropClick} onkeydown={handleKeydown}>
-    <div class="ui-panel w-full max-w-sm shadow-[var(--shadow-glass-lg)]">
+  <div use:portal class="fixed inset-0 flex items-center justify-center z-50 glass-backdrop" onclick={handleBackdropClick} onkeydown={handleKeydown}>
+    <div class="ui-modal w-full max-w-sm">
       <div class="ui-panel-header justify-start gap-2">
         <IconComponent class="w-4 h-4 {getTypeColor()}" />
         <span class="ui-title">{title}</span>
@@ -65,7 +66,7 @@
       </div>
 
       <div class="px-3 py-2 border-t border-[var(--color-border)] flex justify-end">
-        <Button variant="primary" size="sm" onclick={handleClose}>ok</Button>
+        <Button variant="primary" size="sm" onclick={handleClose}>OK</Button>
       </div>
     </div>
   </div>

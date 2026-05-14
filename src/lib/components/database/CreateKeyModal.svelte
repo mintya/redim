@@ -4,6 +4,7 @@
   import { createKey } from '$lib/stores/database';
   import Button from '$lib/components/common/Button.svelte';
   import Modal from '$lib/components/common/Modal.svelte';
+  import { X } from '@lucide/svelte';
 
   interface Props {
     open: boolean;
@@ -96,16 +97,16 @@
   async function handleCreate() {
     error = '';
     if (!keyName) {
-      error = 'key name is required';
+      error = 'Key name is required';
       return;
     }
-    
+
     const value = buildValue();
     if (!value) {
-      error = 'value is required';
+      error = 'Value is required';
       return;
     }
-    
+
     if ($activeConnectionId) {
       const success = await createKey($activeConnectionId, keyName, keyType, value, ttl);
       if (success) {
@@ -139,7 +140,7 @@
   }
 </script>
 
-<Modal bind:open title="create key" size="lg" onclose={handleClose}>
+<Modal bind:open title="Create Key" size="lg" onclose={handleClose}>
   <div class="space-y-4">
     <!-- Key Name -->
     <div>
@@ -211,7 +212,7 @@
                   class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeHashField(index)}
                 >
-                  ✕
+                  <X class="w-3 h-3" />
                 </button>
               {/if}
             </div>
@@ -244,7 +245,7 @@
                   class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeListItem(index)}
                 >
-                  ✕
+                  <X class="w-3 h-3" />
                 </button>
               {/if}
             </div>
@@ -274,7 +275,7 @@
                   class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeSetMember(index)}
                 >
-                  ✕
+                  <X class="w-3 h-3" />
                 </button>
               {/if}
             </div>
@@ -310,7 +311,7 @@
                   class="ui-btn ui-btn-ghost ui-btn-icon"
                   onclick={() => removeZSetMember(index)}
                 >
-                  ✕
+                  <X class="w-3 h-3" />
                 </button>
               {/if}
             </div>

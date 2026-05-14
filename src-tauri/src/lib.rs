@@ -191,6 +191,13 @@ async fn delete_hash_field(id: String, key: String, field: String, redis: State<
     redis.delete_hash_field(&config, &key, &field).await
 }
 
+#[tauri::command]
+async fn delete_hash_fields(id: String, key: String, fields: Vec<String>, redis: State<'_, RedisManager>) -> Result<i64, String> {
+    let config = connection::get_connection(&id)
+        .ok_or_else(|| "Connection not found".to_string())?;
+    redis.delete_hash_fields(&config, &key, &fields).await
+}
+
 // List commands
 #[tauri::command]
 async fn get_list(id: String, key: String, start: Option<i64>, stop: Option<i64>, redis: State<'_, RedisManager>) -> Result<Vec<String>, String> {
@@ -444,6 +451,7 @@ pub fn run() {
             get_hash,
             set_hash_field,
             delete_hash_field,
+            delete_hash_fields,
             get_list,
             push_list,
             get_list_len,

@@ -94,7 +94,7 @@
 
 <div class="h-9 px-3 flex items-center justify-between relative glass-subtle-divider-bottom">
   <div class="flex items-center gap-1.5">
-    <span class="ui-section-label">databases</span>
+    <span class="ui-section-label">Databases</span>
 
     <div class="relative">
       <button
@@ -111,7 +111,7 @@
     </div>
   </div>
 
-  <button class="ui-btn ui-btn-ghost ui-btn-icon" onclick={handleRefresh} title="refresh">
+  <button class="ui-btn ui-btn-ghost ui-btn-icon" onclick={handleRefresh} title="Refresh">
     <RotateCcw class="w-3.5 h-3.5" />
   </button>
 </div>

@@ -74,18 +74,18 @@
   async function handleCheckUpdates() {
     if (checkingUpdates) return;
     checkingUpdates = true;
-    toast.info('checking for updates...');
+    toast.info('Checking for updates…');
     try {
       const update = await check();
       if (update) {
         await setAvailableUpdate(update);
-        toast.success(`update available: ${update.version}`, 7000);
+        toast.success(`Update available: ${update.version}`, 7000);
       } else {
         await setAvailableUpdate(null);
-        toast.success('redim is up to date');
+        toast.success('Redim is up to date');
       }
     } catch (e) {
-      toast.error(`failed to check for updates: ${String(e)}`);
+      toast.error(`Failed to check for updates: ${String(e)}`);
     } finally {
       checkingUpdates = false;
     }
@@ -105,7 +105,7 @@
     try {
       await openUrl(RELEASE_URL);
     } catch (e) {
-      toast.error(`failed to open release page: ${String(e)}`);
+      toast.error(`Failed to open release page: ${String(e)}`);
     }
   }
 </script>
@@ -133,7 +133,7 @@
     {:else}
       <span class="flex items-center gap-2">
         <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-text-tertiary)]"></span>
-        <span class="text-[var(--color-text-tertiary)]">disconnected</span>
+        <span class="text-[var(--color-text-tertiary)]">Disconnected</span>
       </span>
     {/if}
 
@@ -145,7 +145,7 @@
           title="Import/Export"
         >
           <ArrowUpDown class="w-3 h-3" />
-          <span>data</span>
+          <span>Data</span>
         </button>
         <button
           class="ui-btn ui-btn-ghost ui-btn-sm"
@@ -153,7 +153,7 @@
           title="Monitor (⌘M)"
         >
           <Activity class="w-3 h-3" />
-          <span>info</span>
+          <span>Info</span>
         </button>
         <button
           class="ui-btn ui-btn-ghost ui-btn-sm"
@@ -161,15 +161,15 @@
           title="CLI (⌘K)"
         >
           <Terminal class="w-3 h-3" />
-          <span>cli</span>
+          <span>CLI</span>
         </button>
       {/if}
       {#if $updateState.available}
         <button
           class="ui-btn ui-btn-ghost ui-btn-sm update-indicator"
           onclick={handleOpenRelease}
-          title="update available: v{$updateState.version} (click to open release)"
-          aria-label="update available"
+          title="Update available: v{$updateState.version} (click to open release)"
+          aria-label="Update available"
         >
           <ArrowUpCircle class="w-3 h-3" />
         </button>

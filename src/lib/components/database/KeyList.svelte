@@ -8,8 +8,9 @@
   import Confirm from '$lib/components/common/Confirm.svelte';
   import CreateKeyModal from './CreateKeyModal.svelte';
   import VirtualList from '$lib/components/common/VirtualList.svelte';
+  import { toast } from '$lib/stores/toast';
   import { getTypeColorBg, getTypeLabel } from '$lib/utils/redisType';
-  import { ChevronRight, ChevronDown, List, GitBranch, ArrowUpDown, Plus, CheckSquare, Search, Trash2 } from '@lucide/svelte';
+  import { ChevronRight, ChevronDown, List, GitBranch, ArrowUpAZ, ArrowDownAZ, Plus, CheckSquare, Search, Trash2 } from '@lucide/svelte';
 
   let pattern = $state('*');
   let contextMenu = $state<{ x: number; y: number; key: string } | null>(null);
@@ -18,7 +19,7 @@
   let isSelectionMode = $state(false);
   let showConfirm = $state(false);
   let confirmMessage = $state('');
-  let confirmAction = $state<(() => void) | null>(null);
+  let confirmAction = $state<(() => void | Promise<void>) | null>(null);
   let isBatchDeleting = $state(false);
   let batchDeleteProgress = $state({ current: 0, total: 0 });
 
@@ -145,26 +146,47 @@
     if ($activeConnectionId && selectedKeys.size > 0) {
       confirmMessage = `Are you sure you want to delete ${selectedKeys.size} key(s)?`;
       confirmAction = async () => {
+        const connId = $activeConnectionId;
+        if (!connId) return;
         isBatchDeleting = true;
         const keysToDelete = [...selectedKeys];
         batchDeleteProgress = { current: 0, total: keysToDelete.length };
-        for (const key of keysToDelete) {
-          await invoke('delete_key', { id: $activeConnectionId, key });
-          batchDeleteProgress.current++;
+        let failed = 0;
+        try {
+          for (const key of keysToDelete) {
+            try {
+              await invoke('delete_key', { id: connId, key });
+            } catch {
+              failed++;
+            }
+            batchDeleteProgress.current++;
+          }
+          await loadKeys(connId);
+          const succeeded = keysToDelete.length - failed;
+          if (failed === 0) {
+            toast.success(`已删除 ${succeeded} 个键`);
+          } else if (succeeded === 0) {
+            toast.error(`删除失败 (${failed}/${keysToDelete.length})`);
+          } else {
+            toast.error(`部分删除失败:成功 ${succeeded}、失败 ${failed}`);
+          }
+        } finally {
+          selectedKeys = new Set();
+          isSelectionMode = false;
+          isBatchDeleting = false;
+          batchDeleteProgress = { current: 0, total: 0 };
         }
-        await loadKeys($activeConnectionId);
-        selectedKeys.clear();
-        isSelectionMode = false;
-        isBatchDeleting = false;
-        batchDeleteProgress = { current: 0, total: 0 };
       };
       showConfirm = true;
     }
   }
 
-  function handleConfirm() {
-    if (confirmAction) {
-      confirmAction();
+  async function handleConfirm() {
+    const action = confirmAction;
+    if (!action) return;
+    try {
+      await action();
+    } finally {
       confirmAction = null;
     }
   }
@@ -189,7 +211,7 @@
       <input
         type="text"
         bind:value={pattern}
-        placeholder="fuzzy search..."
+        placeholder="Fuzzy search…"
         class="ui-input ui-input-sm ui-keylist-search"
         onkeydown={(e) => e.key === 'Enter' && handleSearch()}
       />
@@ -228,8 +250,12 @@
         </button>
       {/if}
 
-      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={cycleSortOrder} title={sortOrder === 'asc' ? 'A→Z' : 'Z→A'}>
-        <ArrowUpDown class="w-3 h-3 {sortOrder === 'asc' ? '' : 'rotate-180'}" />
+      <button class="ui-btn ui-btn-ghost ui-btn-icon-sm" onclick={cycleSortOrder} title={sortOrder === 'asc' ? 'A → Z' : 'Z → A'}>
+        {#if sortOrder === 'asc'}
+          <ArrowUpAZ class="w-3 h-3" />
+        {:else}
+          <ArrowDownAZ class="w-3 h-3" />
+        {/if}
       </button>
     </div>
 
@@ -237,7 +263,7 @@
       {#if isSelectionMode}
         {#if isBatchDeleting}
           <div class="ui-keylist-delete-progress">
-            <span class="text-[10px] text-[var(--color-text-secondary)]">deleting...</span>
+            <span class="text-[10px] text-[var(--color-text-secondary)]">Deleting…</span>
             <div class="flex-1 h-1 bg-[var(--color-border)] rounded-full overflow-hidden min-w-12">
               <div
                 class="h-full bg-[var(--color-text-primary)] transition-all duration-200 rounded-full"
@@ -247,17 +273,18 @@
             <span class="text-[10px] text-[var(--color-text-secondary)]">{batchDeleteProgress.current}/{batchDeleteProgress.total}</span>
           </div>
         {:else}
-          <span class="text-xs text-[var(--color-text-secondary)]">{selectedKeys.size} selected</span>
-          <button class="ui-btn-link" onclick={selectAll}>all</button>
-          <button class="ui-btn-link" onclick={deselectAll}>none</button>
+          <button class="ui-btn-link" onclick={selectAll}>All</button>
+          <button class="ui-btn-link" onclick={deselectAll}>None</button>
           {#if selectedKeys.size > 0}
-            <button class="ui-btn ui-btn-danger ui-btn-sm" onclick={handleBatchDelete}>
+            <button class="ui-btn ui-btn-danger ui-btn-sm" onclick={handleBatchDelete} title="Delete selected">
               <Trash2 class="w-3 h-3" />
-              <span>delete ({selectedKeys.size})</span>
+              <span>{selectedKeys.size}</span>
             </button>
+          {:else}
+            <span class="text-[10px] text-[var(--color-text-tertiary)] px-1">none selected</span>
           {/if}
         {/if}
-        <button class="ui-btn ui-btn-ghost ui-btn-icon-sm border-[var(--color-border)] bg-[var(--color-surface-hover)] text-[var(--color-text-primary)]" onclick={toggleSelectionMode} title="Exit multi select">
+        <button class="ui-keylist-toggle ui-keylist-toggle-active" style="width:1.5rem;height:1.5rem;" onclick={toggleSelectionMode} title="Exit multi select">
           <CheckSquare class="w-3.5 h-3.5" />
         </button>
       {:else}
@@ -277,10 +304,9 @@
         <button
           class="ui-keylist-chip {typeFilter === option.value ? 'ui-keylist-chip-active' : ''}"
           onclick={() => toggleTypeFilter(option.value)}
-          style={typeFilter === option.value && option.dot ? `color:${option.dot};` : undefined}
         >
           {#if option.dot}
-            <span class="ui-keylist-chip-dot" style="background-color: {typeFilter === option.value ? 'currentColor' : option.dot}"></span>
+            <span class="ui-keylist-chip-dot" style="background-color: {option.dot}"></span>
           {/if}
           <span>{option.label}</span>
         </button>
@@ -292,12 +318,12 @@
 <div class="flex-1 min-h-0">
   {#if $keys.length === 0}
     <div class="px-4 py-6 text-center">
-      <div class="text-xs text-[var(--color-text-tertiary)]">no keys</div>
+      <div class="text-xs text-[var(--color-text-tertiary)]">No keys</div>
       <div class="text-xs text-[var(--color-text-tertiary)] mt-1">Click <span class="text-[var(--color-text-primary)] font-semibold">+</span> to create a key.</div>
     </div>
   {:else if filteredKeys.length === 0}
     <div class="px-4 py-6 text-center">
-      <div class="text-xs text-[var(--color-text-tertiary)]">no keys match filter</div>
+      <div class="text-xs text-[var(--color-text-tertiary)]">No keys match filter</div>
       <div class="text-xs text-[var(--color-text-tertiary)] mt-1">Adjust search pattern or type filter.</div>
     </div>
   {:else if viewMode === 'list'}
@@ -396,7 +422,7 @@
   <ContextMenu
     x={contextMenu.x}
     y={contextMenu.y}
-    items={[{ label: 'delete', action: () => handleDeleteKey(contextMenu!.key), danger: true, icon: Trash2 }]}
+    items={[{ label: 'Delete', action: () => handleDeleteKey(contextMenu!.key), danger: true, icon: Trash2 }]}
     onclose={closeContextMenu}
   />
 {/if}
@@ -405,9 +431,9 @@
 
 <Confirm
   bind:open={showConfirm}
-  title="delete key"
+  title="Delete Key"
   message={confirmMessage}
-  confirmText="delete"
+  confirmText="Delete"
   danger={true}
   onconfirm={handleConfirm}
   oncancel={handleCancel}

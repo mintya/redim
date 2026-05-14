@@ -1,5 +1,6 @@
 <script lang="ts">
   import { X } from '@lucide/svelte';
+  import { portal } from '$lib/utils/portal';
 
   interface Props {
     open: boolean;
@@ -29,8 +30,8 @@
 
 {#if open}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 flex items-center justify-center z-50 glass-backdrop" onclick={handleBackdropClick} onkeydown={(e) => e.key === 'Escape' && handleClose()}>
-    <div class="ui-panel w-full {sizeClasses[size]} mx-3 shadow-[var(--shadow-glass-lg)]">
+  <div use:portal class="fixed inset-0 flex items-center justify-center z-50 glass-backdrop" onclick={handleBackdropClick} onkeydown={(e) => e.key === 'Escape' && handleClose()}>
+    <div class="ui-modal w-full {sizeClasses[size]} mx-3">
       {#if title}
         <div class="ui-panel-header">
           <span class="ui-title">{title}</span>

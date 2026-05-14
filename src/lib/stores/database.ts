@@ -183,13 +183,20 @@ export async function activateTab(tabId: string) {
   keyValue.set(tab.keyValue);
 
   if (tab.keyInfo && tab.key) {
+    // 缓存命中:若有 TTL,后台静默刷新以避免倒计时显示陈旧值。
+    if (tab.keyInfo.ttl > 0) {
+      void (async () => {
+        const info = await loadKeyInfo(tab.connectionId, tab.key!, tabId);
+        if (info) await loadKeyValue(tab.connectionId, tab.key!, info.key_type, tabId);
+      })();
+    }
     return;
   }
 
   if (tab.key) {
-    const info = await loadKeyInfo(tab.connectionId, tab.key);
+    const info = await loadKeyInfo(tab.connectionId, tab.key, tabId);
     if (info) {
-      await loadKeyValue(tab.connectionId, tab.key, info.key_type);
+      await loadKeyValue(tab.connectionId, tab.key, info.key_type, tabId);
     } else {
       loadLog('warn', 'activateTab:missing-key-info', {
         tabId,
@@ -221,6 +228,7 @@ export async function openOrFocusTab(connectionId: string, db: number, key: stri
     key,
     keyInfo: null,
     keyValue: null,
+    keyInfoLoadedAt: null,
     lastFocusedAt: now,
   };
 
@@ -247,9 +255,9 @@ export async function openOrFocusTab(connectionId: string, db: number, key: stri
   keyInfo.set(null);
   keyValue.set(null);
 
-  const info = await loadKeyInfo(connectionId, key);
+  const info = await loadKeyInfo(connectionId, key, newTab.id);
   if (info) {
-    await loadKeyValue(connectionId, key, info.key_type);
+    await loadKeyValue(connectionId, key, info.key_type, newTab.id);
   } else {
     loadLog('warn', 'openOrFocusTab:missing-key-info', {
       tabId: newTab.id,
@@ -391,7 +399,7 @@ export async function refreshKeys(connectionId: string) {
 }
 
 // 加载 Key 详情
-export async function loadKeyInfo(connectionId: string, key: string) {
+export async function loadKeyInfo(connectionId: string, key: string, forTabId?: string) {
   const startedAt = performance.now();
   const keyPreview = previewKey(key);
   loadLog('info', 'loadKeyInfo:start', { connectionId, key: keyPreview });
@@ -402,15 +410,28 @@ export async function loadKeyInfo(connectionId: string, key: string) {
   );
 
   if (result.success && result.data) {
-    keyInfo.set(result.data);
+    const loadedAt = Date.now();
+    const targetTabId = forTabId ?? get(activeTabId);
+    const targetTab = targetTabId ? get(keyTabs).find(t => t.id === targetTabId) : null;
+    const tabStillValid = !!targetTab && targetTab.connectionId === connectionId && targetTab.key === key;
+
+    if (tabStillValid) {
+      keyTabs.update(tabs =>
+        tabs.map(t => (t.id === targetTabId ? { ...t, keyInfo: result.data!, keyInfoLoadedAt: loadedAt } : t))
+      );
+      if (get(activeTabId) === targetTabId) {
+        keyInfo.set(result.data);
+      }
+    }
+
     loadLog('info', 'loadKeyInfo:success', {
       connectionId,
       key: keyPreview,
       keyType: result.data.key_type,
       ttl: result.data.ttl,
       durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+      applied: tabStillValid,
     });
-    syncActiveTabFromMirrors();
     return result.data;
   }
 
@@ -424,7 +445,7 @@ export async function loadKeyInfo(connectionId: string, key: string) {
 }
 
 // 加载 Key 值
-export async function loadKeyValue(connectionId: string, key: string, keyType: string) {
+export async function loadKeyValue(connectionId: string, key: string, keyType: string, forTabId?: string) {
   const startedAt = performance.now();
   const keyPreview = previewKey(key);
   loadLog('info', 'loadKeyValue:start', { connectionId, key: keyPreview, keyType });
@@ -451,21 +472,32 @@ export async function loadKeyValue(connectionId: string, key: string, keyType: s
         default:
           value = null;
       }
-      keyValue.set(value);
       return value;
     },
     { errorMessage: '加载键值失败' }
   );
 
   if (result.success) {
+    const targetTabId = forTabId ?? get(activeTabId);
+    const targetTab = targetTabId ? get(keyTabs).find(t => t.id === targetTabId) : null;
+    const tabStillValid = !!targetTab && targetTab.connectionId === connectionId && targetTab.key === key;
+
+    if (tabStillValid) {
+      const value = result.data ?? null;
+      keyTabs.update(tabs => tabs.map(t => (t.id === targetTabId ? { ...t, keyValue: value } : t)));
+      if (get(activeTabId) === targetTabId) {
+        keyValue.set(value);
+      }
+    }
+
     loadLog('info', 'loadKeyValue:success', {
       connectionId,
       key: keyPreview,
       keyType,
       valueSummary: summarizeLoadedValue(result.data ?? null),
       durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
+      applied: tabStillValid,
     });
-    syncActiveTabFromMirrors();
   } else {
     loadLog('error', 'loadKeyValue:failed', {
       connectionId,
@@ -488,9 +520,11 @@ export async function selectKey(connectionId: string, key: string) {
 export async function refreshCurrentKey(connectionId?: string) {
   const cid = connectionId ?? get(detailConnectionId);
   const currentKey = get(activeKey);
-  const currentInfo = get(keyInfo);
-  if (cid && currentKey && currentInfo) {
-    await loadKeyValue(cid, currentKey, currentInfo.key_type);
+  const tid = get(activeTabId);
+  if (!cid || !currentKey) return;
+  const info = await loadKeyInfo(cid, currentKey, tid ?? undefined);
+  if (info) {
+    await loadKeyValue(cid, currentKey, info.key_type, tid ?? undefined);
   }
 }
 
@@ -584,8 +618,18 @@ export async function setKeyTtl(connectionId: string, key: string, ttl: number) 
   const result = await withErrorHandling(
     async () => {
       await invoke('set_ttl', { id: connectionId, key, ttl });
+      const loadedAt = Date.now();
       keyInfo.update(info => (info ? { ...info, ttl } : null));
-      syncActiveTabFromMirrors();
+      const tid = get(activeTabId);
+      if (tid) {
+        keyTabs.update(tabs =>
+          tabs.map(t =>
+            t.id === tid && t.connectionId === connectionId && t.key === key
+              ? { ...t, keyInfo: t.keyInfo ? { ...t.keyInfo, ttl } : t.keyInfo, keyInfoLoadedAt: loadedAt }
+              : t
+          )
+        );
+      }
       showSuccess('TTL已更新');
       return true;
     },
@@ -636,6 +680,22 @@ export async function deleteHashField(connectionId: string, key: string, field: 
       return true;
     },
     { errorMessage: '删除Hash字段失败' }
+  );
+
+  return result.success;
+}
+
+// 批量删除 Hash 字段
+export async function deleteHashFields(connectionId: string, key: string, fields: string[]) {
+  if (fields.length === 0) return true;
+  const result = await withErrorHandling(
+    async () => {
+      const removed: number = await invoke('delete_hash_fields', { id: connectionId, key, fields });
+      await loadKeyValue(connectionId, key, 'hash');
+      showSuccess(`已删除 ${removed} 个字段`);
+      return true;
+    },
+    { errorMessage: '批量删除Hash字段失败' }
   );
 
   return result.success;

@@ -23,6 +23,7 @@ pub struct KeyInfo {
     pub name: String,
     pub key_type: String,
     pub ttl: i64,
+    pub size_bytes: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -251,11 +252,35 @@ impl RedisManager {
     pub async fn get_key_info(&self, config: &ConnectionConfig, key: &str) -> Result<KeyInfo, String> {
         let key_type = self.get_key_type(config, key).await?;
         let ttl = self.get_ttl(config, key).await?;
+        let size_bytes = match self.get_memory_usage(config, key).await {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!(
+                    "[redis] MEMORY USAGE failed for key (conn={}, len={}): {}",
+                    config.id,
+                    key.len(),
+                    e
+                );
+                None
+            }
+        };
         Ok(KeyInfo {
             name: key.to_string(),
             key_type,
             ttl,
+            size_bytes,
         })
+    }
+
+    pub async fn get_memory_usage(&self, config: &ConnectionConfig, key: &str) -> Result<Option<i64>, String> {
+        let mut conn = self.get_connection(config).await?;
+        let value: Option<i64> = redis::cmd("MEMORY")
+            .arg("USAGE")
+            .arg(key)
+            .query_async(&mut conn)
+            .await
+            .map_err(|e| format!("Failed to get memory usage: {}", e))?;
+        Ok(value)
     }
 
     // String operations
@@ -321,6 +346,28 @@ impl RedisManager {
             .await
             .map_err(|e| format!("Failed to delete hash field: {}", e))?;
         Ok(true)
+    }
+
+    pub async fn delete_hash_fields(&self, config: &ConnectionConfig, key: &str, fields: &[String]) -> Result<i64, String> {
+        if fields.is_empty() {
+            return Ok(0);
+        }
+        const BATCH_SIZE: usize = 500;
+        let mut conn = self.get_connection(config).await?;
+        let mut total_removed: i64 = 0;
+        for chunk in fields.chunks(BATCH_SIZE) {
+            let mut cmd = redis::cmd("HDEL");
+            cmd.arg(key);
+            for f in chunk {
+                cmd.arg(f);
+            }
+            let removed: i64 = cmd
+                .query_async(&mut conn)
+                .await
+                .map_err(|e| format!("Failed to delete hash fields: {}", e))?;
+            total_removed += removed;
+        }
+        Ok(total_removed)
     }
 
     // List operations
